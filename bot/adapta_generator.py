@@ -113,6 +113,40 @@ XPATHS = {
 }
 
 
+SELECTORS_PROJETO = {
+    "sidebar": [
+        "nav", "aside", "[class*='sidebar' i]", "[id*='sidebar' i]",
+        "[role='navigation']", "[class*='panel' i]", "[class*='drawer' i]",
+    ],
+    "item_pasta": [
+        "[class*='folder' i]", "[class*='project' i]", "[class*='group' i]",
+        "[class*='category' i]", "[class*='collection' i]",
+        "[data-type='folder']", "[data-type='project']",
+    ],
+    "item_chat": [
+        "a[href*='/chat/']", "a[href*='/conversation/']", "a[href*='/c/']",
+        "[class*='chat-item']", "[class*='conversation']",
+        "[data-type='chat']", "[data-type='conversation']",
+        "li > a", "li[class*='item'] > a",
+    ],
+    "botao_novo_chat": [
+        "button[aria-label*='new chat' i]", "button[aria-label*='novo chat' i]",
+        "button[aria-label*='nova conversa' i]", "button[aria-label*='criar' i]",
+        "[data-testid*='new-chat' i]", "[data-testid*='novo-chat' i]",
+        "button[class*='new-chat' i]", "a[class*='new-chat' i]",
+        "button[class*='create' i]", "[title*='new chat' i]",
+        "[title*='novo chat' i]", "[title*='nova conversa' i]",
+        "[data-action='new-chat']", "[data-action='create-chat']",
+    ],
+    "titulo_chat": [
+        "input[autofocus]", "input[class*='title' i]", "input[class*='name' i]",
+        "input[placeholder*=\'t\u00edtulo\' i]", "input[placeholder*='title' i]",
+        "input[placeholder*='nome' i]", "textarea[class*='title' i]",
+        "[contenteditable='true']",
+    ],
+}
+
+
 class AdaptaGenerator:
     """Automatiza a geração de imagens no Adapta.org.
 
@@ -140,6 +174,7 @@ class AdaptaGenerator:
         self._pausado = False
         self._progresso_callback: Optional[Callable[[int, int], None]] = None
         self._status_callback: Optional[Callable[[str], None]] = None
+        self._solicitacao_ativa: Optional["Solicitacao"] = None
 
     def definir_callbacks(
         self,
@@ -196,20 +231,21 @@ class AdaptaGenerator:
         return True
 
     def acessar_adapta(self, email: str = "", senha: str = "") -> bool:
-        """Navega para o Adapta.org e verifica/realiza login.
+        """Navega para o AdaptaOne e verifica/realiza login.
 
-        Tenta login automático se email e senha forem fornecidos.
-        Caso contrário, deixa o navegador aberto para login manual.
+        Após login bem-sucedido, navega automaticamente para a seção
+        "ADAPTA one" (Chat com IAs premium) para que o prompt field
+        seja encontrado na etapa de geração.
 
         Args:
             email: E-mail de login (opcional).
             senha: Senha de login (opcional).
 
         Returns:
-            True se autenticado e pronto para gerar.
+            True se autenticado e dentro da interface de chat.
             False se login manual for necessário (navegador permanece aberto).
         """
-        logger.info("Acessando Adapta.org...")
+        logger.info("Acessando AdaptaOne...")
         ok = self.handler.navegar(self.url_adapta)
         if not ok:
             return False
@@ -217,13 +253,15 @@ class AdaptaGenerator:
         time.sleep(3)
 
         if not self._detectar_tela_login():
-            logger.sucesso("Adapta.org carregado — sessão ativa.")
+            logger.sucesso("AdaptaOne carregado — sessão ativa.")
+            self._navegar_para_adapta_one()
             return True
 
         if email and senha:
             logger.info("Tela de login detectada. Tentando login automático...")
             if self.tentar_login_automatico(email, senha):
                 logger.sucesso("Login automático realizado com sucesso.")
+                self._navegar_para_adapta_one()
                 return True
             logger.aviso("Login automático falhou. Credenciais incorretas ou página mudou.")
 
@@ -232,6 +270,94 @@ class AdaptaGenerator:
             "clique em 'Iniciar Geração' novamente."
         )
         self._emitir_status("login_necessario")
+        return False
+
+    def _esta_no_dashboard(self) -> bool:
+        """Verifica se a página atual é o dashboard do AdaptaOne (não um chat).
+
+        Usa dois sinais em ordem de confiabilidade:
+        1. URL idêntica à raiz/dashboard (mais confiável).
+        2. Presença visível de 'Acesso Rápido' — seção exclusiva do dashboard.
+           Não usamos 'Chat com IAs' nem 'ADAPTAONE' pois podem aparecer no
+           sidebar mesmo dentro da interface de chat.
+
+        Returns:
+            True se estiver no dashboard/menu inicial.
+        """
+        driver = self.handler.driver
+        url_atual = driver.current_url.rstrip("/")
+        base = self.url_adapta.rstrip("/")
+
+        if url_atual == base or url_atual == base + "/dashboard":
+            return True
+
+        for texto in ("Acesso Rápido", "Acesso Rapido"):
+            try:
+                elems = driver.find_elements(
+                    By.XPATH,
+                    f".//*[contains(normalize-space(.), '{texto}')]"
+                )
+                if any(e.is_displayed() for e in elems):
+                    return True
+            except Exception:
+                continue
+
+        return False
+
+    def _navegar_para_adapta_one(self) -> bool:
+        """Clica no card 'ADAPTA one' no dashboard para entrar no chat.
+
+        Só age se o dashboard estiver visível. Se já estiver dentro
+        de uma página de chat, retorna True imediatamente sem clicar.
+
+        Returns:
+            True se a navegação foi bem-sucedida ou já estava no chat.
+        """
+        if not self._esta_no_dashboard():
+            logger.info("[AdaptaOne] Já dentro da interface de chat.")
+            return True
+
+        driver = self.handler.driver
+        logger.info("[AdaptaOne] Dashboard detectado. Clicando em 'ADAPTA one'...")
+
+        xpaths_card = [
+            ".//*[contains(normalize-space(text()), 'Chat com IAs')]",
+            ".//*[contains(normalize-space(text()), 'Chat com IAs premium')]",
+            ".//h2[contains(normalize-space(text()), 'one')]",
+            ".//h3[contains(normalize-space(text()), 'one')]",
+            ".//*[contains(@class, 'card')][contains(normalize-space(.), 'one')]",
+            ".//*[contains(@class, 'item')][contains(normalize-space(.), 'one')]",
+            ".//a[contains(normalize-space(.), 'one')]",
+        ]
+
+        for xpath in xpaths_card:
+            try:
+                elems = driver.find_elements(By.XPATH, xpath)
+                for elem in elems:
+                    if not elem.is_displayed():
+                        continue
+                    try:
+                        clickable = elem
+                        parent = elem.find_element(By.XPATH, "./ancestor-or-self::a | ./ancestor-or-self::button")
+                        if parent and parent.is_displayed():
+                            clickable = parent
+                    except Exception:
+                        pass
+                    try:
+                        driver.execute_script("arguments[0].click();", clickable)
+                        time.sleep(3)
+                        if not self._esta_no_dashboard():
+                            logger.sucesso("[AdaptaOne] Entrou na interface de chat com sucesso.")
+                            return True
+                    except Exception:
+                        continue
+            except Exception:
+                continue
+
+        logger.aviso(
+            "[AdaptaOne] Não foi possível clicar no card 'ADAPTA one' automaticamente. "
+            "Verifique se o layout da página mudou."
+        )
         return False
 
     def tentar_login_automatico(self, email: str, senha: str) -> bool:
@@ -329,6 +455,347 @@ class AdaptaGenerator:
         url = self.handler.driver.current_url.lower()
         return "login" in url or "signin" in url or "entrar" in url
 
+    def resolver_chat_cliente(self, codigo_cliente: str, nome_cliente: str) -> bool:
+        """Garante que o navegador está posicionado no chat canônico do cliente.
+
+        Regra: 1 chat por cliente dentro da pasta NOME_PASTA_PROJETO.
+
+        Fluxo determinístico:
+            1. Consulta chat_mapping.json pelo código do cliente.
+            2. Se URL registrada: navega para ela e valida.
+            3. Se URL inválida (chat deletado): remove o vínculo e rebusca.
+            4. Busca na lista de chats por título contendo código/nome.
+            5. Se não encontrar: cria novo chat e persiste o vínculo.
+
+        Proteção contra duplicatas:
+            set_chat_url() usa first-write-wins — nunca sobrescreve um vínculo
+            existente; forcar_chat_url() é usado apenas quando o original falhou.
+
+        Args:
+            codigo_cliente: Código único do cliente (ex: DUDE).
+            nome_cliente: Nome legível para nomear/encontrar o chat.
+
+        Returns:
+            True se o chat foi resolvido com sucesso.
+        """
+        from bot.chat_mapping import chat_mapping
+
+        titulo_esperado = self._titulo_chat_para_cliente(codigo_cliente, nome_cliente)
+        logger.info(f"[Chat] Resolvendo chat: '{titulo_esperado}'...")
+
+        self._navegar_pasta_projeto()
+
+        url_existente = chat_mapping.get_chat_url(codigo_cliente)
+        if url_existente:
+            logger.info(f"[Chat] Vínculo registrado: {url_existente}")
+            if self._navegar_para_chat(url_existente):
+                logger.sucesso(f"[Chat] ✓ Chat do cliente '{codigo_cliente}' reutilizado.")
+                return True
+            logger.aviso("[Chat] URL registrada inválida. Removendo vínculo e rebuscando...")
+            chat_mapping.remover(codigo_cliente)
+
+        url_encontrada = self._buscar_chat_na_lista(codigo_cliente, nome_cliente)
+        if url_encontrada:
+            chat_mapping.forcar_chat_url(codigo_cliente, url_encontrada, titulo_esperado)
+            logger.sucesso(f"[Chat] ✓ Chat encontrado na lista: {url_encontrada}")
+            return True
+
+        logger.info(f"[Chat] Criando novo chat para '{titulo_esperado}'...")
+        url_novo = self._criar_novo_chat(codigo_cliente, nome_cliente)
+        if url_novo:
+            chat_mapping.set_chat_url(codigo_cliente, url_novo, titulo_esperado)
+            logger.sucesso(f"[Chat] ✓ Novo chat criado: {url_novo}")
+            return True
+
+        logger.aviso(
+            f"[Chat] ✗ Não foi possível resolver chat para '{codigo_cliente}'. "
+            "Continuando na página atual."
+        )
+        return False
+
+    def _navegar_pasta_projeto(self) -> bool:
+        """Clica na pasta do projeto no sidebar para contextualizar os chats.
+
+        Busca por texto exato de NOME_PASTA_PROJETO em elementos clicáveis
+        do sidebar. Falha silenciosamente para não bloquear a geração.
+
+        Returns:
+            True se a pasta foi localizada e clicada.
+        """
+        from utils.config import Config
+        nome_pasta = Config.NOME_PASTA_PROJETO
+        driver = self.handler.driver
+
+        logger.info(f"[Chat] Buscando pasta '{nome_pasta}' no sidebar...")
+
+        xpaths = [
+            f".//*[normalize-space(text())='{nome_pasta}']",
+            f".//*[contains(normalize-space(text()), '{nome_pasta}')]",
+            f".//*[contains(normalize-space(.), '{nome_pasta}')]",
+        ]
+
+        for xpath in xpaths:
+            try:
+                elems = driver.find_elements(By.XPATH, xpath)
+                for elem in elems:
+                    tag = elem.tag_name.lower()
+                    if tag not in ("a", "button", "li", "div", "span", "p"):
+                        continue
+                    if not elem.is_displayed():
+                        continue
+                    try:
+                        driver.execute_script("arguments[0].click();", elem)
+                        time.sleep(1.5)
+                        logger.info(f"[Chat] Pasta '{nome_pasta}' acessada.")
+                        return True
+                    except Exception:
+                        continue
+            except Exception:
+                continue
+
+        logger.aviso(f"[Chat] Pasta '{nome_pasta}' não localizada no sidebar.")
+        return False
+
+    def _navegar_para_chat(self, url: str) -> bool:
+        """Navega para a URL de um chat e verifica se chegou corretamente.
+
+        Args:
+            url: URL completa do chat armazenada no mapeamento.
+
+        Returns:
+            True se a navegação resultou em uma página de chat válida.
+        """
+        driver = self.handler.driver
+        try:
+            driver.get(url)
+            time.sleep(3)
+        except Exception as exc:
+            logger.aviso(f"[Chat] Falha ao navegar para {url}: {exc}")
+            return False
+
+        url_atual = driver.current_url
+
+        if self._detectar_tela_login():
+            logger.aviso("[Chat] Redirecionado para login — sessão expirou.")
+            return False
+
+        if url_atual.rstrip("/") in (self.url_adapta, self.url_adapta + "/"):
+            logger.aviso("[Chat] Redirecionado para homepage — chat pode ter sido deletado.")
+            return False
+
+        if not self._e_url_de_chat_valida(url_atual):
+            logger.aviso(f"[Chat] URL resultante não é de chat: {url_atual}")
+            return False
+
+        return True
+
+    def _e_url_de_chat_valida(self, url: str) -> bool:
+        """Verifica heuristicamente se uma URL corresponde a um chat ativo.
+
+        Args:
+            url: URL a verificar.
+
+        Returns:
+            True se a URL parece ser de um chat (tem path além da raiz e não é login).
+        """
+        if not url:
+            return False
+        url_lower = url.lower()
+        for palavra in ("login", "signin", "entrar", "register", "cadastro"):
+            if palavra in url_lower:
+                return False
+        base = self.url_adapta.rstrip("/")
+        path = url.rstrip("/")[len(base):].lstrip("/")
+        return len(path) > 2
+
+    def _buscar_chat_na_lista(self, codigo_cliente: str, nome_cliente: str) -> Optional[str]:
+        """Procura na lista de chats do sidebar um chat cujo título contenha o cliente.
+
+        Estratégia de busca em ordem de prioridade:
+            1. Link contendo o código do cliente (mais específico)
+            2. Link contendo o nome do cliente
+
+        Args:
+            codigo_cliente: Código do cliente (ex: DUDE).
+            nome_cliente: Nome do cliente.
+
+        Returns:
+            URL do chat encontrado, ou None.
+        """
+        driver = self.handler.driver
+        termos = [t for t in [codigo_cliente.strip(), nome_cliente.strip()] if t]
+
+        for termo in termos:
+            xpaths = [
+                f"//a[contains(normalize-space(.), '{termo}')]",
+                f"//*[contains(normalize-space(text()), '{termo}')]/ancestor-or-self::a",
+                f"//*[contains(normalize-space(.), '{termo}')]/ancestor-or-self::a[@href]",
+            ]
+            for xpath in xpaths:
+                try:
+                    elems = driver.find_elements(By.XPATH, xpath)
+                    for elem in elems:
+                        if not elem.is_displayed():
+                            continue
+                        href = elem.get_attribute("href") or ""
+                        if href and self._e_url_de_chat_valida(href):
+                            logger.info(f"[Chat] Chat encontrado por '{termo}': {href}")
+                            try:
+                                driver.execute_script("arguments[0].click();", elem)
+                                time.sleep(2)
+                                url_atual = driver.current_url
+                                if self._e_url_de_chat_valida(url_atual):
+                                    return url_atual
+                            except Exception:
+                                return href
+                except Exception:
+                    continue
+
+        return None
+
+    def _criar_novo_chat(self, codigo_cliente: str, nome_cliente: str) -> Optional[str]:
+        """Cria um novo chat no Adapta.org e retorna sua URL.
+
+        Clica no botão de novo chat, aguarda a navegação e tenta
+        renomear o chat com o título padronizado do cliente.
+
+        Args:
+            codigo_cliente: Código do cliente.
+            nome_cliente: Nome do cliente para o título do chat.
+
+        Returns:
+            URL do chat criado, ou None se a criação falhar.
+        """
+        driver = self.handler.driver
+        url_antes = driver.current_url
+
+        botao = self._localizar_botao_novo_chat()
+        if botao is None:
+            logger.aviso("[Chat] Botão 'novo chat' não encontrado.")
+            return None
+
+        try:
+            driver.execute_script("arguments[0].click();", botao)
+            time.sleep(3)
+        except Exception as exc:
+            logger.aviso(f"[Chat] Falha ao clicar 'novo chat': {exc}")
+            return None
+
+        url_novo = driver.current_url
+        if url_novo.rstrip("/") == url_antes.rstrip("/"):
+            time.sleep(2)
+            url_novo = driver.current_url
+
+        if not self._e_url_de_chat_valida(url_novo):
+            logger.aviso(f"[Chat] URL após criar chat não é válida: {url_novo}")
+            return None
+
+        logger.info(f"[Chat] Novo chat aberto em: {url_novo}")
+        titulo = self._titulo_chat_para_cliente(codigo_cliente, nome_cliente)
+        self._renomear_chat(titulo)
+        return url_novo
+
+    def _localizar_botao_novo_chat(self):
+        """Localiza o botão de novo chat na interface do Adapta.org.
+
+        Tenta múltiplos seletores CSS e XPath para cobrir variações de layout.
+
+        Returns:
+            WebElement do botão ou None se não encontrado.
+        """
+        driver = self.handler.driver
+
+        for sel in SELECTORS_PROJETO["botao_novo_chat"]:
+            try:
+                elems = driver.find_elements(By.CSS_SELECTOR, sel)
+                for e in elems:
+                    if e.is_displayed() and e.is_enabled():
+                        return e
+            except Exception:
+                continue
+
+        palavras_chave = ["novo chat", "new chat", "nova conversa", "new conversation",
+                          "criar chat", "create chat"]
+        for palavra in palavras_chave:
+            xpath = (
+                f"//button[contains(translate(normalize-space(.), "
+                f"'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{palavra}')]"
+                f" | //a[contains(translate(normalize-space(.), "
+                f"'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '{palavra}')]"
+            )
+            try:
+                elems = driver.find_elements(By.XPATH, xpath)
+                for e in elems:
+                    if e.is_displayed() and e.is_enabled():
+                        return e
+            except Exception:
+                continue
+
+        return None
+
+    def _renomear_chat(self, titulo: str) -> bool:
+        """Tenta renomear o chat atual com o título do cliente.
+
+        Busca campos de título editáveis (input ou contenteditable) e
+        digita o novo nome. Falha silenciosamente se não encontrar.
+
+        Args:
+            titulo: Novo título a aplicar ao chat.
+
+        Returns:
+            True se renomeado com sucesso.
+        """
+        driver = self.handler.driver
+
+        for sel in SELECTORS_PROJETO["titulo_chat"]:
+            try:
+                elems = driver.find_elements(By.CSS_SELECTOR, sel)
+                for elem in elems:
+                    if not (elem.is_displayed() and elem.is_enabled()):
+                        continue
+                    try:
+                        elem.click()
+                        time.sleep(0.3)
+                        elem.send_keys(Keys.CONTROL + "a")
+                        time.sleep(0.2)
+                        elem.clear()
+                        time.sleep(0.2)
+                        self._digitar_naturalista(elem, titulo, delay_min=0.02, delay_max=0.05)
+                        time.sleep(0.3)
+                        elem.send_keys(Keys.RETURN)
+                        time.sleep(0.5)
+                        logger.info(f"[Chat] Chat renomeado para '{titulo}'.")
+                        return True
+                    except Exception:
+                        continue
+            except Exception:
+                continue
+
+        logger.aviso(f"[Chat] Não foi possível renomear chat para '{titulo}'.")
+        return False
+
+    def _titulo_chat_para_cliente(self, codigo_cliente: str, nome_cliente: str) -> str:
+        """Gera o título padronizado do chat para um cliente.
+
+        Formato: '[CODIGO] - [Nome do Cliente]'
+        Exemplo: 'DUDE - Dude Clothing'
+
+        Este título é usado tanto para nomear novos chats quanto
+        para encontrar chats existentes na lista do sidebar.
+
+        Args:
+            codigo_cliente: Código do cliente (ex: DUDE).
+            nome_cliente: Nome legível do cliente.
+
+        Returns:
+            Título formatado.
+        """
+        codigo = codigo_cliente.strip().upper()
+        nome = nome_cliente.strip()
+        if nome and nome.upper() != codigo:
+            return f"{codigo} - {nome}"
+        return codigo
+
     def gerar_solicitacao(self, solicitacao: "Solicitacao") -> List[Path]:
         """Gera todas as artes de uma solicitação.
 
@@ -340,6 +807,7 @@ class AdaptaGenerator:
         """
         self._cancelado = False
         self._pausado = False
+        self._solicitacao_ativa = solicitacao
 
         pasta_protocolo = self.pasta_output / solicitacao.protocolo.replace("#", "_")
         pasta_protocolo.mkdir(parents=True, exist_ok=True)
@@ -351,6 +819,8 @@ class AdaptaGenerator:
         if total == 0:
             logger.aviso(f"Nenhum prompt válido encontrado para {solicitacao.protocolo}.")
             return []
+
+        self.resolver_chat_cliente(solicitacao.codigo_cliente, solicitacao.cliente)
 
         logger.info(f"Iniciando geração de {solicitacao.protocolo} - {total} artes")
         imagens_geradas: List[Path] = []
@@ -431,7 +901,16 @@ class AdaptaGenerator:
                     if not self.handler.ativo:
                         logger.aviso("Driver perdeu conexão, reiniciando navegador...")
                         self.handler.reiniciar()
-                        self.acessar_adapta()
+                        from utils.config import Config as _Cfg
+                        self.acessar_adapta(
+                            email=_Cfg.ADAPTA_EMAIL,
+                            senha=_Cfg.ADAPTA_SENHA,
+                        )
+                        if self._solicitacao_ativa:
+                            self.resolver_chat_cliente(
+                                self._solicitacao_ativa.codigo_cliente,
+                                self._solicitacao_ativa.cliente,
+                            )
 
         return None
 

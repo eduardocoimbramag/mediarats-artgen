@@ -32,6 +32,7 @@ class Config:
     IDIOMA_LOG: str = os.getenv("IDIOMA_LOG", "pt-BR")
     ADAPTA_EMAIL: str = os.getenv("ADAPTA_EMAIL", "")
     ADAPTA_SENHA: str = os.getenv("ADAPTA_SENHA", "")
+    NOME_PASTA_PROJETO: str = os.getenv("NOME_PASTA_PROJETO", "Media Rats - ArtGen")
 
     @classmethod
     def caminho_planilha_abs(cls) -> Path:
@@ -67,6 +68,7 @@ class Config:
         cls.IDIOMA_LOG = os.getenv("IDIOMA_LOG", "pt-BR")
         cls.ADAPTA_EMAIL = os.getenv("ADAPTA_EMAIL", "")
         cls.ADAPTA_SENHA = os.getenv("ADAPTA_SENHA", "")
+        cls.NOME_PASTA_PROJETO = os.getenv("NOME_PASTA_PROJETO", "Media Rats - ArtGen")
 
     @classmethod
     def salvar_env(cls, dados: dict) -> None:
