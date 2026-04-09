@@ -83,11 +83,20 @@ SELECTORS = {
         "input[type='text'][placeholder*='mensa' i]",
     ],
     "botao_gerar": [
-        "button[type='submit']",
-        "button:contains('Gerar')",
-        "button.generate-btn",
-        "button[class*='generat' i]",
+        # --- Padrões de botão de envio de chat (aria-label) ---
+        "button[aria-label*='send' i]",
+        "button[aria-label*='enviar' i]",
+        "button[aria-label*='submit' i]",
+        "button[aria-label*='mensagem' i]",
+        "button[aria-label*='message' i]",
+        # --- data-testid ---
+        "button[data-testid*='send']",
+        "button[data-testid*='submit']",
+        "button[data-testid*='enviar']",
+        # --- Por classe ---
+        "button[class*='send' i]",
         "button[class*='submit' i]",
+        "button[type='submit']",
         "input[type='submit']",
     ],
     "imagem_resultado": [
@@ -116,10 +125,20 @@ SELECTORS = {
 
 XPATHS = {
     "botao_gerar": [
-        "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'gerar')]",
-        "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'generate')]",
-        "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'criar')]",
-        "//button[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'create')]",
+        # --- Por aria-label (mais confiável em SPAs acessíveis) ---
+        "//button[contains(translate(@aria-label,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'send')]",
+        "//button[contains(translate(@aria-label,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'enviar')]",
+        "//button[contains(translate(@aria-label,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'submit')]",
+        # --- Adjacente ao contenteditable (posicional) ---
+        "//div[@contenteditable='true']/following-sibling::button[1]",
+        "//div[@contenteditable='true']/parent::*/following-sibling::button[1]",
+        "//div[@contenteditable='true']/parent::*/button[last()]",
+        "//div[@contenteditable='true']/ancestor::form//button[@type='submit']",
+        # --- Por texto do botão ---
+        "//button[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'enviar')]",
+        "//button[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'send')]",
+        "//button[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'gerar')]",
+        "//button[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'generate')]",
         "//input[@type='submit']",
     ],
 }
@@ -281,14 +300,22 @@ class AdaptaGenerator:
 
         if tem_credenciais:
             logger.info("Tela de login detectada. Login automático configurado — tentando...")
-            if self.tentar_login_automatico(email, senha):
+            resultado = self.tentar_login_automatico(email, senha)
+            if resultado == "ok":
                 logger.sucesso("Login automático realizado com sucesso.")
                 self._navegar_para_adapta_one()
                 return True
-            logger.aviso(
-                "Login automático falhou. Verifique as credenciais configuradas "
-                "ou faça login manualmente no navegador."
-            )
+            if resultado == "campos_nao_encontrados":
+                logger.aviso(
+                    "Login automático falhou: campos do formulário não localizados "
+                    "na página. A interface pode não ter carregado completamente — "
+                    "verifique o seletor ou tente login manual."
+                )
+            else:
+                logger.aviso(
+                    "Login automático falhou: credenciais inválidas ou redirecionamento "
+                    "inesperado. Verifique e-mail/senha em Configurações ou faça login manual."
+                )
             self._emitir_status("login_falhou")
             return False
 
@@ -387,53 +414,86 @@ class AdaptaGenerator:
         )
         return False
 
-    def tentar_login_automatico(self, email: str, senha: str) -> bool:
+    def tentar_login_automatico(self, email: str, senha: str) -> str:
         """Preenche e submete o formulário de login do Adapta.org.
+
+        Aguarda os campos do formulário por até 10 s (React SPA renderiza async).
+        Diferencia claramente os cenários de falha.
 
         Args:
             email: E-mail de login.
             senha: Senha de login.
 
         Returns:
-            True se o login foi bem-sucedido (saiu da tela de login).
+            'ok'                   se login bem-sucedido.
+            'campos_nao_encontrados' se o formulário não foi localizado na página.
+            'credenciais_invalidas'  se preencheu mas a tela de login voltou.
+            'erro'                   se ocorreu exceção inesperada.
         """
         driver = self.handler.driver
-        url_antes = driver.current_url
 
+        # Aguardar campos do formulário (SPA pode renderizar async)
+        logger.info("[Login] Aguardando campos do formulário (até 10s)...")
         campo_email = None
-        for sel in SELECTORS_LOGIN["email"]:
-            try:
-                elems = driver.find_elements(By.CSS_SELECTOR, sel)
-                for e in elems:
-                    if e.is_displayed() and e.is_enabled():
-                        campo_email = e
-                        break
-            except Exception:
-                continue
-            if campo_email:
+        campo_senha = None
+        deadline_campos = time.time() + 10
+
+        while time.time() < deadline_campos:
+            campo_email = None
+            for sel in SELECTORS_LOGIN["email"]:
+                try:
+                    elems = driver.find_elements(By.CSS_SELECTOR, sel)
+                    for e in elems:
+                        if e.is_displayed() and e.is_enabled():
+                            campo_email = e
+                            break
+                except Exception:
+                    continue
+                if campo_email:
+                    break
+
+            campo_senha = None
+            for sel in SELECTORS_LOGIN["senha"]:
+                try:
+                    elems = driver.find_elements(By.CSS_SELECTOR, sel)
+                    for e in elems:
+                        if e.is_displayed() and e.is_enabled():
+                            campo_senha = e
+                            break
+                except Exception:
+                    continue
+                if campo_senha:
+                    break
+
+            if campo_email and campo_senha:
+                logger.info(
+                    f"[Login] Campos localizados — e-mail: {campo_email.get_attribute('name') or 'n/a'}, "
+                    f"senha: {campo_senha.get_attribute('name') or 'n/a'}."
+                )
                 break
 
-        campo_senha = None
-        for sel in SELECTORS_LOGIN["senha"]:
-            try:
-                elems = driver.find_elements(By.CSS_SELECTOR, sel)
-                for e in elems:
-                    if e.is_displayed() and e.is_enabled():
-                        campo_senha = e
-                        break
-            except Exception:
-                continue
-            if campo_senha:
-                break
+            time.sleep(1)
 
         if not campo_email or not campo_senha:
-            logger.aviso("Campos de e-mail/senha não localizados na página de login.")
-            return False
+            encontrados = []
+            if campo_email:
+                encontrados.append("e-mail")
+            if campo_senha:
+                encontrados.append("senha")
+            faltando = [f for f in ["e-mail", "senha"] if f not in encontrados]
+            logger.aviso(
+                f"[Login] Campos não localizados após 10s: faltando {faltando}. "
+                f"A interface de login pode não ter carregado ou seus seletores mudaram."
+            )
+            return "campos_nao_encontrados"
 
         try:
+            logger.info("[Login] Preenchendo e-mail...")
             campo_email.clear()
             self._digitar_naturalista(campo_email, email)
             time.sleep(0.3)
+
+            logger.info("[Login] Preenchendo senha...")
             campo_senha.clear()
             self._digitar_naturalista(campo_senha, senha)
             time.sleep(0.3)
@@ -452,19 +512,23 @@ class AdaptaGenerator:
                     break
 
             if botao:
+                logger.info("[Login] Clicando botão de login...")
                 botao.click()
             else:
+                logger.info("[Login] Botão não encontrado — submetendo via Enter.")
                 campo_senha.send_keys(Keys.RETURN)
 
             time.sleep(4)
 
             if self._detectar_tela_login():
-                return False
-            return True
+                logger.aviso("[Login] Tela de login ainda ativa após submissão.")
+                return "credenciais_invalidas"
+
+            return "ok"
 
         except Exception as exc:
-            logger.aviso(f"Erro durante login automático: {exc}")
-            return False
+            logger.aviso(f"[Login] Erro durante login automático: {exc}")
+            return "erro"
 
     def _detectar_tela_login(self) -> bool:
         """Verifica se a página atual é de login.
@@ -1047,16 +1111,12 @@ class AdaptaGenerator:
     ) -> Optional[Path]:
         """Executa o fluxo de geração de uma única arte.
 
-        Usa `_aguardar_compositor` como estratégia unificada de localização
-        do campo de entrada — a mesma lógica que funciona para rename, agora
-        aplicada ao envio de prompt.
-
         Fluxo:
-            1. Aguarda compositor ficar disponível (timeout 15s).
-            2. Faz scroll + foco explícito no campo.
-            3. Limpa o campo com método correto para o tipo (textarea vs contenteditable).
-            4. Digita o prompt com delay natural.
-            5. Clica em Enviar (ou pressiona Enter como fallback).
+            1. Aguarda compositor ficar disponível (15s).
+            2. Scroll + foco explícito.
+            3. Limpa o campo.
+            4. Insere o prompt ATOMICAMENTE via JS (sem char-by-char, sem \\n como Enter).
+            5. Envia: botão (máx 3s) → Enter como fallback imediato.
 
         Args:
             prompt: Texto do prompt composto.
@@ -1070,10 +1130,10 @@ class AdaptaGenerator:
             NoSuchElementException: Se o compositor não for encontrado.
         """
         driver = self.handler.driver
+        t_inicio = time.time()
 
         logger.info(
-            f"[Composer] Aguardando compositor antes de digitar prompt "
-            f"({len(prompt)} chars)..."
+            f"[Composer] Aguardando compositor ({len(prompt)} chars)..."
         )
         campo = self._aguardar_compositor(timeout_s=15)
         if campo is None:
@@ -1087,7 +1147,7 @@ class AdaptaGenerator:
         tipo = f"{tag}[contenteditable=true]" if ce == "true" else tag
         logger.info(f"[Composer] Compositor pronto: tipo='{tipo}'.")
 
-        # Scroll para garantir visibilidade
+        # Scroll + foco
         try:
             driver.execute_script(
                 "arguments[0].scrollIntoView({block:'center',inline:'center'});",
@@ -1096,8 +1156,6 @@ class AdaptaGenerator:
             time.sleep(0.3)
         except Exception:
             pass
-
-        # Clique para garantir foco
         try:
             driver.execute_script("arguments[0].click();", campo)
         except Exception:
@@ -1105,35 +1163,219 @@ class AdaptaGenerator:
                 campo.click()
             except Exception:
                 pass
-        time.sleep(0.3)
-
-        # Forçar foco via JS (necessário em contenteditable)
+        time.sleep(0.2)
         try:
             driver.execute_script("arguments[0].focus();", campo)
             time.sleep(0.2)
         except Exception:
             pass
 
-        # Limpar campo com método adequado ao tipo
+        # Limpar
         self._limpar_campo_compositor(campo)
+        time.sleep(0.2)
+
+        # Inserir prompt atomicamente (sem char-by-char, sem \n como Enter)
+        ok = self._inserir_prompt_compositor(campo, prompt)
+        if not ok:
+            logger.aviso("[Composer] Inserção reportou problema — continuando mesmo assim.")
         time.sleep(0.3)
 
-        # Digitar prompt com delay natural
-        self._digitar_naturalista(campo, prompt)
-        time.sleep(0.5)
-
-        # Enviar
-        botao = self._localizar_botao_gerar()
-        if botao is None:
-            logger.info("[Composer] Botão de envio não encontrado — usando Enter.")
-            campo.send_keys(Keys.RETURN)
-        else:
-            logger.info("[Composer] Clicando botão de envio.")
-            botao.click()
+        # Enviar (botão com 3s de timeout, fallback Enter imediato)
+        metodo = self._enviar_prompt_compositor(campo)
+        logger.info(
+            f"[Composer] Envio concluído via '{metodo}' "
+            f"em {time.time() - t_inicio:.1f}s total."
+        )
 
         logger.info("Aguardando geração da imagem...")
         arquivo = self._aguardar_e_baixar(downloader, nome_arquivo)
         return arquivo
+
+    def _inserir_prompt_compositor(self, campo, texto: str) -> bool:
+        """Insere o texto completo no compositor de forma atômica.
+
+        Para div[contenteditable]: usa ``document.execCommand('insertText')``
+        que insere o texto inteiro — incluindo quebras de linha — SEM disparar
+        teclas Enter e portanto SEM fragmentar em múltiplas mensagens.
+
+        Estratégia em cascata:
+            1. ``execCommand('insertText')`` — sem efeito colateral de Enter.
+            2. Manipulação direta do DOM + InputEvent — para SPAs que ignoram execCommand.
+            3. ``send_keys`` com ``Shift+Enter`` para preservar \\n — somente como último recurso.
+
+        Args:
+            campo: WebElement do compositor (contenteditable, textarea ou input).
+            texto: Texto completo a inserir.
+
+        Returns:
+            True se inserção foi validada, False se falhou completamente.
+        """
+        driver = self.handler.driver
+        tag = campo.tag_name.lower()
+        ce = campo.get_attribute("contenteditable") or ""
+        metodo = "desconhecido"
+
+        if ce == "true" or tag not in ("textarea", "input"):
+            # --- Tentativa 1: execCommand (React/Vue disparam eventos sintéticos) ---
+            try:
+                resultado = driver.execute_script(
+                    """
+                    var el = arguments[0];
+                    var txt = arguments[1];
+                    el.focus();
+                    document.execCommand('selectAll', false, null);
+                    document.execCommand('delete', false, null);
+                    return document.execCommand('insertText', false, txt);
+                    """,
+                    campo, texto,
+                )
+                if resultado:
+                    metodo = "execCommand(insertText)"
+                else:
+                    raise RuntimeError("execCommand retornou false")
+            except Exception as e1:
+                logger.aviso(
+                    f"[Composer] execCommand falhou ({e1}) "
+                    f"— tentando DOM+InputEvent"
+                )
+                # --- Tentativa 2: DOM direto + InputEvent ---
+                try:
+                    driver.execute_script(
+                        """
+                        var el = arguments[0];
+                        var txt = arguments[1];
+                        el.innerHTML = '';
+                        el.focus();
+                        var tn = document.createTextNode(txt);
+                        el.appendChild(tn);
+                        el.dispatchEvent(new InputEvent('input', {
+                            inputType: 'insertText',
+                            data: txt,
+                            bubbles: true,
+                            cancelable: false
+                        }));
+                        el.dispatchEvent(new Event('change', {bubbles: true}));
+                        """,
+                        campo, texto,
+                    )
+                    metodo = "DOM+InputEvent"
+                except Exception as e2:
+                    logger.aviso(
+                        f"[Composer] DOM+InputEvent falhou ({e2}) "
+                        f"— usando send_keys com Shift+Enter para multiline"
+                    )
+                    # --- Tentativa 3: send_keys com Shift+Enter (sem fragmentar) ---
+                    try:
+                        self._limpar_campo_compositor(campo)
+                        linhas = texto.split("\n")
+                        for i, linha in enumerate(linhas):
+                            if i > 0:
+                                campo.send_keys(Keys.SHIFT + Keys.RETURN)
+                            campo.send_keys(linha)
+                        metodo = "send_keys+Shift+Enter"
+                    except Exception as e3:
+                        logger.erro(
+                            f"[Composer] Todas as tentativas de inserção falharam: {e3}"
+                        )
+                        return False
+        else:
+            # textarea / input: setter nativo React + disparar eventos
+            try:
+                driver.execute_script(
+                    """
+                    var el = arguments[0];
+                    var v = arguments[1];
+                    var tag = el.tagName.toLowerCase();
+                    var proto = tag === 'textarea'
+                        ? window.HTMLTextAreaElement.prototype
+                        : window.HTMLInputElement.prototype;
+                    var setter = Object.getOwnPropertyDescriptor(proto, 'value');
+                    if (setter && setter.set) {
+                        setter.set.call(el, v);
+                    } else {
+                        el.value = v;
+                    }
+                    el.dispatchEvent(new Event('input', {bubbles: true}));
+                    el.dispatchEvent(new Event('change', {bubbles: true}));
+                    """,
+                    campo, texto,
+                )
+                metodo = "JS-nativeSetter"
+            except Exception as exc:
+                logger.aviso(f"[Composer] JS setter falhou ({exc}) — send_keys")
+                try:
+                    campo.send_keys(Keys.CONTROL + "a")
+                    campo.clear()
+                    campo.send_keys(texto)
+                    metodo = "send_keys"
+                except Exception as exc2:
+                    logger.erro(f"[Composer] send_keys falhou: {exc2}")
+                    return False
+
+        # Validação pós-inserção
+        try:
+            if ce == "true" or tag not in ("textarea", "input"):
+                conteudo = driver.execute_script(
+                    "return (arguments[0].innerText "
+                    "|| arguments[0].textContent || '').trim();",
+                    campo,
+                ) or ""
+            else:
+                conteudo = (campo.get_attribute("value") or "").strip()
+
+            c_esp = len(texto.strip())
+            c_obt = len(conteudo)
+            logger.info(
+                f"[Composer] Inserção '{metodo}': "
+                f"{c_obt}/{c_esp} chars no campo."
+            )
+            return c_obt >= int(c_esp * 0.85)
+        except Exception:
+            logger.info(f"[Composer] Inserção '{metodo}': validação indisponível — assumindo OK.")
+            return True
+
+    def _enviar_prompt_compositor(self, campo) -> str:
+        """Envia o prompt digitado no compositor.
+
+        Tenta localizar o botão de envio por no máximo 3 segundos.
+        Se não encontrar, usa ``Keys.RETURN`` como fallback imediato —
+        sem esperar minutos por um botão inexistente.
+
+        Args:
+            campo: WebElement do compositor (usado para fallback Enter).
+
+        Returns:
+            'botao' se clicou no botão, 'enter' se usou fallback.
+        """
+        driver = self.handler.driver
+        t_ini = time.time()
+        botao = None
+
+        deadline = time.time() + 3.0
+        while time.time() < deadline:
+            botao = self._localizar_botao_gerar()
+            if botao:
+                break
+            time.sleep(0.5)
+
+        t_busca = time.time() - t_ini
+
+        if botao:
+            logger.info(
+                f"[Composer] Botão de envio encontrado em {t_busca:.1f}s. Clicando."
+            )
+            try:
+                driver.execute_script("arguments[0].click();", botao)
+            except Exception:
+                botao.click()
+            return "botao"
+
+        logger.info(
+            f"[Composer] Botão não encontrado após {t_busca:.1f}s "
+            f"— Enter como fallback."
+        )
+        campo.send_keys(Keys.RETURN)
+        return "enter"
 
     def _localizar_campo_prompt(self):
         """Localiza o campo de texto de prompt na página.

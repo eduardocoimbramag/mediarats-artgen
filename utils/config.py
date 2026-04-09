@@ -16,6 +16,25 @@ load_dotenv(dotenv_path=_env_path)
 _SETTINGS_PATH = BASE_DIR / "settings.json"
 
 
+def _parse_bool(valor: str, padrao: bool = False) -> bool:
+    """Converte string de variável de ambiente para bool de forma robusta.
+
+    Valores considerados True: 'true', '1', 'yes', 'on', 's', 'sim'.
+    Tudo mais (incluindo 'false', '0', 'no', 'off') é False.
+    Isso evita o bug clássico de 'false' (string não-vazia) ser truthy em Python.
+
+    Args:
+        valor: String lida do env (ou "" se variável não definida).
+        padrao: Valor usado quando ``valor`` é vazio/None.
+
+    Returns:
+        bool resultante.
+    """
+    if not valor:
+        return padrao
+    return valor.strip().lower() in ("true", "1", "yes", "on", "s", "sim")
+
+
 class Config:
     """Acessa as configurações do projeto a partir do .env e settings.json."""
 
@@ -25,9 +44,9 @@ class Config:
     )
     CAMINHO_OUTPUT: str = os.getenv("CAMINHO_OUTPUT", "./output")
     TIMEOUT_GERADOR: int = int(os.getenv("TIMEOUT_GERADOR", "60"))
-    MODO_HEADLESS: bool = os.getenv("MODO_HEADLESS", "false").lower() == "true"
-    FECHAR_NAVEGADOR_APOS_CONCLUSAO: bool = (
-        os.getenv("FECHAR_NAVEGADOR_APOS_CONCLUSAO", "true").lower() == "true"
+    MODO_HEADLESS: bool = _parse_bool(os.getenv("MODO_HEADLESS", ""), padrao=False)
+    FECHAR_NAVEGADOR_APOS_CONCLUSAO: bool = _parse_bool(
+        os.getenv("FECHAR_NAVEGADOR_APOS_CONCLUSAO", ""), padrao=False
     )
     IDIOMA_LOG: str = os.getenv("IDIOMA_LOG", "pt-BR")
     ADAPTA_EMAIL: str = os.getenv("ADAPTA_EMAIL", "")
@@ -61,9 +80,9 @@ class Config:
         )
         cls.CAMINHO_OUTPUT = os.getenv("CAMINHO_OUTPUT", "./output")
         cls.TIMEOUT_GERADOR = int(os.getenv("TIMEOUT_GERADOR", "60"))
-        cls.MODO_HEADLESS = os.getenv("MODO_HEADLESS", "false").lower() == "true"
-        cls.FECHAR_NAVEGADOR_APOS_CONCLUSAO = (
-            os.getenv("FECHAR_NAVEGADOR_APOS_CONCLUSAO", "true").lower() == "true"
+        cls.MODO_HEADLESS = _parse_bool(os.getenv("MODO_HEADLESS", ""), padrao=False)
+        cls.FECHAR_NAVEGADOR_APOS_CONCLUSAO = _parse_bool(
+            os.getenv("FECHAR_NAVEGADOR_APOS_CONCLUSAO", ""), padrao=False
         )
         cls.IDIOMA_LOG = os.getenv("IDIOMA_LOG", "pt-BR")
         cls.ADAPTA_EMAIL = os.getenv("ADAPTA_EMAIL", "")

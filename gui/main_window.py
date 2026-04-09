@@ -132,8 +132,10 @@ class GeracaoWorker(QThread):
         if not generator.acessar_adapta(email=Config.ADAPTA_EMAIL, senha=Config.ADAPTA_SENHA):
             if tem_credenciais:
                 self.signals.log.emit(
-                    "Login automático falhou. Verifique suas credenciais em Configurações "
-                    "ou faça login manualmente no navegador aberto.",
+                    "Login automático falhou. Possíveis causas: campos da página não "
+                    "carregaram (tente aguardar e repetir) ou credenciais inválidas "
+                    "(verifique em Configurações → Login). "
+                    "Veja o log para o motivo exato.",
                     "aviso",
                 )
             else:
@@ -497,10 +499,19 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             logger.erro(f"Erro ao atualizar planilha: {exc}")
 
-        if Config.FECHAR_NAVEGADOR_APOS_CONCLUSAO:
+        fechar = Config.FECHAR_NAVEGADOR_APOS_CONCLUSAO
+        origem = os.getenv("FECHAR_NAVEGADOR_APOS_CONCLUSAO", "<não definido no .env>")
+        logger.info(
+            f"[Browser] FECHAR_NAVEGADOR_APOS_CONCLUSAO={fechar} "
+            f"(valor no .env: '{origem}')"
+        )
+        if fechar:
+            logger.info("[Browser] Fechando navegador conforme configuração.")
             if self._handler:
                 self._handler.fechar()
                 self._handler = None
+        else:
+            logger.info("[Browser] Navegador mantido aberto conforme configuração.")
 
         QMessageBox.information(
             self,

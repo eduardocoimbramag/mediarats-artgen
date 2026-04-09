@@ -677,3 +677,61 @@
 2026-04-09 16:51:52 [INFO] Geração de DUDE#1 CONCLUÍDA! 0/2 artes salvas em C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\output\DUDE_1
 2026-04-09 16:51:54 [INFO] Navegador fechado.
 2026-04-09 16:51:54 [INFO] Planilha atualizada para DUDE#1.
+2026-04-09 16:52:19 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 16:52:19 [INFO] Planilha carregada: 1 solicitação(ões) (0 pendente(s)).
+2026-04-09 16:52:24 [INFO] Protocolo 'DUDE#1' removido permanentemente.
+2026-04-09 16:53:08 [INFO] Protocolo 'DUDE#1' criado — DudeCamp / CSS
+2026-04-09 16:53:08 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 16:53:08 [INFO] Planilha carregada: 1 solicitação(ões) (1 pendente(s)).
+2026-04-09 16:53:10 [INFO] Tentando iniciar Chrome (tentativa 1/3)...
+2026-04-09 16:53:13 [INFO] Navegador Chrome iniciado com sucesso.
+2026-04-09 16:53:13 [INFO] Acessando AdaptaOne...
+2026-04-09 16:53:14 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 16:53:17 [INFO] Tela de login detectada. Login automático configurado — tentando...
+2026-04-09 16:53:18 [WARNING] Campos de e-mail/senha não localizados na página de login.
+2026-04-09 16:53:18 [WARNING] Login automático falhou. Verifique as credenciais configuradas ou faça login manualmente no navegador.
+2026-04-09 16:53:46 [INFO] Acessando AdaptaOne...
+2026-04-09 16:53:46 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 16:53:49 [INFO] AdaptaOne carregado — sessão ativa.
+2026-04-09 16:53:49 [INFO] [AdaptaOne] Dashboard detectado. Clicando em 'ADAPTA one'...
+2026-04-09 16:53:52 [INFO] [AdaptaOne] Entrou na interface de chat com sucesso.
+2026-04-09 16:53:52 [INFO] [Composer] Perfil carregado: DudeCamp (DUDE) | nicho=Educação Tech | estilo=Tech
+2026-04-09 16:53:52 [INFO] [Chat] Resolvendo chat: 'DUDE - DudeCamp'...
+2026-04-09 16:53:52 [INFO] [Chat] Buscando pasta 'Media Rats - ArtGen' no sidebar...
+2026-04-09 16:53:52 [WARNING] [Chat] Pasta 'Media Rats - ArtGen' não localizada no sidebar.
+2026-04-09 16:53:52 [INFO] [Chat] Vínculo registrado: https://agent.adapta.one/agentic-chat
+2026-04-09 16:53:57 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-09 16:53:57 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-09 16:53:57 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-09 16:53:57 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-09 16:53:57 [INFO] [Chat] Compositor presente e validado na página.
+2026-04-09 16:53:57 [INFO] [Chat] Chat validado — compositor funcional encontrado.
+2026-04-09 16:53:57 [INFO] [Chat] ✓ Chat do cliente 'DUDE' reutilizado.
+2026-04-09 16:53:57 [INFO] Iniciando geração de DUDE#1 - 2 artes
+2026-04-09 16:53:57 [INFO] Gerando arte 1/2 - Prompt: Crie uma arte impactante para post de redes sociais sobre CS...
+2026-04-09 16:53:57 [INFO] [Composer] Prompt composto (1694 chars) para arte 1/2
+2026-04-09 16:53:57 [INFO] [Composer] Aguardando compositor antes de digitar prompt (1694 chars)...
+2026-04-09 16:53:57 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-09 16:53:57 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-09 16:53:57 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-09 16:53:57 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-09 16:53:57 [INFO] [Composer] Compositor pronto: tipo='div[contenteditable=true]'.
+2026-04-09 16:56:56 [INFO] [Composer] Botão de envio não encontrado — usando Enter.
+2026-04-09 16:56:56 [INFO] Aguardando geração da imagem...
+2026-04-09 16:56:57 [INFO] Imagem baixada: DUDE#1_001.jpg (1708 KB)
+2026-04-09 16:56:57 [INFO] Arte 1 baixada: DUDE#1_001.jpg
+2026-04-09 16:56:57 [INFO] Gerando arte 2/2 - Prompt: Crie uma arte impactante para post de redes sociais sobre CS...
+2026-04-09 16:56:57 [INFO] [Composer] Prompt composto (1694 chars) para arte 2/2
+2026-04-09 16:56:57 [INFO] [Composer] Aguardando compositor antes de digitar prompt (1694 chars)...
+2026-04-09 16:56:58 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=69 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=573), campo_largo:+10(w=707), campo_alto:+5(h=112)
+2026-04-09 16:56:58 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=69 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=573), campo_largo:+10(w=707), campo_alto:+5(h=112)
+2026-04-09 16:56:58 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-09 16:56:58 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-09 16:56:58 [INFO] [Composer] Compositor pronto: tipo='div[contenteditable=true]'.
+2026-04-09 16:59:58 [INFO] [Composer] Botão de envio não encontrado — usando Enter.
+2026-04-09 16:59:58 [INFO] Aguardando geração da imagem...
+2026-04-09 16:59:59 [INFO] Imagem baixada: DUDE#1_002.jpg (1721 KB)
+2026-04-09 16:59:59 [INFO] Arte 2 baixada: DUDE#1_002.jpg
+2026-04-09 16:59:59 [INFO] Geração de DUDE#1 CONCLUÍDA! 2/2 artes salvas em C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\output\DUDE_1
+2026-04-09 16:59:59 [INFO] Planilha atualizada para DUDE#1.
+2026-04-09 17:00:02 [INFO] Navegador fechado.
