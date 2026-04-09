@@ -152,6 +152,49 @@ class ExcelWriter:
         wb.save(self.caminho)
         wb.close()
 
+    def remover_solicitacao(self, solicitacao: Solicitacao) -> bool:
+        """Remove permanentemente uma solicitação da aba CONTEUDOS.
+
+        Localiza a linha pelo protocolo (mais seguro que linha_excel, pois
+        linhas podem ter sido deslocadas por remoções anteriores) e a
+        deleta fisicamente da planilha.
+
+        Args:
+            solicitacao: Objeto com dados da solicitação a remover.
+
+        Returns:
+            True se a linha foi encontrada e removida.
+
+        Raises:
+            IOError: Se não for possível salvar a planilha.
+        """
+        wb = openpyxl.load_workbook(self.caminho)
+        ws = self._encontrar_aba(wb, self.ABA_CONTEUDOS)
+        if ws is None:
+            wb.close()
+            return False
+
+        col_protocolo = self._encontrar_coluna(ws, "PROTOCOLO")
+        if col_protocolo is None:
+            wb.close()
+            return False
+
+        linha_alvo = None
+        for row_idx in range(2, ws.max_row + 1):
+            celula = ws.cell(row=row_idx, column=col_protocolo)
+            if celula.value and str(celula.value).strip() == solicitacao.protocolo:
+                linha_alvo = row_idx
+                break
+
+        if linha_alvo is None:
+            wb.close()
+            return False
+
+        ws.delete_rows(linha_alvo, 1)
+        wb.save(self.caminho)
+        wb.close()
+        return True
+
     def registrar_avaliacao(
         self,
         solicitacao: Solicitacao,

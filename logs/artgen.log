@@ -249,3 +249,165 @@
 2026-04-09 14:58:32 [INFO] Protocolo 'MR#1' removido da fila.
 2026-04-09 15:10:40 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
 2026-04-09 15:10:40 [INFO] Planilha carregada: 3 solicitação(ões) (1 pendente(s)).
+2026-04-09 15:24:47 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 15:24:47 [INFO] Planilha carregada: 3 solicitação(ões) (1 pendente(s)).
+2026-04-09 15:24:57 [INFO] Protocolo 'MR#1' removido da fila.
+2026-04-09 15:24:59 [INFO] Protocolo 'DUDE#1' removido da fila.
+2026-04-09 15:25:15 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 15:25:15 [INFO] Planilha carregada: 3 solicitação(ões) (1 pendente(s)).
+2026-04-09 15:25:18 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 15:25:18 [INFO] Planilha carregada: 3 solicitação(ões) (1 pendente(s)).
+2026-04-09 15:25:18 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 15:25:18 [INFO] Planilha carregada: 3 solicitação(ões) (1 pendente(s)).
+2026-04-09 15:30:21 [INFO] Protocolo 'DUDE#2' removido da fila.
+2026-04-09 15:30:22 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 15:30:22 [INFO] Planilha carregada: 3 solicitação(ões) (0 pendente(s)).
+2026-04-09 15:31:07 [INFO] Protocolo 'DUDE#3' criado — DudeCamp / CSS
+2026-04-09 15:31:07 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 15:31:07 [INFO] Planilha carregada: 4 solicitação(ões) (1 pendente(s)).
+2026-04-09 15:31:14 [INFO] Tentando iniciar Chrome (tentativa 1/3)...
+2026-04-09 15:31:21 [INFO] Navegador Chrome iniciado com sucesso.
+2026-04-09 15:31:21 [INFO] Acessando AdaptaOne...
+2026-04-09 15:31:22 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 15:31:26 [INFO] Tela de login detectada. Tentando login automático...
+2026-04-09 15:31:26 [WARNING] Campos de e-mail/senha não localizados na página de login.
+2026-04-09 15:31:26 [WARNING] Login automático falhou. Credenciais incorretas ou página mudou.
+2026-04-09 15:31:26 [WARNING] Login necessário. Faça o login no navegador aberto e clique em 'Iniciar Geração' novamente.
+2026-04-09 15:31:55 [INFO] Acessando AdaptaOne...
+2026-04-09 15:31:56 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 15:31:59 [INFO] AdaptaOne carregado — sessão ativa.
+2026-04-09 15:31:59 [INFO] [AdaptaOne] Dashboard detectado. Clicando em 'ADAPTA one'...
+2026-04-09 15:32:02 [INFO] [AdaptaOne] Entrou na interface de chat com sucesso.
+2026-04-09 15:32:02 [INFO] [Composer] Perfil carregado: DudeCamp (DUDE) | nicho=Educação Tech | estilo=Tech
+2026-04-09 15:32:02 [INFO] [Chat] Resolvendo chat: 'DUDE - DudeCamp'...
+2026-04-09 15:32:02 [INFO] [Chat] Buscando pasta 'Media Rats - ArtGen' no sidebar...
+2026-04-09 15:32:04 [INFO] [Chat] Pasta 'Media Rats - ArtGen' acessada.
+2026-04-09 15:32:04 [INFO] [Chat] Vínculo registrado: https://agent.adapta.one/agentic-chat
+2026-04-09 15:32:07 [INFO] [Chat] ✓ Chat do cliente 'DUDE' reutilizado.
+2026-04-09 15:32:07 [INFO] Iniciando geração de DUDE#3 - 3 artes
+2026-04-09 15:32:07 [INFO] Gerando arte 1/3 - Prompt: Crie uma arte impactante para post de redes sociais sobre CS...
+2026-04-09 15:32:07 [INFO] [Composer] Prompt composto (2178 chars) para arte 1/3
+2026-04-09 15:32:07 [WARNING] Tentativa 1/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:32:07 [INFO] Aguardando 2s antes de tentar novamente...
+2026-04-09 15:32:09 [WARNING] Tentativa 2/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:32:09 [INFO] Aguardando 4s antes de tentar novamente...
+2026-04-09 15:32:13 [WARNING] Tentativa 3/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:32:13 [ERROR] Arte 1/3 falhou após 3 tentativas. Pulando.
+2026-04-09 15:32:13 [INFO] Gerando arte 2/3 - Prompt: Crie uma arte impactante para post de redes sociais sobre CS...
+2026-04-09 15:32:13 [INFO] [Composer] Prompt composto (2178 chars) para arte 2/3
+2026-04-09 15:32:13 [WARNING] Tentativa 1/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:32:13 [INFO] Aguardando 2s antes de tentar novamente...
+2026-04-09 15:32:16 [WARNING] Tentativa 2/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:32:16 [INFO] Aguardando 4s antes de tentar novamente...
+2026-04-09 15:32:20 [WARNING] Tentativa 3/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:32:20 [ERROR] Arte 2/3 falhou após 3 tentativas. Pulando.
+2026-04-09 15:32:20 [INFO] Gerando arte 3/3 - Prompt: Crie uma arte impactante para post de redes sociais sobre CS...
+2026-04-09 15:32:20 [INFO] [Composer] Prompt composto (2178 chars) para arte 3/3
+2026-04-09 15:32:20 [WARNING] Tentativa 1/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:32:20 [INFO] Aguardando 2s antes de tentar novamente...
+2026-04-09 15:32:22 [WARNING] Tentativa 2/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:32:22 [INFO] Aguardando 4s antes de tentar novamente...
+2026-04-09 15:32:26 [WARNING] Tentativa 3/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:32:26 [ERROR] Arte 3/3 falhou após 3 tentativas. Pulando.
+2026-04-09 15:32:26 [INFO] Geração de DUDE#3 CONCLUÍDA! 0/3 artes salvas em C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\output\DUDE_3
+2026-04-09 15:32:26 [INFO] Planilha atualizada para DUDE#3.
+2026-04-09 15:32:28 [INFO] Navegador fechado.
+2026-04-09 15:42:50 [INFO] Tentando iniciar Chrome (tentativa 1/3)...
+2026-04-09 15:42:52 [INFO] Navegador Chrome iniciado com sucesso.
+2026-04-09 15:42:52 [INFO] Acessando AdaptaOne...
+2026-04-09 15:42:53 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 15:42:56 [INFO] Tela de login detectada. Tentando login automático...
+2026-04-09 15:42:57 [WARNING] Campos de e-mail/senha não localizados na página de login.
+2026-04-09 15:42:57 [WARNING] Login automático falhou. Credenciais incorretas ou página mudou.
+2026-04-09 15:42:57 [WARNING] Login necessário. Faça o login no navegador aberto e clique em 'Iniciar Geração' novamente.
+2026-04-09 15:48:05 [INFO] Navegador fechado.
+2026-04-09 15:53:20 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 15:53:20 [INFO] Planilha carregada: 4 solicitação(ões) (0 pendente(s)).
+2026-04-09 15:53:26 [INFO] Protocolo 'DUDE#2' removido permanentemente.
+2026-04-09 15:53:27 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 15:53:27 [INFO] Planilha carregada: 3 solicitação(ões) (0 pendente(s)).
+2026-04-09 15:53:31 [INFO] Protocolo 'MR#1' removido permanentemente.
+2026-04-09 15:53:32 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 15:53:32 [INFO] Planilha carregada: 2 solicitação(ões) (0 pendente(s)).
+2026-04-09 15:53:36 [INFO] Protocolo 'DUDE#1' removido permanentemente.
+2026-04-09 15:53:38 [INFO] Protocolo 'DUDE#3' removido permanentemente.
+2026-04-09 15:54:27 [INFO] Protocolo 'DUDE#1' criado — DudeCamp / CSS
+2026-04-09 15:54:27 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 15:54:27 [INFO] Planilha carregada: 1 solicitação(ões) (1 pendente(s)).
+2026-04-09 15:54:58 [INFO] Tentando iniciar Chrome (tentativa 1/3)...
+2026-04-09 15:55:01 [INFO] Navegador Chrome iniciado com sucesso.
+2026-04-09 15:55:01 [INFO] Acessando AdaptaOne...
+2026-04-09 15:55:02 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 15:55:05 [INFO] Tela de login detectada. Login automático configurado — tentando...
+2026-04-09 15:55:06 [WARNING] Campos de e-mail/senha não localizados na página de login.
+2026-04-09 15:55:06 [WARNING] Login automático falhou. Verifique as credenciais configuradas ou faça login manualmente no navegador.
+2026-04-09 15:55:29 [INFO] Configurações salvas e recarregadas.
+2026-04-09 15:55:29 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 15:55:29 [INFO] Planilha carregada: 1 solicitação(ões) (1 pendente(s)).
+2026-04-09 15:55:41 [INFO] Acessando AdaptaOne...
+2026-04-09 15:55:41 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 15:55:44 [INFO] Tela de login detectada. Login automático configurado — tentando...
+2026-04-09 15:55:45 [WARNING] Campos de e-mail/senha não localizados na página de login.
+2026-04-09 15:55:45 [WARNING] Login automático falhou. Verifique as credenciais configuradas ou faça login manualmente no navegador.
+2026-04-09 15:56:21 [INFO] Acessando AdaptaOne...
+2026-04-09 15:56:22 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 15:56:25 [INFO] AdaptaOne carregado — sessão ativa.
+2026-04-09 15:56:25 [INFO] [AdaptaOne] Dashboard detectado. Clicando em 'ADAPTA one'...
+2026-04-09 15:56:28 [INFO] [AdaptaOne] Entrou na interface de chat com sucesso.
+2026-04-09 15:56:28 [INFO] [Composer] Perfil carregado: DudeCamp (DUDE) | nicho=Educação Tech | estilo=Tech
+2026-04-09 15:56:28 [INFO] [Chat] Resolvendo chat: 'DUDE - DudeCamp'...
+2026-04-09 15:56:28 [INFO] [Chat] Buscando pasta 'Media Rats - ArtGen' no sidebar...
+2026-04-09 15:56:30 [INFO] [Chat] Pasta 'Media Rats - ArtGen' acessada.
+2026-04-09 15:56:30 [INFO] [Chat] Vínculo registrado: https://agent.adapta.one/agentic-chat
+2026-04-09 15:56:38 [WARNING] [Chat] Chat carregado mas sem campo de prompt funcional — chat removido ou inconsistente.
+2026-04-09 15:56:38 [WARNING] [Chat] URL registrada inválida. Removendo vínculo e rebuscando...
+2026-04-09 15:56:38 [INFO] [Chat] Criando novo chat para 'DUDE - DudeCamp'...
+2026-04-09 15:56:43 [INFO] [Chat] Novo chat aberto em: https://agent.adapta.one/agentic-chat
+2026-04-09 15:56:46 [INFO] [Chat] Chat renomeado para 'DUDE - DudeCamp'.
+2026-04-09 15:56:46 [INFO] [Chat] ✓ Novo chat criado: https://agent.adapta.one/agentic-chat
+2026-04-09 15:56:46 [INFO] Iniciando geração de DUDE#1 - 3 artes
+2026-04-09 15:56:46 [INFO] Gerando arte 1/3 - Prompt: Crie uma arte impactante para post de redes sociais sobre CS...
+2026-04-09 15:56:46 [INFO] [Composer] Prompt composto (2178 chars) para arte 1/3
+2026-04-09 15:56:46 [WARNING] Tentativa 1/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:56:46 [INFO] Aguardando 2s antes de tentar novamente...
+2026-04-09 15:56:48 [WARNING] Tentativa 2/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:56:48 [INFO] Aguardando 4s antes de tentar novamente...
+2026-04-09 15:56:52 [WARNING] Tentativa 3/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:56:52 [ERROR] Arte 1/3 falhou após 3 tentativas. Pulando.
+2026-04-09 15:56:52 [INFO] Gerando arte 2/3 - Prompt: Crie uma arte impactante para post de redes sociais sobre CS...
+2026-04-09 15:56:52 [INFO] [Composer] Prompt composto (2178 chars) para arte 2/3
+2026-04-09 15:56:52 [WARNING] Tentativa 1/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:56:52 [INFO] Aguardando 2s antes de tentar novamente...
+2026-04-09 15:56:54 [WARNING] Tentativa 2/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:56:54 [INFO] Aguardando 4s antes de tentar novamente...
+2026-04-09 15:56:58 [WARNING] Tentativa 3/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:56:58 [ERROR] Arte 2/3 falhou após 3 tentativas. Pulando.
+2026-04-09 15:56:58 [INFO] Gerando arte 3/3 - Prompt: Crie uma arte impactante para post de redes sociais sobre CS...
+2026-04-09 15:56:58 [INFO] [Composer] Prompt composto (2178 chars) para arte 3/3
+2026-04-09 15:56:58 [WARNING] Tentativa 1/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:56:58 [INFO] Aguardando 2s antes de tentar novamente...
+2026-04-09 15:57:00 [WARNING] Tentativa 2/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:57:00 [INFO] Aguardando 4s antes de tentar novamente...
+2026-04-09 15:57:04 [WARNING] Tentativa 3/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 15:57:04 [ERROR] Arte 3/3 falhou após 3 tentativas. Pulando.
+2026-04-09 15:57:04 [INFO] Geração de DUDE#1 CONCLUÍDA! 0/3 artes salvas em C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\output\DUDE_1
+2026-04-09 15:57:04 [INFO] Planilha atualizada para DUDE#1.
+2026-04-09 15:57:06 [INFO] Navegador fechado.

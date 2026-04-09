@@ -118,17 +118,30 @@ class GeracaoWorker(QThread):
             self.signals.progresso.emit(atual, total)
 
         def _on_status(msg: str) -> None:
-            if msg == "login_necessario":
+            if msg in ("login_necessario", "login_falhou"):
                 self.signals.login_necessario.emit()
 
         generator.definir_callbacks(progresso=_on_progresso, status=_on_status)
 
+        tem_credenciais = bool(
+            Config.ADAPTA_EMAIL and Config.ADAPTA_EMAIL.strip()
+            and Config.ADAPTA_SENHA and Config.ADAPTA_SENHA.strip()
+        )
+
         self.signals.log.emit(f"Acessando {Config.URL_ADAPTA}...", "info")
         if not generator.acessar_adapta(email=Config.ADAPTA_EMAIL, senha=Config.ADAPTA_SENHA):
-            self.signals.log.emit(
-                "Login necessário. Faça login no navegador e clique em 'Iniciar Geração' novamente.",
-                "aviso"
-            )
+            if tem_credenciais:
+                self.signals.log.emit(
+                    "Login automático falhou. Verifique suas credenciais em Configurações "
+                    "ou faça login manualmente no navegador aberto.",
+                    "aviso",
+                )
+            else:
+                self.signals.log.emit(
+                    "Credenciais não configuradas. Faça login no navegador aberto "
+                    "e clique em 'Iniciar Geração' novamente.",
+                    "aviso",
+                )
             self.signals.login_necessario.emit()
             self.signals.status_linha.emit(sol.protocolo, "Pendente")
             return
@@ -574,10 +587,10 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def _remover_protocolo(self) -> None:
-        """Remove o protocolo selecionado da fila.
+        """Remove permanentemente o protocolo selecionado da fila e da planilha.
 
-        Marca o status como 'Cancelado' na planilha (origem da verdade) para que
-        não reapareça em recarregamentos futuros, e remove a linha da tabela visual.
+        Apaga a linha inteira da aba CONTEUDOS (remoção definitiva, não apenas
+        troca de status) e remove da tabela visual.
         Trata com segurança: fila vazia, nenhum item selecionado e falha de escrita.
         """
         sol = self._fila_panel.solicitacao_atual()
@@ -603,11 +616,11 @@ class MainWindow(QMainWindow):
         resp = QMessageBox.question(
             self,
             "Confirmar Remoção",
-            f"Deseja remover o protocolo da fila?\n\n"
+            f"Deseja remover permanentemente o protocolo?\n\n"
             f"  Protocolo: {sol.protocolo}\n"
             f"  Cliente:   {sol.cliente}\n"
             f"  Tema:      {sol.tema}\n\n"
-            "O item será marcado como Cancelado e não reaparecerá na fila.",
+            "O item será apagado da planilha e não poderá ser recuperado.",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No,
         )
@@ -616,19 +629,24 @@ class MainWindow(QMainWindow):
 
         try:
             writer = ExcelWriter(Config.caminho_planilha_abs())
-            writer.atualizar_status(sol, "Cancelado", adicionar_data=False)
+            removido_excel = writer.remover_solicitacao(sol)
+            if not removido_excel:
+                logger.aviso(
+                    f"Protocolo '{sol.protocolo}' não encontrado na planilha "
+                    "(pode já ter sido removido)."
+                )
         except Exception as exc:
             QMessageBox.critical(
                 self,
                 "Erro ao Remover",
-                f"Não foi possível atualizar a planilha:\n{exc}\n\n"
+                f"Não foi possível remover da planilha:\n{exc}\n\n"
                 "O item foi removido da fila visível mas pode reaparecer ao recarregar.",
             )
-            logger.aviso(f"Falha ao cancelar '{sol.protocolo}' na planilha: {exc}")
+            logger.aviso(f"Falha ao remover '{sol.protocolo}' da planilha: {exc}")
 
         removido = self._fila_panel.remover_solicitacao(sol.protocolo)
         if removido:
-            logger.info(f"Protocolo '{sol.protocolo}' removido da fila.")
+            logger.info(f"Protocolo '{sol.protocolo}' removido permanentemente.")
             self._atualizar_status(f"Protocolo {sol.protocolo} removido.")
         else:
             logger.aviso(f"Protocolo '{sol.protocolo}' não encontrado na tabela visual.")

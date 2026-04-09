@@ -110,12 +110,13 @@ class FilaPanel(QWidget):
         self._tabela.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self._tabela.setAlternatingRowColors(False)
         self._tabela.verticalHeader().setVisible(False)
-        self._tabela.horizontalHeader().setStretchLastSection(True)
+        self._tabela.horizontalHeader().setStretchLastSection(False)
         self._tabela.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         self._tabela.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
         self._tabela.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
         self._tabela.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
         self._tabela.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
+        self._tabela.horizontalHeader().setMinimumSectionSize(60)
         self._tabela.setShowGrid(False)
         self._tabela.setStyleSheet(
             "QTableWidget { background-color: #0D1117; color: #C9D1D9; "

@@ -238,6 +238,14 @@ class AdaptaGenerator:
         "ADAPTA one" (Chat com IAs premium) para que o prompt field
         seja encontrado na etapa de geração.
 
+        Lógica de login:
+            1. Se não há tela de login → sessão ativa, prossegue.
+            2. Se há tela de login E credenciais estão configuradas →
+               tenta login automático primeiro.
+            3. Se login automático falha → emite ``login_falhou``.
+            4. Se credenciais não estão configuradas → emite
+               ``login_necessario``.
+
         Args:
             email: E-mail de login (opcional).
             senha: Senha de login (opcional).
@@ -258,17 +266,24 @@ class AdaptaGenerator:
             self._navegar_para_adapta_one()
             return True
 
-        if email and senha:
-            logger.info("Tela de login detectada. Tentando login automático...")
+        tem_credenciais = bool(email and email.strip() and senha and senha.strip())
+
+        if tem_credenciais:
+            logger.info("Tela de login detectada. Login automático configurado — tentando...")
             if self.tentar_login_automatico(email, senha):
                 logger.sucesso("Login automático realizado com sucesso.")
                 self._navegar_para_adapta_one()
                 return True
-            logger.aviso("Login automático falhou. Credenciais incorretas ou página mudou.")
+            logger.aviso(
+                "Login automático falhou. Verifique as credenciais configuradas "
+                "ou faça login manualmente no navegador."
+            )
+            self._emitir_status("login_falhou")
+            return False
 
         logger.aviso(
-            "Login necessário. Faça o login no navegador aberto e "
-            "clique em 'Iniciar Geração' novamente."
+            "Login manual necessário — credenciais de login automático não configuradas. "
+            "Faça login no navegador e clique em 'Iniciar Geração' novamente."
         )
         self._emitir_status("login_necessario")
         return False
@@ -560,11 +575,17 @@ class AdaptaGenerator:
     def _navegar_para_chat(self, url: str) -> bool:
         """Navega para a URL de um chat e verifica se chegou corretamente.
 
+        Além de checar a URL, valida que a página possui um campo de prompt
+        funcional (textarea/input). Se o chat foi deletado manualmente no
+        Adapta, a página pode carregar mas sem compositor — isso é tratado
+        como chat inválido.
+
         Args:
             url: URL completa do chat armazenada no mapeamento.
 
         Returns:
-            True se a navegação resultou em uma página de chat válida.
+            True se a navegação resultou em uma página de chat válida
+            com compositor funcional.
         """
         driver = self.handler.driver
         try:
@@ -584,11 +605,48 @@ class AdaptaGenerator:
             logger.aviso("[Chat] Redirecionado para homepage — chat pode ter sido deletado.")
             return False
 
+        if self._esta_no_dashboard():
+            logger.aviso("[Chat] Redirecionado para dashboard — chat removido ou inacessível.")
+            return False
+
         if not self._e_url_de_chat_valida(url_atual):
             logger.aviso(f"[Chat] URL resultante não é de chat: {url_atual}")
             return False
 
+        if not self._verificar_compositor_presente():
+            logger.aviso(
+                "[Chat] Chat carregado mas sem campo de prompt funcional — "
+                "chat removido ou inconsistente."
+            )
+            return False
+
+        logger.info("[Chat] Chat validado — compositor funcional encontrado.")
         return True
+
+    def _verificar_compositor_presente(self, tentativas: int = 2) -> bool:
+        """Verifica se a página atual possui um campo de prompt funcional.
+
+        Aguarda brevemente e tenta localizar um textarea ou input de prompt.
+        Isso garante que o chat não está quebrado, vazio ou deletado.
+
+        Args:
+            tentativas: Quantidade de ciclos de espera antes de desistir.
+
+        Returns:
+            True se um campo de prompt foi encontrado e está visível.
+        """
+        driver = self.handler.driver
+        for _ in range(tentativas):
+            for sel in SELECTORS["campo_prompt"]:
+                try:
+                    elems = driver.find_elements(By.CSS_SELECTOR, sel)
+                    for elem in elems:
+                        if elem.is_displayed() and elem.is_enabled():
+                            return True
+                except Exception:
+                    continue
+            time.sleep(2)
+        return False
 
     def _e_url_de_chat_valida(self, url: str) -> bool:
         """Verifica heuristicamente se uma URL corresponde a um chat ativo.
