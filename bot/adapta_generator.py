@@ -29,9 +29,10 @@ from utils.helpers import (
     truncar_texto,
     verificar_internet,
 )
+from utils.prompt_composer import compor_prompt_arte, PerfilCliente
 
 if TYPE_CHECKING:
-    from excel.reader import Solicitacao
+    from excel.reader import Cliente, Solicitacao
 
 
 SELECTORS_LOGIN = {
@@ -796,11 +797,22 @@ class AdaptaGenerator:
             return f"{codigo} - {nome}"
         return codigo
 
-    def gerar_solicitacao(self, solicitacao: "Solicitacao") -> List[Path]:
+    def gerar_solicitacao(
+        self,
+        solicitacao: "Solicitacao",
+        cliente: Optional["Cliente"] = None,
+    ) -> List[Path]:
         """Gera todas as artes de uma solicitação.
+
+        A composição do prompt final é centralizada em
+        ``utils.prompt_composer.compor_prompt_arte()`` — cada arte recebe
+        um prompt composto que inclui perfil do cliente, tema, instrução
+        principal e variações complementares da série.
 
         Args:
             solicitacao: Dados da solicitação com prompts e protocolo.
+            cliente: Dados cadastrais do cliente (perfil). Quando fornecido,
+                     o perfil é injetado em cada prompt enviado ao chat.
 
         Returns:
             Lista de Paths das imagens geradas com sucesso.
@@ -808,6 +820,18 @@ class AdaptaGenerator:
         self._cancelado = False
         self._pausado = False
         self._solicitacao_ativa = solicitacao
+
+        perfil = PerfilCliente.from_cliente(cliente) if cliente else PerfilCliente()
+        if perfil.vazio:
+            logger.aviso(
+                f"[Composer] Perfil do cliente '{solicitacao.codigo_cliente}' "
+                "está vazio ou incompleto — prompt será gerado sem contexto de marca."
+            )
+        else:
+            logger.info(
+                f"[Composer] Perfil carregado: {perfil.nome} ({perfil.codigo}) "
+                f"| nicho={perfil.nicho or '—'} | estilo={perfil.estilo_visual or '—'}"
+            )
 
         pasta_protocolo = self.pasta_output / solicitacao.protocolo.replace("#", "_")
         pasta_protocolo.mkdir(parents=True, exist_ok=True)
@@ -825,7 +849,9 @@ class AdaptaGenerator:
         logger.info(f"Iniciando geração de {solicitacao.protocolo} - {total} artes")
         imagens_geradas: List[Path] = []
 
-        for idx, prompt in enumerate(prompts_validos, start=1):
+        todos_prompts = solicitacao.prompts
+
+        for idx, prompt_bruto in enumerate(prompts_validos, start=1):
             if self._cancelado:
                 logger.aviso("Geração cancelada pelo usuário.")
                 break
@@ -835,14 +861,34 @@ class AdaptaGenerator:
                 if self._cancelado:
                     break
 
+            indice_no_total = -1
+            for j, p in enumerate(todos_prompts):
+                if p and str(p).strip() == prompt_bruto:
+                    indice_no_total = j
+                    break
+
+            prompt_composto = compor_prompt_arte(
+                perfil=perfil,
+                tema=solicitacao.tema,
+                prompt_principal=prompt_bruto,
+                variacoes=todos_prompts,
+                indice_prompt_principal=indice_no_total,
+                numero_arte=idx,
+                total_artes=total,
+            )
+
             logger.info(
-                f"Gerando arte {idx}/{total} - Prompt: {truncar_texto(prompt, 60)}"
+                f"Gerando arte {idx}/{total} - Prompt: {truncar_texto(prompt_bruto, 60)}"
+            )
+            logger.info(
+                f"[Composer] Prompt composto ({len(prompt_composto)} chars) "
+                f"para arte {idx}/{total}"
             )
             self._emitir_progresso(idx - 1, total)
 
             nome = nome_arquivo_arte(solicitacao.protocolo, idx)
             arquivo = self._gerar_com_retry(
-                prompt=prompt,
+                prompt=prompt_composto,
                 downloader=downloader,
                 nome_arquivo=nome,
                 numero=idx,

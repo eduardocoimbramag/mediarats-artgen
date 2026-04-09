@@ -87,6 +87,8 @@ class GeracaoWorker(QThread):
         self.signals.info_dashboard.emit(sol.cliente, sol.protocolo, sol.tema)
         self.signals.status_linha.emit(sol.protocolo, "Gerando")
 
+        cliente_obj = self._carregar_perfil_cliente(sol.codigo_cliente)
+
         if self.handler_existente and self.handler_existente.ativo:
             handler = self.handler_existente
             self.signals.log.emit("Reutilizando navegador já aberto.", "info")
@@ -131,12 +133,47 @@ class GeracaoWorker(QThread):
             self.signals.status_linha.emit(sol.protocolo, "Pendente")
             return
 
-        imagens = generator.gerar_solicitacao(sol)
+        imagens = generator.gerar_solicitacao(sol, cliente=cliente_obj)
 
         self.signals.concluido.emit([str(p) for p in imagens])
         self.signals.status_linha.emit(
             sol.protocolo, "Gerado" if imagens else "Erro"
         )
+
+    def _carregar_perfil_cliente(self, codigo_cliente: str):
+        """Carrega o perfil completo do cliente a partir da planilha.
+
+        Busca na aba CLIENTES o registro cujo código corresponde ao
+        ``codigo_cliente`` da solicitação. Falha silenciosamente para
+        não bloquear a geração se o cliente não for encontrado.
+
+        Args:
+            codigo_cliente: Código do cliente (ex: DUDE).
+
+        Returns:
+            Instância de ``excel.reader.Cliente`` ou None.
+        """
+        try:
+            reader = ExcelReader(Config.caminho_planilha_abs())
+            clientes = reader.ler_clientes()
+            codigo_upper = codigo_cliente.strip().upper()
+            for c in clientes:
+                if c.codigo.strip().upper() == codigo_upper:
+                    self.signals.log.emit(
+                        f"[Composer] Perfil do cliente '{c.nome}' carregado da planilha.",
+                        "info",
+                    )
+                    return c
+            self.signals.log.emit(
+                f"[Composer] Cliente '{codigo_cliente}' não encontrado na aba CLIENTES.",
+                "aviso",
+            )
+        except Exception as exc:
+            self.signals.log.emit(
+                f"[Composer] Falha ao carregar perfil do cliente: {exc}",
+                "aviso",
+            )
+        return None
 
 
 class MainWindow(QMainWindow):
