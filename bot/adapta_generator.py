@@ -65,11 +65,22 @@ SELECTORS_LOGIN = {
 
 SELECTORS = {
     "campo_prompt": [
+        # --- Modern chat composers: contenteditable divs ---
+        "div[contenteditable='true']",
+        "p[contenteditable='true']",
+        "[contenteditable='true']",
+        # --- Textarea com placeholders comuns em chat/AI ---
         "textarea[placeholder*='prompt' i]",
         "textarea[placeholder*='descri' i]",
+        "textarea[placeholder*='mensa' i]",
+        "textarea[placeholder*='escrev' i]",
+        "textarea[placeholder*='digi' i]",
+        "textarea[placeholder*='pergunt' i]",
         "textarea.prompt-input",
         "textarea",
+        # --- Input text (menos comum em compositors de chat) ---
         "input[type='text'][placeholder*='prompt' i]",
+        "input[type='text'][placeholder*='mensa' i]",
     ],
     "botao_gerar": [
         "button[type='submit']",
@@ -626,26 +637,21 @@ class AdaptaGenerator:
     def _verificar_compositor_presente(self, tentativas: int = 2) -> bool:
         """Verifica se a página atual possui um campo de prompt funcional.
 
-        Aguarda brevemente e tenta localizar um textarea ou input de prompt.
-        Isso garante que o chat não está quebrado, vazio ou deletado.
+        Usa `_aguardar_compositor` com timeout baseado no número de tentativas.
+        Detecta corretamente tanto textarea quanto div[contenteditable='true'].
 
         Args:
-            tentativas: Quantidade de ciclos de espera antes de desistir.
+            tentativas: Quantidade de ciclos de 2s de espera (total = tentativas*2s).
 
         Returns:
-            True se um campo de prompt foi encontrado e está visível.
+            True se um compositor válido foi encontrado e está visível.
         """
-        driver = self.handler.driver
-        for _ in range(tentativas):
-            for sel in SELECTORS["campo_prompt"]:
-                try:
-                    elems = driver.find_elements(By.CSS_SELECTOR, sel)
-                    for elem in elems:
-                        if elem.is_displayed() and elem.is_enabled():
-                            return True
-                except Exception:
-                    continue
-            time.sleep(2)
+        timeout_s = max(tentativas * 2, 4)
+        campo = self._aguardar_compositor(timeout_s=timeout_s)
+        if campo is not None:
+            logger.info("[Chat] Compositor presente e validado na página.")
+            return True
+        logger.aviso("[Chat] Compositor não encontrado — chat removido ou inacessível.")
         return False
 
     def _e_url_de_chat_valida(self, url: str) -> bool:
@@ -752,6 +758,20 @@ class AdaptaGenerator:
         logger.info(f"[Chat] Novo chat aberto em: {url_novo}")
         titulo = self._titulo_chat_para_cliente(codigo_cliente, nome_cliente)
         self._renomear_chat(titulo)
+
+        logger.info(
+            "[Chat] Rename concluído. Aguardando compositor ficar pronto "
+            "para envio de prompt..."
+        )
+        campo = self._aguardar_compositor(timeout_s=12)
+        if campo is not None:
+            logger.sucesso("[Chat] Compositor pronto após criação do chat.")
+        else:
+            logger.aviso(
+                "[Chat] Compositor não detectado após criação — "
+                "_executar_geracao tentará localizar com timeout próprio."
+            )
+
         return url_novo
 
     def _localizar_botao_novo_chat(self):
@@ -1023,34 +1043,88 @@ class AdaptaGenerator:
     ) -> Optional[Path]:
         """Executa o fluxo de geração de uma única arte.
 
+        Usa `_aguardar_compositor` como estratégia unificada de localização
+        do campo de entrada — a mesma lógica que funciona para rename, agora
+        aplicada ao envio de prompt.
+
+        Fluxo:
+            1. Aguarda compositor ficar disponível (timeout 15s).
+            2. Faz scroll + foco explícito no campo.
+            3. Limpa o campo com método correto para o tipo (textarea vs contenteditable).
+            4. Digita o prompt com delay natural.
+            5. Clica em Enviar (ou pressiona Enter como fallback).
+
         Args:
-            prompt: Texto do prompt.
+            prompt: Texto do prompt composto.
             downloader: Instância do DownloadManager.
             nome_arquivo: Nome do arquivo de saída.
 
         Returns:
-            Path do arquivo ou None.
+            Path do arquivo gerado ou None.
+
+        Raises:
+            NoSuchElementException: Se o compositor não for encontrado.
         """
         driver = self.handler.driver
 
-        campo = self._localizar_campo_prompt()
+        logger.info(
+            f"[Composer] Aguardando compositor antes de digitar prompt "
+            f"({len(prompt)} chars)..."
+        )
+        campo = self._aguardar_compositor(timeout_s=15)
         if campo is None:
-            raise NoSuchElementException("Campo de prompt não encontrado na página.")
+            raise NoSuchElementException(
+                "Campo de prompt não encontrado na página após 15s. "
+                "Verifique os logs [Composer][Diagnóstico] para detalhes."
+            )
 
-        campo.click()
-        time.sleep(0.3)
-        campo.send_keys(Keys.CONTROL + "a")
-        time.sleep(0.2)
-        campo.clear()
+        tag = campo.tag_name
+        ce = campo.get_attribute("contenteditable") or ""
+        tipo = f"{tag}[contenteditable=true]" if ce == "true" else tag
+        logger.info(f"[Composer] Compositor pronto: tipo='{tipo}'.")
+
+        # Scroll para garantir visibilidade
+        try:
+            driver.execute_script(
+                "arguments[0].scrollIntoView({block:'center',inline:'center'});",
+                campo,
+            )
+            time.sleep(0.3)
+        except Exception:
+            pass
+
+        # Clique para garantir foco
+        try:
+            driver.execute_script("arguments[0].click();", campo)
+        except Exception:
+            try:
+                campo.click()
+            except Exception:
+                pass
         time.sleep(0.3)
 
+        # Forçar foco via JS (necessário em contenteditable)
+        try:
+            driver.execute_script("arguments[0].focus();", campo)
+            time.sleep(0.2)
+        except Exception:
+            pass
+
+        # Limpar campo com método adequado ao tipo
+        self._limpar_campo_compositor(campo)
+        time.sleep(0.3)
+
+        # Digitar prompt com delay natural
         self._digitar_naturalista(campo, prompt)
         time.sleep(0.5)
 
+        # Enviar
         botao = self._localizar_botao_gerar()
         if botao is None:
+            logger.info("[Composer] Botão de envio não encontrado — usando Enter.")
             campo.send_keys(Keys.RETURN)
         else:
+            logger.info("[Composer] Clicando botão de envio.")
             botao.click()
 
         logger.info("Aguardando geração da imagem...")
@@ -1060,19 +1134,263 @@ class AdaptaGenerator:
     def _localizar_campo_prompt(self):
         """Localiza o campo de texto de prompt na página.
 
+        Atalho legado — usa `_aguardar_compositor` internamente com timeout curto.
+        Mantido para compatibilidade com código externo.
+
         Returns:
             WebElement do campo ou None.
         """
+        return self._aguardar_compositor(timeout_s=5)
+
+    def _aguardar_compositor(self, timeout_s: int = 15) -> Optional[object]:
+        """Aguarda e retorna o campo de entrada do compositor do chat.
+
+        Estratégia unificada usada tanto para validação de chat (após
+        navegação) quanto para envio de prompt (antes de digitar).
+
+        Polling a cada 2s até timeout_s. Em cada ciclo, coleta todos os
+        candidatos editáveis visíveis, pontua cada um por contexto (posição
+        na página, ancestrais, proximidade de botão de envio) e retorna
+        o melhor.
+
+        Args:
+            timeout_s: Tempo máximo de espera em segundos.
+
+        Returns:
+            WebElement do compositor ou None se não encontrado.
+        """
+        deadline = time.time() + timeout_s
+        tentativa = 0
+
+        while time.time() < deadline:
+            tentativa += 1
+            candidatos = self._coletar_candidatos_compositor()
+
+            if candidatos:
+                melhor = self._escolher_melhor_compositor(candidatos)
+                if melhor is not None:
+                    tag = melhor.tag_name
+                    ce = melhor.get_attribute("contenteditable") or ""
+                    descricao = f"div[contenteditable=true]" if ce == "true" else tag
+                    logger.info(
+                        f"[Composer] Campo encontrado via '{descricao}' "
+                        f"(tentativa {tentativa}, {len(candidatos)} candidato(s) avaliado(s))."
+                    )
+                    return melhor
+
+            restante = deadline - time.time()
+            if tentativa == 1 and restante > 0:
+                logger.info(
+                    f"[Composer] Campo não encontrado na tentativa {tentativa}. "
+                    f"Aguardando estabilização da UI ({restante:.0f}s restantes)..."
+                )
+            time.sleep(2)
+
+        self._logar_diagnostico_compositor()
+        return None
+
+    def _coletar_candidatos_compositor(self) -> list:
+        """Coleta todos os campos editáveis visíveis e habilitados da página.
+
+        Busca por: div[contenteditable], textarea, input[type=text].
+
+        Returns:
+            Lista de WebElements visíveis e habilitados.
+        """
         driver = self.handler.driver
-        for sel in SELECTORS["campo_prompt"]:
+        candidatos = []
+        seletores = [
+            "div[contenteditable='true']",
+            "p[contenteditable='true']",
+            "[contenteditable='true']",
+            "textarea",
+            "input[type='text']",
+        ]
+        for sel in seletores:
             try:
                 elems = driver.find_elements(By.CSS_SELECTOR, sel)
                 for elem in elems:
-                    if elem.is_displayed() and elem.is_enabled():
-                        return elem
+                    try:
+                        if elem.is_displayed() and elem.is_enabled():
+                            candidatos.append(elem)
+                    except Exception:
+                        continue
             except Exception:
                 continue
-        return None
+        return candidatos
+
+    def _escolher_melhor_compositor(self, candidatos: list) -> Optional[object]:
+        """Escolhe o melhor candidato a compositor de chat entre os disponíveis.
+
+        Aplica pontuação baseada em contexto para distinguir o compositor
+        principal do chat de outros campos editáveis (ex: título/rename
+        no topo da página).
+
+        Critérios de pontuação:
+          +30 — ancestral com classe/id relacionado a chat, message, composer
+          +20 — botão de envio visível como irmão próximo
+          +15 — campo na metade inferior da viewport
+          +10 — largura > 200px (campo amplo = compositor principal)
+          −50 — ancestral é header/nav/sidebar/title/rename
+
+        Args:
+            candidatos: Lista de WebElements candidatos.
+
+        Returns:
+            WebElement com maior pontuação, ou None se todos < -10.
+        """
+        driver = self.handler.driver
+
+        def _pontuar(elem) -> int:
+            score = 0
+            try:
+                anc_pos = (
+                    "./ancestor::*["
+                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'chat') or "
+                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'message') or "
+                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'composer') or "
+                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'input-area') or "
+                    "contains(translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'chat') or "
+                    "contains(translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'message')"
+                    "]"
+                )
+                if elem.find_elements(By.XPATH, anc_pos):
+                    score += 30
+
+                anc_neg = (
+                    "./ancestor::*["
+                    "self::header or self::nav or "
+                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'header') or "
+                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'sidebar') or "
+                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'title') or "
+                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'rename') or "
+                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'nav')"
+                    "]"
+                )
+                if elem.find_elements(By.XPATH, anc_neg):
+                    score -= 50
+
+                botoes = elem.find_elements(
+                    By.XPATH,
+                    "./following-sibling::button[@type='submit' or contains(@class,'send') or contains(@aria-label,'send') or contains(@aria-label,'enviar')] | "
+                    "./parent::*/following-sibling::*//button | "
+                    "./parent::*/child::button",
+                )
+                if any(b.is_displayed() for b in botoes):
+                    score += 20
+
+                rect = driver.execute_script(
+                    "var r=arguments[0].getBoundingClientRect();"
+                    "return {top:r.top,width:r.width};",
+                    elem,
+                )
+                vh = driver.execute_script("return window.innerHeight;")
+                if rect and vh:
+                    if rect.get("top", 0) > vh * 0.4:
+                        score += 15
+                    if rect.get("width", 0) > 200:
+                        score += 10
+            except Exception:
+                pass
+            return score
+
+        pontuados = []
+        for c in candidatos:
+            try:
+                pontuados.append((_pontuar(c), c))
+            except Exception:
+                pontuados.append((0, c))
+
+        if not pontuados:
+            return None
+
+        pontuados.sort(key=lambda x: x[0], reverse=True)
+        melhor_score, melhor = pontuados[0]
+
+        logger.info(
+            f"[Composer] {len(candidatos)} candidato(s). "
+            f"Melhor: tag='{melhor.tag_name}' score={melhor_score}."
+        )
+
+        if melhor_score < -10:
+            logger.aviso(
+                "[Composer] Todos os candidatos estão em contexto inválido "
+                "(header/nav/title). Nenhum compositor válido selecionado."
+            )
+            return None
+
+        return melhor
+
+    def _limpar_campo_compositor(self, campo) -> None:
+        """Limpa o conteúdo do campo de entrada do compositor.
+
+        Trata corretamente tanto textarea/input quanto div[contenteditable].
+        Para contenteditable, o método `clear()` do Selenium não funciona —
+        é necessário usar JS e/ou combinações de teclas.
+
+        Args:
+            campo: WebElement do compositor.
+        """
+        driver = self.handler.driver
+        tag = campo.tag_name.lower()
+        ce = campo.get_attribute("contenteditable") or ""
+
+        if ce == "true" or tag not in ("textarea", "input"):
+            try:
+                driver.execute_script("arguments[0].innerHTML = '';", campo)
+                time.sleep(0.1)
+            except Exception:
+                pass
+            try:
+                campo.send_keys(Keys.CONTROL + "a")
+                time.sleep(0.1)
+                campo.send_keys(Keys.DELETE)
+                time.sleep(0.1)
+            except Exception:
+                pass
+        else:
+            try:
+                campo.send_keys(Keys.CONTROL + "a")
+                time.sleep(0.2)
+                campo.clear()
+                time.sleep(0.1)
+            except Exception:
+                pass
+
+    def _logar_diagnostico_compositor(self) -> None:
+        """Emite log diagnóstico detalhado quando o compositor não é encontrado.
+
+        Informa URL atual, título da página, quantidade de candidatos
+        encontrados por seletor e se cada um estava visível/habilitado.
+        Útil para depuração sem precisar de screenshot.
+        """
+        driver = self.handler.driver
+        try:
+            logger.aviso(
+                f"[Composer][Diagnóstico] URL atual: {driver.current_url}"
+            )
+            logger.aviso(
+                f"[Composer][Diagnóstico] Título da página: {driver.title}"
+            )
+        except Exception:
+            pass
+
+        seletores_diag = [
+            "div[contenteditable='true']",
+            "[contenteditable='true']",
+            "textarea",
+            "input[type='text']",
+        ]
+        for sel in seletores_diag:
+            try:
+                elems = driver.find_elements(By.CSS_SELECTOR, sel)
+                visiveis = sum(1 for e in elems if e.is_displayed())
+                logger.aviso(
+                    f"[Composer][Diagnóstico] '{sel}': "
+                    f"{len(elems)} elemento(s), {visiveis} visível(is)."
+                )
+            except Exception:
+                logger.aviso(f"[Composer][Diagnóstico] '{sel}': erro ao buscar.")
 
     def _localizar_botao_gerar(self):
         """Localiza o botão de geração na página.

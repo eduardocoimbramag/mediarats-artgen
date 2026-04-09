@@ -411,3 +411,122 @@
 2026-04-09 15:57:04 [INFO] Geração de DUDE#1 CONCLUÍDA! 0/3 artes salvas em C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\output\DUDE_1
 2026-04-09 15:57:04 [INFO] Planilha atualizada para DUDE#1.
 2026-04-09 15:57:06 [INFO] Navegador fechado.
+2026-04-09 16:25:44 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 16:25:44 [INFO] Planilha carregada: 1 solicitação(ões) (0 pendente(s)).
+2026-04-09 16:25:48 [INFO] Protocolo 'DUDE#1' removido permanentemente.
+2026-04-09 16:26:12 [INFO] Protocolo 'DUDE#1' criado — DudeCamp / CSS
+2026-04-09 16:26:12 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 16:26:12 [INFO] Planilha carregada: 1 solicitação(ões) (1 pendente(s)).
+2026-04-09 16:26:20 [INFO] Tentando iniciar Chrome (tentativa 1/3)...
+2026-04-09 16:26:23 [INFO] Navegador Chrome iniciado com sucesso.
+2026-04-09 16:26:23 [INFO] Acessando AdaptaOne...
+2026-04-09 16:26:24 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 16:26:27 [INFO] Tela de login detectada. Login automático configurado — tentando...
+2026-04-09 16:26:28 [WARNING] Campos de e-mail/senha não localizados na página de login.
+2026-04-09 16:26:28 [WARNING] Login automático falhou. Verifique as credenciais configuradas ou faça login manualmente no navegador.
+2026-04-09 16:27:09 [INFO] Acessando AdaptaOne...
+2026-04-09 16:27:10 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 16:27:13 [INFO] AdaptaOne carregado — sessão ativa.
+2026-04-09 16:27:13 [INFO] [AdaptaOne] Dashboard detectado. Clicando em 'ADAPTA one'...
+2026-04-09 16:27:16 [INFO] [AdaptaOne] Entrou na interface de chat com sucesso.
+2026-04-09 16:27:16 [INFO] [Composer] Perfil carregado: DudeCamp (DUDE) | nicho=Educação Tech | estilo=Tech
+2026-04-09 16:27:16 [INFO] [Chat] Resolvendo chat: 'DUDE - DudeCamp'...
+2026-04-09 16:27:16 [INFO] [Chat] Buscando pasta 'Media Rats - ArtGen' no sidebar...
+2026-04-09 16:27:16 [WARNING] [Chat] Pasta 'Media Rats - ArtGen' não localizada no sidebar.
+2026-04-09 16:27:16 [INFO] [Chat] Vínculo registrado: https://agent.adapta.one/agentic-chat
+2026-04-09 16:27:20 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:20 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:20 [INFO] [Composer] Campo não encontrado na tentativa 1. Aguardando estabilização da UI (4s restantes)...
+2026-04-09 16:27:22 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:22 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:24 [WARNING] [Composer][Diagnóstico] URL atual: https://agent.adapta.one/agentic-chat
+2026-04-09 16:27:24 [WARNING] [Composer][Diagnóstico] Título da página: Adapta ONE 26 - Italo
+2026-04-09 16:27:24 [WARNING] [Composer][Diagnóstico] 'div[contenteditable='true']': 1 elemento(s), 1 visível(is).
+2026-04-09 16:27:24 [WARNING] [Composer][Diagnóstico] '[contenteditable='true']': 1 elemento(s), 1 visível(is).
+2026-04-09 16:27:24 [WARNING] [Composer][Diagnóstico] 'textarea': 0 elemento(s), 0 visível(is).
+2026-04-09 16:27:24 [WARNING] [Composer][Diagnóstico] 'input[type='text']': 1 elemento(s), 1 visível(is).
+2026-04-09 16:27:24 [WARNING] [Chat] Compositor não encontrado — chat removido ou inacessível.
+2026-04-09 16:27:24 [WARNING] [Chat] Chat carregado mas sem campo de prompt funcional — chat removido ou inconsistente.
+2026-04-09 16:27:24 [WARNING] [Chat] URL registrada inválida. Removendo vínculo e rebuscando...
+2026-04-09 16:27:24 [INFO] [Chat] Criando novo chat para 'DUDE - DudeCamp'...
+2026-04-09 16:27:30 [INFO] [Chat] Novo chat aberto em: https://agent.adapta.one/agentic-chat
+2026-04-09 16:27:33 [INFO] [Chat] Chat renomeado para 'DUDE - DudeCamp'.
+2026-04-09 16:27:33 [INFO] [Chat] Rename concluído. Aguardando compositor ficar pronto para envio de prompt...
+2026-04-09 16:27:33 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:33 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:33 [INFO] [Composer] Campo não encontrado na tentativa 1. Aguardando estabilização da UI (12s restantes)...
+2026-04-09 16:27:35 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:35 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:37 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:37 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:39 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:39 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:41 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:41 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:43 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:43 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:46 [WARNING] [Composer][Diagnóstico] URL atual: https://agent.adapta.one/agentic-chat
+2026-04-09 16:27:46 [WARNING] [Composer][Diagnóstico] Título da página: Adapta ONE 26 - Italo
+2026-04-09 16:27:46 [WARNING] [Composer][Diagnóstico] 'div[contenteditable='true']': 1 elemento(s), 1 visível(is).
+2026-04-09 16:27:46 [WARNING] [Composer][Diagnóstico] '[contenteditable='true']': 1 elemento(s), 1 visível(is).
+2026-04-09 16:27:46 [WARNING] [Composer][Diagnóstico] 'textarea': 0 elemento(s), 0 visível(is).
+2026-04-09 16:27:46 [WARNING] [Composer][Diagnóstico] 'input[type='text']': 1 elemento(s), 1 visível(is).
+2026-04-09 16:27:46 [WARNING] [Chat] Compositor não detectado após criação — _executar_geracao tentará localizar com timeout próprio.
+2026-04-09 16:27:46 [INFO] [Chat] ✓ Novo chat criado: https://agent.adapta.one/agentic-chat
+2026-04-09 16:27:46 [INFO] Iniciando geração de DUDE#1 - 2 artes
+2026-04-09 16:27:46 [INFO] Gerando arte 1/2 - Prompt: Crie uma arte impactante para post de redes sociais sobre CS...
+2026-04-09 16:27:46 [INFO] [Composer] Prompt composto (1694 chars) para arte 1/2
+2026-04-09 16:27:46 [INFO] [Composer] Aguardando compositor antes de digitar prompt (1694 chars)...
+2026-04-09 16:27:46 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:46 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:46 [INFO] [Composer] Campo não encontrado na tentativa 1. Aguardando estabilização da UI (15s restantes)...
+2026-04-09 16:27:48 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:48 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:50 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:50 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:52 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:52 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:54 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:54 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:56 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:56 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:27:59 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:27:59 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:28:01 [WARNING] [Composer][Diagnóstico] URL atual: https://agent.adapta.one/agentic-chat/019d73b6-8eaf-72a9-8b16-b8ad789f0cf6
+2026-04-09 16:28:01 [WARNING] [Composer][Diagnóstico] Título da página: DUDE - DudeCamp - Adapta ONE 26
+2026-04-09 16:28:01 [WARNING] [Composer][Diagnóstico] 'div[contenteditable='true']': 1 elemento(s), 1 visível(is).
+2026-04-09 16:28:01 [WARNING] [Composer][Diagnóstico] '[contenteditable='true']': 1 elemento(s), 1 visível(is).
+2026-04-09 16:28:01 [WARNING] [Composer][Diagnóstico] 'textarea': 0 elemento(s), 0 visível(is).
+2026-04-09 16:28:01 [WARNING] [Composer][Diagnóstico] 'input[type='text']': 1 elemento(s), 1 visível(is).
+2026-04-09 16:28:01 [WARNING] Tentativa 1/3 falhou: Message: Campo de prompt não encontrado na página após 15s. Verifique os logs [Composer][Diagnóstico] para detalhes.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 16:28:01 [INFO] Aguardando 2s antes de tentar novamente...
+2026-04-09 16:28:03 [INFO] [Composer] Aguardando compositor antes de digitar prompt (1694 chars)...
+2026-04-09 16:28:03 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:28:03 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:28:03 [INFO] [Composer] Campo não encontrado na tentativa 1. Aguardando estabilização da UI (15s restantes)...
+2026-04-09 16:28:05 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:28:05 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:28:07 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:28:07 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:28:09 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:28:09 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:28:11 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:28:11 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:28:13 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:28:13 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:28:16 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:28:16 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:28:18 [INFO] [Composer] 3 candidato(s). Melhor: tag='div' score=-25.
+2026-04-09 16:28:18 [WARNING] [Composer] Todos os candidatos estão em contexto inválido (header/nav/title). Nenhum compositor válido selecionado.
+2026-04-09 16:28:20 [WARNING] [Composer][Diagnóstico] URL atual: https://agent.adapta.one/agentic-chat/019d73b6-8eaf-72a9-8b16-b8ad789f0cf6
+2026-04-09 16:28:20 [WARNING] [Composer][Diagnóstico] Título da página: DUDE - DudeCamp - Adapta ONE 26
+2026-04-09 16:28:20 [WARNING] [Composer][Diagnóstico] 'div[contenteditable='true']': 1 elemento(s), 1 visível(is).
+2026-04-09 16:28:20 [WARNING] [Composer][Diagnóstico] '[contenteditable='true']': 1 elemento(s), 1 visível(is).
+2026-04-09 16:28:20 [WARNING] [Composer][Diagnóstico] 'textarea': 0 elemento(s), 0 visível(is).
+2026-04-09 16:28:20 [WARNING] [Composer][Diagnóstico] 'input[type='text']': 1 elemento(s), 1 visível(is).
+2026-04-09 16:28:20 [WARNING] Tentativa 2/3 falhou: Message: Campo de prompt não encontrado na página após 15s. Verifique os logs [Composer][Diagnóstico] para detalhes.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-09 16:28:20 [INFO] Aguardando 4s antes de tentar novamente...
+2026-04-09 16:28:22 [WARNING] Cancelamento solicitado...
+2026-04-09 16:28:24 [INFO] Navegador fechado.
