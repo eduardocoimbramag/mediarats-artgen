@@ -760,8 +760,12 @@ class AdaptaGenerator:
         self._renomear_chat(titulo)
 
         logger.info(
-            "[Chat] Rename concluído. Aguardando compositor ficar pronto "
-            "para envio de prompt..."
+            "[Chat] Rename concluído. Aguardando input de rename desaparecer..."
+        )
+        self._aguardar_fim_rename(timeout_s=8)
+
+        logger.info(
+            "[Chat] Aguardando compositor ficar pronto para envio de prompt..."
         )
         campo = self._aguardar_compositor(timeout_s=12)
         if campo is not None:
@@ -1145,48 +1149,94 @@ class AdaptaGenerator:
     def _aguardar_compositor(self, timeout_s: int = 15) -> Optional[object]:
         """Aguarda e retorna o campo de entrada do compositor do chat.
 
-        Estratégia unificada usada tanto para validação de chat (após
-        navegação) quanto para envio de prompt (antes de digitar).
+        Estratégia em 3 rodadas progressivamente mais permissivas:
 
-        Polling a cada 2s até timeout_s. Em cada ciclo, coleta todos os
-        candidatos editáveis visíveis, pontua cada um por contexto (posição
-        na página, ancestrais, proximidade de botão de envio) e retorna
-        o melhor.
+        - **padrao** (0% a 40% do timeout): heurística padrão, threshold=0.
+          Penaliza levemente header/sidebar/rename. Não penaliza 'title'
+          quando já estamos em URL de chat ativo.
+        - **relaxado** (40% a 75% do timeout): penalidades mínimas (só
+          header/sidebar reais). Threshold=-5.
+        - **fallback** (>75% do timeout): sem penalidades. Retorna qualquer
+          candidato visível. Se ainda assim scoring falhar, testa
+          funcionalmente cada contenteditable com click+focus.
 
         Args:
-            timeout_s: Tempo máximo de espera em segundos.
+            timeout_s: Tempo máximo de espera total em segundos.
 
         Returns:
             WebElement do compositor ou None se não encontrado.
         """
-        deadline = time.time() + timeout_s
+        inicio = time.time()
+        deadline = inicio + timeout_s
         tentativa = 0
 
         while time.time() < deadline:
             tentativa += 1
+            decorrido = time.time() - inicio
+            restante = deadline - time.time()
+
+            if timeout_s >= 8:
+                if decorrido < timeout_s * 0.40:
+                    modo = "padrao"
+                elif decorrido < timeout_s * 0.75:
+                    modo = "relaxado"
+                else:
+                    modo = "fallback"
+            else:
+                modo = "padrao" if decorrido < timeout_s * 0.6 else "fallback"
+
             candidatos = self._coletar_candidatos_compositor()
 
-            if candidatos:
-                melhor = self._escolher_melhor_compositor(candidatos)
-                if melhor is not None:
-                    tag = melhor.tag_name
-                    ce = melhor.get_attribute("contenteditable") or ""
-                    descricao = f"div[contenteditable=true]" if ce == "true" else tag
-                    logger.info(
-                        f"[Composer] Campo encontrado via '{descricao}' "
-                        f"(tentativa {tentativa}, {len(candidatos)} candidato(s) avaliado(s))."
-                    )
-                    return melhor
-
-            restante = deadline - time.time()
-            if tentativa == 1 and restante > 0:
+            if not candidatos:
                 logger.info(
-                    f"[Composer] Campo não encontrado na tentativa {tentativa}. "
-                    f"Aguardando estabilização da UI ({restante:.0f}s restantes)..."
+                    f"[Composer] Tentativa {tentativa} ({modo}): "
+                    f"0 candidatos visíveis — aguardando... ({restante:.0f}s)"
+                )
+                time.sleep(2)
+                continue
+
+            melhor = self._escolher_melhor_compositor(candidatos, modo=modo)
+
+            if melhor is not None:
+                tag = melhor.tag_name
+                ce = melhor.get_attribute("contenteditable") or ""
+                tipo = f"{tag}[contenteditable=true]" if ce == "true" else tag
+                logger.info(
+                    f"[Composer] Compositor resolvido: tipo='{tipo}', "
+                    f"modo='{modo}', tentativa={tentativa}."
+                )
+                return melhor
+
+            if restante > 2:
+                logger.info(
+                    f"[Composer] Tentativa {tentativa} ({modo}): "
+                    f"nenhum candidato aprovado. {restante:.0f}s restantes."
                 )
             time.sleep(2)
 
         self._logar_diagnostico_compositor()
+
+        # Último recurso: teste funcional direto em cada contenteditable visível
+        logger.aviso(
+            "[Composer] Timeout atingido. Tentando teste funcional direto "
+            "em candidatos contenteditable..."
+        )
+        try:
+            driver = self.handler.driver
+            ces = driver.find_elements(By.CSS_SELECTOR, "[contenteditable='true']")
+            for ce_elem in ces:
+                try:
+                    if ce_elem.is_displayed() and ce_elem.is_enabled():
+                        if self._verificar_foco_funcional(ce_elem):
+                            logger.sucesso(
+                                "[Composer] Compositor encontrado via teste funcional direto."
+                            )
+                            return ce_elem
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
         return None
 
     def _coletar_candidatos_compositor(self) -> list:
@@ -1219,107 +1269,195 @@ class AdaptaGenerator:
                 continue
         return candidatos
 
-    def _escolher_melhor_compositor(self, candidatos: list) -> Optional[object]:
+    def _escolher_melhor_compositor(
+        self, candidatos: list, modo: str = "padrao"
+    ) -> Optional[object]:
         """Escolhe o melhor candidato a compositor de chat entre os disponíveis.
 
-        Aplica pontuação baseada em contexto para distinguir o compositor
-        principal do chat de outros campos editáveis (ex: título/rename
-        no topo da página).
+        Usa pontuação por contexto com três modos progressivamente mais
+        permissivos. Penalidades são sempre **sinais fracos**, nunca vetos
+        absolutos. O URL atual é o sinal mais forte de que estamos em um
+        chat ativo e qualquer contenteditable visível provavelmente é o
+        compositor correto.
 
-        Critérios de pontuação:
-          +30 — ancestral com classe/id relacionado a chat, message, composer
-          +20 — botão de envio visível como irmão próximo
-          +15 — campo na metade inferior da viewport
-          +10 — largura > 200px (campo amplo = compositor principal)
-          −50 — ancestral é header/nav/sidebar/title/rename
+        Pontuação:
+          +20  URL atual é de chat válido (sinal primário)
+          +25  ancestral contém chat/message/composer/editor/input
+          +15  botão de envio visível próximo
+          +12  campo na metade inferior da viewport
+          + 5  campo no terço central da viewport
+          +10  largura > 300px | +5 largura > 150px
+          + 5  altura > 30px
+          + 5  tag contenteditable | +3 tag textarea
+          − 8  ancestral é header/sidebar (modo=padrao)
+          − 5  ancestral contém 'title'/'nav' (apenas se não em chat ativo)
+          − 4  ancestral é header/sidebar (modo=relaxado)
+          modo=fallback: sem penalidades, aceita qualquer candidato visível
 
         Args:
-            candidatos: Lista de WebElements candidatos.
+            candidatos: Lista de WebElements visíveis e habilitados.
+            modo: 'padrao' | 'relaxado' | 'fallback'
 
         Returns:
-            WebElement com maior pontuação, ou None se todos < -10.
+            WebElement escolhido, ou None se melhor_score < threshold.
         """
         driver = self.handler.driver
 
-        def _pontuar(elem) -> int:
+        try:
+            url_atual = driver.current_url
+            em_chat_ativo = self._e_url_de_chat_valida(url_atual)
+        except Exception:
+            em_chat_ativo = False
+
+        def _pontuar_detalhado(elem) -> tuple:
             score = 0
+            detalhes = {}
             try:
+                tag = elem.tag_name.lower()
+                ce = elem.get_attribute("contenteditable") or ""
+
+                if ce == "true":
+                    score += 5
+                    detalhes["ce"] = "+5"
+                elif tag == "textarea":
+                    score += 3
+                    detalhes["textarea"] = "+3"
+
+                if em_chat_ativo:
+                    score += 20
+                    detalhes["url_chat"] = "+20"
+
                 anc_pos = (
                     "./ancestor::*["
                     "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'chat') or "
                     "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'message') or "
                     "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'composer') or "
-                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'input-area') or "
+                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'editor') or "
+                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'input') or "
                     "contains(translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'chat') or "
-                    "contains(translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'message')"
+                    "contains(translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'message') or "
+                    "contains(translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'composer')"
                     "]"
                 )
                 if elem.find_elements(By.XPATH, anc_pos):
-                    score += 30
+                    score += 25
+                    detalhes["anc_pos"] = "+25"
 
-                anc_neg = (
-                    "./ancestor::*["
-                    "self::header or self::nav or "
-                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'header') or "
-                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'sidebar') or "
-                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'title') or "
-                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'rename') or "
-                    "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'nav')"
-                    "]"
-                )
-                if elem.find_elements(By.XPATH, anc_neg):
-                    score -= 50
+                if modo == "padrao":
+                    anc_neg_strict = (
+                        "./ancestor::*["
+                        "self::header or self::nav or "
+                        "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'sidebar') or "
+                        "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'rename')"
+                        "]"
+                    )
+                    if elem.find_elements(By.XPATH, anc_neg_strict):
+                        score -= 8
+                        detalhes["anc_neg_strict"] = "-8"
+
+                    if not em_chat_ativo:
+                        anc_neg_title = (
+                            "./ancestor::*["
+                            "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'title') or "
+                            "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'nav')"
+                            "]"
+                        )
+                        if elem.find_elements(By.XPATH, anc_neg_title):
+                            score -= 5
+                            detalhes["anc_neg_title"] = "-5"
+
+                elif modo == "relaxado":
+                    anc_neg_min = (
+                        "./ancestor::*["
+                        "self::header or "
+                        "contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'sidebar')"
+                        "]"
+                    )
+                    if elem.find_elements(By.XPATH, anc_neg_min):
+                        score -= 4
+                        detalhes["anc_neg_min"] = "-4"
 
                 botoes = elem.find_elements(
                     By.XPATH,
-                    "./following-sibling::button[@type='submit' or contains(@class,'send') or contains(@aria-label,'send') or contains(@aria-label,'enviar')] | "
+                    "./following-sibling::button | "
+                    "./preceding-sibling::button | "
                     "./parent::*/following-sibling::*//button | "
                     "./parent::*/child::button",
                 )
                 if any(b.is_displayed() for b in botoes):
-                    score += 20
+                    score += 15
+                    detalhes["botao_proximo"] = "+15"
 
                 rect = driver.execute_script(
                     "var r=arguments[0].getBoundingClientRect();"
-                    "return {top:r.top,width:r.width};",
+                    "return {top:r.top,width:r.width,height:r.height};",
                     elem,
                 )
                 vh = driver.execute_script("return window.innerHeight;")
                 if rect and vh:
-                    if rect.get("top", 0) > vh * 0.4:
-                        score += 15
-                    if rect.get("width", 0) > 200:
+                    topo = rect.get("top", 0)
+                    larg = rect.get("width", 0)
+                    alt = rect.get("height", 0)
+                    if topo > vh * 0.5:
+                        score += 12
+                        detalhes["pos_inferior"] = f"+12(top={topo:.0f})"
+                    elif topo > vh * 0.3:
+                        score += 5
+                        detalhes["pos_centro"] = f"+5(top={topo:.0f})"
+                    if larg > 300:
                         score += 10
-            except Exception:
-                pass
-            return score
+                        detalhes["campo_largo"] = f"+10(w={larg:.0f})"
+                    elif larg > 150:
+                        score += 5
+                        detalhes["campo_medio"] = f"+5(w={larg:.0f})"
+                    if alt > 30:
+                        score += 5
+                        detalhes["campo_alto"] = f"+5(h={alt:.0f})"
+            except Exception as exc:
+                detalhes["exc"] = str(exc)[:60]
+            return score, detalhes
 
         pontuados = []
         for c in candidatos:
             try:
-                pontuados.append((_pontuar(c), c))
+                s, d = _pontuar_detalhado(c)
+                pontuados.append((s, d, c))
             except Exception:
-                pontuados.append((0, c))
+                pontuados.append((0, {}, c))
 
         if not pontuados:
             return None
 
         pontuados.sort(key=lambda x: x[0], reverse=True)
-        melhor_score, melhor = pontuados[0]
 
-        logger.info(
-            f"[Composer] {len(candidatos)} candidato(s). "
-            f"Melhor: tag='{melhor.tag_name}' score={melhor_score}."
-        )
-
-        if melhor_score < -10:
-            logger.aviso(
-                "[Composer] Todos os candidatos estão em contexto inválido "
-                "(header/nav/title). Nenhum compositor válido selecionado."
+        for i, (s, d, c) in enumerate(pontuados):
+            tag = c.tag_name
+            ce = c.get_attribute("contenteditable") or ""
+            tipo = f"{tag}[ce=true]" if ce == "true" else tag
+            det_str = ", ".join(f"{k}:{v}" for k, v in d.items()) or "sem_bonus"
+            logger.info(
+                f"[Composer] [{modo}] Cand {i+1}/{len(pontuados)}: "
+                f"tipo={tipo}, score={s} | {det_str}"
             )
-            return None
 
-        return melhor
+        melhor_score, _, melhor = pontuados[0]
+
+        if modo == "fallback":
+            logger.info(
+                f"[Composer] Fallback: aceitando melhor candidato "
+                f"disponível (score={melhor_score})."
+            )
+            return melhor
+
+        threshold = 0 if modo == "padrao" else -5
+        if melhor_score >= threshold:
+            return melhor
+
+        logger.aviso(
+            f"[Composer] [{modo}] Melhor score={melhor_score} < threshold={threshold}. "
+            f"Aguardando próxima rodada..."
+        )
+        return None
 
     def _limpar_campo_compositor(self, campo) -> None:
         """Limpa o conteúdo do campo de entrada do compositor.
@@ -1391,6 +1529,81 @@ class AdaptaGenerator:
                 )
             except Exception:
                 logger.aviso(f"[Composer][Diagnóstico] '{sel}': erro ao buscar.")
+
+    def _verificar_foco_funcional(self, campo) -> bool:
+        """Testa se um elemento aceita foco real via click + JS focus.
+
+        Usado como teste final antes de descartar um candidato a compositor.
+        Verifica se `document.activeElement` corresponde ao elemento após
+        o foco, confirmando que ele está interativo e não apenas decorativo.
+
+        Args:
+            campo: WebElement candidato.
+
+        Returns:
+            True se o elemento ficou ativo após foco.
+        """
+        driver = self.handler.driver
+        try:
+            driver.execute_script(
+                "arguments[0].scrollIntoView({block:'center'});", campo
+            )
+            time.sleep(0.2)
+            driver.execute_script("arguments[0].click();", campo)
+            time.sleep(0.2)
+            driver.execute_script("arguments[0].focus();", campo)
+            time.sleep(0.2)
+            eh_ativo = driver.execute_script(
+                "return document.activeElement === arguments[0];", campo
+            )
+            if eh_ativo:
+                logger.info(
+                    f"[Composer] Teste funcional OK: "
+                    f"tag='{campo.tag_name}' ficou ativo após focus."
+                )
+                return True
+            logger.aviso(
+                f"[Composer] Teste funcional FALHOU: "
+                f"tag='{campo.tag_name}' não ficou ativo após focus "
+                f"(activeElement é outro)."
+            )
+            return False
+        except Exception as exc:
+            logger.aviso(f"[Composer] Teste funcional ERRO: {exc}")
+            return False
+
+    def _aguardar_fim_rename(self, timeout_s: int = 8) -> None:
+        """Aguarda o input temporário de rename desaparecer após criação de chat.
+
+        Após pressionar Enter no campo de título, o Adapta One pode demorar
+        um momento para remover o input temporário e exibir o compositor
+        principal. Esta função aguarda até o input[autofocus] sumir ou até
+        o timeout.
+
+        Args:
+            timeout_s: Tempo máximo de espera em segundos.
+        """
+        driver = self.handler.driver
+        deadline = time.time() + timeout_s
+        while time.time() < deadline:
+            try:
+                autofocus = driver.find_elements(
+                    By.CSS_SELECTOR, "input[autofocus]"
+                )
+                visiveis = [e for e in autofocus if e.is_displayed()]
+                if not visiveis:
+                    logger.info(
+                        "[Chat] Input de rename não mais visível — "
+                        "UI estabilizada para envio de prompt."
+                    )
+                    return
+            except Exception:
+                pass
+            time.sleep(0.5)
+        logger.aviso(
+            "[Chat] Input de rename ainda presente após timeout de "
+            f"{timeout_s}s — continuando mesmo assim."
+        )
 
     def _localizar_botao_gerar(self):
         """Localiza o botão de geração na página.
