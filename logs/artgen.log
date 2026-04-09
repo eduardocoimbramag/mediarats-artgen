@@ -168,3 +168,78 @@
 2026-04-06 15:43:09 [INFO] Geração de DUDE#1 CONCLUÍDA! 0/10 artes salvas em C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\output\DUDE_1
 2026-04-06 15:43:12 [INFO] Navegador fechado.
 2026-04-06 15:43:12 [INFO] Planilha atualizada para DUDE#1.
+2026-04-06 15:47:08 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-06 15:47:08 [INFO] Planilha carregada: 2 solicitação(ões) (1 pendente(s)).
+2026-04-06 15:47:14 [INFO] Tentando iniciar Chrome (tentativa 1/3)...
+2026-04-06 15:47:16 [INFO] Navegador Chrome iniciado com sucesso.
+2026-04-06 15:47:16 [INFO] Acessando AdaptaOne...
+2026-04-06 15:47:18 [INFO] Navegando para: https://agent.adapta.one
+2026-04-06 15:47:21 [INFO] Tela de login detectada. Tentando login automático...
+2026-04-06 15:47:21 [WARNING] Campos de e-mail/senha não localizados na página de login.
+2026-04-06 15:47:21 [WARNING] Login automático falhou. Credenciais incorretas ou página mudou.
+2026-04-06 15:47:21 [WARNING] Login necessário. Faça o login no navegador aberto e clique em 'Iniciar Geração' novamente.
+2026-04-06 15:48:07 [INFO] Acessando AdaptaOne...
+2026-04-06 15:48:08 [INFO] Navegando para: https://agent.adapta.one
+2026-04-06 15:48:11 [INFO] AdaptaOne carregado — sessão ativa.
+2026-04-06 15:48:11 [INFO] [AdaptaOne] Dashboard detectado. Clicando em 'ADAPTA one'...
+2026-04-06 15:48:14 [INFO] [AdaptaOne] Entrou na interface de chat com sucesso.
+2026-04-06 15:48:14 [INFO] [Chat] Resolvendo chat: 'DUDE - Dude Brand'...
+2026-04-06 15:48:14 [INFO] [Chat] Buscando pasta 'Media Rats - ArtGen' no sidebar...
+2026-04-06 15:48:15 [INFO] [Chat] Pasta 'Media Rats - ArtGen' acessada.
+2026-04-06 15:48:15 [INFO] [Chat] Criando novo chat para 'DUDE - Dude Brand'...
+2026-04-06 15:48:21 [INFO] [Chat] Novo chat aberto em: https://agent.adapta.one/agentic-chat
+2026-04-06 15:48:24 [INFO] [Chat] Chat renomeado para 'DUDE - Dude Brand'.
+2026-04-06 15:48:24 [INFO] [Chat] ✓ Novo chat criado: https://agent.adapta.one/agentic-chat
+2026-04-06 15:48:24 [INFO] Iniciando geração de DUDE#1 - 10 artes
+2026-04-06 15:48:24 [INFO] Gerando arte 1/10 - Prompt: Cena de praia tropical ao entardecer com produto de bebida e...
+2026-04-06 15:48:24 [WARNING] Tentativa 1/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-06 15:48:24 [INFO] Aguardando 2s antes de tentar novamente...
+2026-04-06 15:48:26 [WARNING] Tentativa 2/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-06 15:48:26 [INFO] Aguardando 4s antes de tentar novamente...
+2026-04-06 15:48:30 [WARNING] Tentativa 3/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-06 15:48:30 [ERROR] Arte 1/10 falhou após 3 tentativas. Pulando.
+2026-04-06 15:48:30 [INFO] Gerando arte 2/10 - Prompt: Jovens surfistas celebrando vitória na praia, logotipo Dude ...
+2026-04-06 15:48:30 [WARNING] Tentativa 1/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-06 15:48:30 [INFO] Aguardando 2s antes de tentar novamente...
+2026-04-06 15:48:32 [WARNING] Tentativa 2/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-06 15:48:32 [INFO] Aguardando 4s antes de tentar novamente...
+2026-04-06 15:48:36 [WARNING] Geração pausada pelo usuário.
+2026-04-06 15:48:36 [WARNING] Tentativa 3/3 falhou: Message: Campo de prompt não encontrado na página.; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception
+
+2026-04-06 15:48:36 [ERROR] Arte 2/10 falhou após 3 tentativas. Pulando.
+2026-04-06 15:58:54 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-06 15:58:54 [INFO] Planilha carregada: 2 solicitação(ões) (1 pendente(s)).
+2026-04-06 15:58:58 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-06 15:58:58 [INFO] Planilha carregada: 2 solicitação(ões) (1 pendente(s)).
+2026-04-06 16:47:40 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-06 16:47:40 [INFO] Planilha carregada: 2 solicitação(ões) (1 pendente(s)).
+2026-04-06 16:47:44 [INFO] Gerando arte 3/10 - Prompt: Produto Dude Energy colocado em areia molhada com ondas ao f...
+2026-04-06 16:47:44 [ERROR] Arte 3/10 falhou após 3 tentativas. Pulando.
+2026-04-06 16:47:44 [WARNING] Geração cancelada pelo usuário.
+2026-04-06 16:47:44 [INFO] Geração de DUDE#1 CONCLUÍDA! 0/10 artes salvas em C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\output\DUDE_1
+2026-04-06 16:47:46 [INFO] Navegador fechado.
+2026-04-06 16:47:47 [INFO] Planilha atualizada para DUDE#1.
+2026-04-06 16:48:28 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-06 16:48:28 [INFO] Planilha carregada: 2 solicitação(ões) (1 pendente(s)).
+2026-04-06 16:49:08 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-06 16:49:08 [INFO] Planilha carregada: 2 solicitação(ões) (1 pendente(s)).
+2026-04-06 16:51:28 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-06 16:51:28 [INFO] Planilha carregada: 2 solicitação(ões) (1 pendente(s)).
+2026-04-08 19:02:20 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-08 19:02:21 [INFO] Planilha carregada: 2 solicitação(ões) (1 pendente(s)).
+2026-04-08 19:14:38 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-08 19:14:38 [INFO] Planilha carregada: 2 solicitação(ões) (1 pendente(s)).
+2026-04-08 19:15:47 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-08 19:15:47 [INFO] Planilha carregada: 2 solicitação(ões) (1 pendente(s)).
+2026-04-08 19:15:48 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-08 19:15:48 [INFO] Planilha carregada: 2 solicitação(ões) (1 pendente(s)).
+2026-04-09 14:47:20 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 14:47:20 [INFO] Planilha carregada: 2 solicitação(ões) (1 pendente(s)).
+2026-04-09 14:47:50 [INFO] Protocolo 'DUDE#2' criado — DudeCamp / Blackfriday
+2026-04-09 14:47:50 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 14:47:50 [INFO] Planilha carregada: 3 solicitação(ões) (2 pendente(s)).

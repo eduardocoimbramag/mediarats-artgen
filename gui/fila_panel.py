@@ -203,6 +203,26 @@ class FilaPanel(QWidget):
             return self._solicitacoes[row]
         return None
 
+    def remover_solicitacao(self, protocolo: str) -> bool:
+        """Remove uma solicitação da tabela e da lista interna pelo protocolo.
+
+        Args:
+            protocolo: Identificador único da solicitação (ex: DUDE#1).
+
+        Returns:
+            True se a remoção foi efetuada, False se não encontrou o protocolo.
+        """
+        for row in range(self._tabela.rowCount()):
+            item = self._tabela.item(row, 0)
+            if item and item.text() == protocolo:
+                self._tabela.removeRow(row)
+                self._solicitacoes = [
+                    s for s in self._solicitacoes if s.protocolo != protocolo
+                ]
+                self._lbl_total.setText(f"{len(self._solicitacoes)} item(s)")
+                return True
+        return False
+
     def _on_selecao_mudou(self) -> None:
         """Emite sinal com a solicitação selecionada."""
         sol = self.solicitacao_atual()

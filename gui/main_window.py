@@ -216,6 +216,8 @@ class MainWindow(QMainWindow):
         self._controles.sinal_abrir_output.connect(self._abrir_output)
         self._controles.sinal_configuracoes.connect(self._abrir_configuracoes)
         self._controles.sinal_clientes.connect(self._abrir_clientes)
+        self._controles.sinal_criar_protocolo.connect(self._criar_protocolo)
+        self._controles.sinal_remover_protocolo.connect(self._remover_protocolo)
 
         self._fila_panel.solicitacao_selecionada.connect(self._on_solicitacao_selecionada)
 
@@ -519,6 +521,80 @@ class MainWindow(QMainWindow):
         dlg = ClientesDialog(Config.caminho_planilha_abs(), self)
         dlg.exec()
         self._carregar_planilha()
+
+    @pyqtSlot()
+    def _criar_protocolo(self) -> None:
+        """Abre o diálogo de criação de protocolo e recarrega a fila ao confirmar."""
+        from gui.criar_protocolo_dialog import CriarProtocoloDialog
+        dlg = CriarProtocoloDialog(Config.caminho_planilha_abs(), self)
+        if dlg.exec() == dlg.DialogCode.Accepted and dlg.solicitacao is not None:
+            sol = dlg.solicitacao
+            logger.sucesso(
+                f"Protocolo '{sol.protocolo}' criado — {sol.cliente} / {sol.tema}"
+            )
+            self._carregar_planilha()
+            self._atualizar_status(f"Protocolo {sol.protocolo} adicionado à fila.")
+
+    @pyqtSlot()
+    def _remover_protocolo(self) -> None:
+        """Remove o protocolo selecionado da fila.
+
+        Marca o status como 'Cancelado' na planilha (origem da verdade) para que
+        não reapareça em recarregamentos futuros, e remove a linha da tabela visual.
+        Trata com segurança: fila vazia, nenhum item selecionado e falha de escrita.
+        """
+        sol = self._fila_panel.solicitacao_atual()
+
+        if sol is None:
+            QMessageBox.information(
+                self,
+                "Nenhum item selecionado",
+                "Selecione um protocolo na fila antes de removê-lo.",
+            )
+            return
+
+        if self._worker and self._worker.isRunning():
+            if sol.protocolo == (self._worker.solicitacao.protocolo if self._worker.solicitacao else ""):
+                QMessageBox.warning(
+                    self,
+                    "Protocolo em geração",
+                    f"O protocolo '{sol.protocolo}' está sendo gerado no momento.\n"
+                    "Cancele a geração antes de removê-lo da fila.",
+                )
+                return
+
+        resp = QMessageBox.question(
+            self,
+            "Confirmar Remoção",
+            f"Deseja remover o protocolo da fila?\n\n"
+            f"  Protocolo: {sol.protocolo}\n"
+            f"  Cliente:   {sol.cliente}\n"
+            f"  Tema:      {sol.tema}\n\n"
+            "O item será marcado como Cancelado e não reaparecerá na fila.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if resp != QMessageBox.StandardButton.Yes:
+            return
+
+        try:
+            writer = ExcelWriter(Config.caminho_planilha_abs())
+            writer.atualizar_status(sol, "Cancelado", adicionar_data=False)
+        except Exception as exc:
+            QMessageBox.critical(
+                self,
+                "Erro ao Remover",
+                f"Não foi possível atualizar a planilha:\n{exc}\n\n"
+                "O item foi removido da fila visível mas pode reaparecer ao recarregar.",
+            )
+            logger.aviso(f"Falha ao cancelar '{sol.protocolo}' na planilha: {exc}")
+
+        removido = self._fila_panel.remover_solicitacao(sol.protocolo)
+        if removido:
+            logger.info(f"Protocolo '{sol.protocolo}' removido da fila.")
+            self._atualizar_status(f"Protocolo {sol.protocolo} removido.")
+        else:
+            logger.aviso(f"Protocolo '{sol.protocolo}' não encontrado na tabela visual.")
 
     def _atualizar_status(self, texto: str, tipo: str = "ok") -> None:
         """Atualiza a barra de status.

@@ -35,8 +35,9 @@ class InfoCard(QFrame):
 
         self._lbl_valor = QLabel(valor_inicial)
         self._lbl_valor.setStyleSheet("color: #E0E0E0; font-size: 14px; font-weight: bold;")
-        self._lbl_valor.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self._lbl_valor.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         self._lbl_valor.setWordWrap(True)
+        self._lbl_valor.setMinimumHeight(20)
 
         layout.addWidget(self._lbl_titulo)
         layout.addWidget(self._lbl_valor)
@@ -55,7 +56,7 @@ class DashboardPanel(QWidget):
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        self.setFixedHeight(130)
+        self.setMinimumHeight(100)
         self._build_ui()
 
     def _build_ui(self) -> None:

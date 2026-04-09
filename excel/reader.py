@@ -19,12 +19,30 @@ class Cliente:
     """Representa um cliente cadastrado na aba CLIENTES.
 
     Attributes:
-        codigo: Código único do cliente (2-4 letras).
+        codigo: Código único do cliente (2-6 letras).
         nome: Nome do cliente.
+        nicho: Nicho de mercado.
+        descricao: Descrição do cliente/empresa.
+        publico_alvo: Público-alvo principal.
+        formalidade: Nível de formalidade (ex: Formal, Casual, Técnico).
+        estilo_visual: Estilo visual predominante.
+        estilo_foto: Estilo fotográfico preferido.
+        cor_primaria: Cor primária em HEX (ex: #1565C0).
+        cor_secundaria: Cor secundária em HEX.
+        cor_fundo: Cor de fundo preferida em HEX.
     """
 
     codigo: str
     nome: str
+    nicho: str = ""
+    descricao: str = ""
+    publico_alvo: str = ""
+    formalidade: str = ""
+    estilo_visual: str = ""
+    estilo_foto: str = ""
+    cor_primaria: str = ""
+    cor_secundaria: str = ""
+    cor_fundo: str = ""
 
 
 @dataclass
@@ -119,6 +137,9 @@ class ExcelReader:
     def ler_clientes(self) -> List[Cliente]:
         """Lê todos os clientes da aba CLIENTES.
 
+        Usa mapa de cabeçalho para independência de ordem de colunas.
+        Retorna clientes em ordem alfabética por nome.
+
         Returns:
             Lista de objetos Cliente.
         """
@@ -126,15 +147,45 @@ class ExcelReader:
         ws = self._encontrar_aba(wb, self.ABA_CLIENTES)
         clientes: List[Cliente] = []
         if ws is None:
+            wb.close()
             return clientes
+
+        cab = {}
+        primeira = next(ws.iter_rows(min_row=1, max_row=1, values_only=True), None)
+        if primeira:
+            for i, v in enumerate(primeira):
+                if v:
+                    cab[str(v).strip().upper()] = i
+
+        def _get(row, *chaves):
+            for ch in chaves:
+                idx = cab.get(ch.upper())
+                if idx is not None and idx < len(row) and row[idx]:
+                    return str(row[idx]).strip()
+            return ""
+
         for row in ws.iter_rows(min_row=2, values_only=True):
             if not row or not row[0]:
                 continue
             codigo = str(row[0]).strip().upper()
-            nome = str(row[1]).strip() if len(row) > 1 and row[1] else codigo
-            if 2 <= len(codigo) <= 4:
-                clientes.append(Cliente(codigo=codigo, nome=nome))
+            if len(codigo) < 2:
+                continue
+            clientes.append(Cliente(
+                codigo=codigo,
+                nome=_get(row, "NOME", "NOME_CLIENTE") or codigo,
+                nicho=_get(row, "NICHO"),
+                descricao=_get(row, "DESCRICAO", "DESCRIÇÃO"),
+                publico_alvo=_get(row, "PUBLICO_ALVO", "PÚBLICO_ALVO"),
+                formalidade=_get(row, "FORMALIDADE", "NIVEL_FORMALIDADE"),
+                estilo_visual=_get(row, "ESTILO_VISUAL"),
+                estilo_foto=_get(row, "ESTILO_FOTO", "ESTILO_FOTOGRAFICO"),
+                cor_primaria=_get(row, "COR_PRIMARIA", "COR_PRIMÁRIA"),
+                cor_secundaria=_get(row, "COR_SECUNDARIA", "COR_SECUNDÁRIA"),
+                cor_fundo=_get(row, "COR_FUNDO"),
+            ))
+
         wb.close()
+        clientes.sort(key=lambda c: c.nome.lower())
         return clientes
 
     def ler_solicitacoes(self, apenas_pendentes: bool = True) -> List[Solicitacao]:
