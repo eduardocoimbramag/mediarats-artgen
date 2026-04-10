@@ -256,11 +256,25 @@ def compor_prompt_arte(
         4. Conflitos: prompt principal tem prioridade sobre variações;
            perfil do cliente atua como restrição persistente.
 
+    IMPORTANTE — política de variações (fluxo "1 arte = 1 mensagem"):
+        ``variacoes`` deve conter apenas enriquecimentos INTERNOS da arte
+        atual (ex: nuances de estilo, elementos opcionais da mesma peça).
+        NUNCA deve conter os prompts das *outras* artes do mesmo protocolo.
+        Passar todos os prompts do protocolo aqui provoca que o Adapta One
+        gere múltiplas imagens a partir de uma única mensagem, rompendo o
+        fluxo transacional esperado.
+
+        O orquestrador (``gerar_solicitacao``) NÃO deve chamar esta função
+        com ``variacoes=solicitacao.prompts`` — isso era o bug original.
+        A chamada correta por arte é sem ``variacoes`` ou com variações
+        exclusivas daquela arte.
+
     Args:
         perfil: PerfilCliente (None = sem contexto de cliente).
         tema: Tema geral da solicitação.
         prompt_principal: Instrução específica da arte sendo gerada.
-        variacoes: Lista completa de prompts da solicitação (até 10).
+        variacoes: Variações INTRA-ARTE (enriquecimentos da própria arte).
+            NÃO usar para passar prompts de outras artes do protocolo.
         indice_prompt_principal: Índice do prompt_principal dentro de
             ``variacoes`` (para excluí-lo da seção de variações).
         numero_arte: Número sequencial da arte (ex: 3).

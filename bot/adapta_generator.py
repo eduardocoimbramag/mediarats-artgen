@@ -7,7 +7,7 @@ from __future__ import annotations
 import time
 import random
 from pathlib import Path
-from typing import Callable, List, Optional, TYPE_CHECKING
+from typing import Callable, List, Optional, Tuple, TYPE_CHECKING
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -17,6 +17,7 @@ from selenium.common.exceptions import (
     TimeoutException,
     NoSuchElementException,
     ElementNotInteractableException,
+    StaleElementReferenceException,
     WebDriverException,
 )
 
@@ -992,10 +993,12 @@ class AdaptaGenerator:
 
         self.resolver_chat_cliente(solicitacao.codigo_cliente, solicitacao.cliente)
 
-        logger.info(f"Iniciando geração de {solicitacao.protocolo} - {total} artes")
+        logger.info(f"Iniciando geração de {solicitacao.protocolo} — {total} arte(s)")
         imagens_geradas: List[Path] = []
 
-        todos_prompts = solicitacao.prompts
+        # Conjunto global de URLs já baixadas neste ciclo — garante deduplicação
+        # mesmo que o Adapta gere múltiplas imagens numa única resposta.
+        urls_baixadas: set = set()
 
         for idx, prompt_bruto in enumerate(prompts_validos, start=1):
             if self._cancelado:
@@ -1007,30 +1010,31 @@ class AdaptaGenerator:
                 if self._cancelado:
                     break
 
-            indice_no_total = -1
-            for j, p in enumerate(todos_prompts):
-                if p and str(p).strip() == prompt_bruto:
-                    indice_no_total = j
-                    break
-
+            # ── CORREÇÃO C1: prompt AUTOCONTIDO — sem variações de outras artes ──
+            # Cada arte recebe apenas seu próprio prompt + perfil + tema.
+            # Não passamos a lista completa de prompts como 'variacoes',
+            # pois isso causava o Adapta a gerar N imagens por mensagem.
             prompt_composto = compor_prompt_arte(
                 perfil=perfil,
                 tema=solicitacao.tema,
                 prompt_principal=prompt_bruto,
-                variacoes=todos_prompts,
-                indice_prompt_principal=indice_no_total,
                 numero_arte=idx,
                 total_artes=total,
             )
 
             logger.info(
-                f"Gerando arte {idx}/{total} - Prompt: {truncar_texto(prompt_bruto, 60)}"
-            )
-            logger.info(
-                f"[Composer] Prompt composto ({len(prompt_composto)} chars) "
-                f"para arte {idx}/{total}"
+                f"[Arte {idx}/{total}] Prompt individual composto com sucesso "
+                f"({len(prompt_composto)} chars): {truncar_texto(prompt_bruto, 60)!r}"
             )
             self._emitir_progresso(idx - 1, total)
+
+            # ── CORREÇÃO C4: snapshot ANTES do envio ──
+            snapshot_antes = self._tirar_snapshot_imagens()
+            logger.info(
+                f"[Arte {idx}/{total}] Snapshot antes do envio: "
+                f"{len(snapshot_antes)} img(s) conhecida(s). "
+                f"Já baixadas no ciclo: {len(urls_baixadas)}."
+            )
 
             nome = nome_arquivo_arte(solicitacao.protocolo, idx)
             arquivo = self._gerar_com_retry(
@@ -1039,13 +1043,25 @@ class AdaptaGenerator:
                 nome_arquivo=nome,
                 numero=idx,
                 total=total,
+                snapshot_antes=snapshot_antes,
+                urls_baixadas=urls_baixadas,
             )
 
             if arquivo:
                 imagens_geradas.append(arquivo)
-                logger.sucesso(f"Arte {idx} baixada: {nome}")
+                logger.sucesso(f"[Arte {idx}/{total}] Concluída com sucesso: {nome}")
+                # ── C9: aguardar SPA estabilizar após resposta ──
+                # Evita que a arte seguinte snapshote ou envie enquanto o Adapta
+                # ainda está re-renderizando a UI (ex: criando novo chat, reload).
+                if idx < total:
+                    self._aguardar_estabilizacao_spa(
+                        arte_label=f"Arte {idx}/{total}",
+                        timeout_s=8,
+                    )
             else:
-                logger.erro(f"Arte {idx}/{total} falhou após {self.MAX_TENTATIVAS} tentativas. Pulando.")
+                logger.erro(
+                    f"[Arte {idx}/{total}] Falhou após {self.MAX_TENTATIVAS} tentativas. Pulando."
+                )
 
         self._emitir_progresso(total, total)
         logger.sucesso(
@@ -1061,6 +1077,8 @@ class AdaptaGenerator:
         nome_arquivo: str,
         numero: int,
         total: int,
+        snapshot_antes: Optional[set] = None,
+        urls_baixadas: Optional[set] = None,
     ) -> Optional[Path]:
         """Tenta gerar uma arte com retry e backoff exponencial.
 
@@ -1070,15 +1088,26 @@ class AdaptaGenerator:
             nome_arquivo: Nome do arquivo de saída.
             numero: Número da arte.
             total: Total de artes.
+            snapshot_antes: URLs de imagens conhecidas antes do envio.
+            urls_baixadas: Conjunto compartilhado de URLs já baixadas no ciclo.
 
         Returns:
             Path do arquivo ou None se falhar.
         """
+        _snapshot = snapshot_antes if snapshot_antes is not None else set()
+        _urls_baixadas = urls_baixadas if urls_baixadas is not None else set()
+
         for tentativa in range(1, self.MAX_TENTATIVAS + 1):
             if self._cancelado:
                 return None
             try:
-                arquivo = self._executar_geracao(prompt, downloader, nome_arquivo)
+                arquivo = self._executar_geracao(
+                    prompt, downloader, nome_arquivo,
+                    snapshot_antes=_snapshot,
+                    urls_baixadas=_urls_baixadas,
+                    numero_arte=numero,
+                    total_artes=total,
+                )
                 if arquivo and downloader.verificar_arquivo(arquivo):
                     return arquivo
                 raise ValueError("Arquivo inválido ou não gerado.")
@@ -1107,7 +1136,14 @@ class AdaptaGenerator:
         return None
 
     def _executar_geracao(
-        self, prompt: str, downloader: DownloadManager, nome_arquivo: str
+        self,
+        prompt: str,
+        downloader: DownloadManager,
+        nome_arquivo: str,
+        snapshot_antes: Optional[set] = None,
+        urls_baixadas: Optional[set] = None,
+        numero_arte: int = 0,
+        total_artes: int = 0,
     ) -> Optional[Path]:
         """Executa o fluxo de geração de uma única arte.
 
@@ -1117,11 +1153,16 @@ class AdaptaGenerator:
             3. Limpa o campo.
             4. Insere o prompt ATOMICAMENTE via JS (sem char-by-char, sem \\n como Enter).
             5. Envia: botão (máx 3s) → Enter como fallback imediato.
+            6. Aguarda imagem NOVA (não presente no snapshot) e baixa com deduplicação.
 
         Args:
             prompt: Texto do prompt composto.
             downloader: Instância do DownloadManager.
             nome_arquivo: Nome do arquivo de saída.
+            snapshot_antes: URLs de imagens conhecidas antes do envio.
+            urls_baixadas: Conjunto compartilhado de URLs já baixadas no ciclo.
+            numero_arte: Número sequencial desta arte.
+            total_artes: Total de artes no protocolo.
 
         Returns:
             Path do arquivo gerado ou None.
@@ -1175,20 +1216,52 @@ class AdaptaGenerator:
         time.sleep(0.2)
 
         # Inserir prompt atomicamente (sem char-by-char, sem \n como Enter)
+        arte_label = f"Arte {numero_arte}/{total_artes}" if numero_arte else "Arte"
         ok = self._inserir_prompt_compositor(campo, prompt)
         if not ok:
-            logger.aviso("[Composer] Inserção reportou problema — continuando mesmo assim.")
+            logger.aviso(
+                f"[{arte_label}] Inserção reportou problema — continuando mesmo assim."
+            )
+        else:
+            logger.info(f"[{arte_label}] Prompt inserido no composer com sucesso.")
         time.sleep(0.3)
 
-        # Enviar (botão com 3s de timeout, fallback Enter imediato)
-        metodo = self._enviar_prompt_compositor(campo)
-        logger.info(
-            f"[Composer] Envio concluído via '{metodo}' "
-            f"em {time.time() - t_inicio:.1f}s total."
+        # ── Enviar com confirmação real ──
+        # NUNCA trata tentativa de envio como sucesso automático.
+        # Só avança para download após prova concreta de que a mensagem saiu.
+        metodo, envio_confirmado = self._enviar_prompt_compositor(
+            campo,
+            texto_inserido=prompt,
+            arte_label=arte_label,
         )
 
-        logger.info("Aguardando geração da imagem...")
-        arquivo = self._aguardar_e_baixar(downloader, nome_arquivo)
+        logger.info(
+            f"[{arte_label}] Envio confirmado? "
+            f"{'SIM' if envio_confirmado else 'NÃO'} "
+            f"(método: '{metodo}', tempo total: {time.time() - t_inicio:.1f}s)."
+        )
+
+        if not envio_confirmado:
+            logger.erro(
+                f"[{arte_label}] Download NÃO iniciado — envio não foi confirmado. "
+                f"Prompt pode estar parado no composer. Acionando retry."
+            )
+            raise ValueError(
+                f"[{arte_label}] Envio NÃO confirmado via '{metodo}'. "
+                f"Texto permaneceu no compositor. Abortando para retry."
+            )
+
+        logger.info(
+            f"[{arte_label}] Monitoramento de imagem iniciado apenas após envio confirmado."
+        )
+        arquivo = self._aguardar_e_baixar(
+            downloader,
+            nome_arquivo,
+            snapshot_antes=snapshot_antes if snapshot_antes is not None else set(),
+            urls_baixadas=urls_baixadas if urls_baixadas is not None else set(),
+            numero_arte=numero_arte,
+            total_artes=total_artes,
+        )
         return arquivo
 
     def _inserir_prompt_compositor(self, campo, texto: str) -> bool:
@@ -1334,23 +1407,330 @@ class AdaptaGenerator:
             logger.info(f"[Composer] Inserção '{metodo}': validação indisponível — assumindo OK.")
             return True
 
-    def _enviar_prompt_compositor(self, campo) -> str:
-        """Envia o prompt digitado no compositor.
+    def _contar_mensagens_usuario(self) -> int:
+        """Conta os elementos de mensagem do usuário visíveis no DOM do chat.
 
-        Tenta localizar o botão de envio por no máximo 3 segundos.
-        Se não encontrar, usa ``Keys.RETURN`` como fallback imediato —
-        sem esperar minutos por um botão inexistente.
-
-        Args:
-            campo: WebElement do compositor (usado para fallback Enter).
+        Tenta vários seletores comuns em SPAs de chat. Retorna o maior
+        valor encontrado entre os seletores — evita subcontagem.
 
         Returns:
-            'botao' se clicou no botão, 'enter' se usou fallback.
+            Número inteiro de mensagens do usuário (0 se nenhuma/erro).
+        """
+        driver = self.handler.driver
+        seletores = [
+            "[data-role='user']",
+            "[data-message-role='user']",
+            "[data-author-role='user']",
+            ".user-message",
+            ".human-message",
+            "[class*='user-message' i]",
+            "[class*='human-message' i]",
+            "[class*='user-bubble' i]",
+            "[class*='outgoing' i]",
+        ]
+        maximo = 0
+        for sel in seletores:
+            try:
+                n = len(driver.find_elements(By.CSS_SELECTOR, sel))
+                if n > maximo:
+                    maximo = n
+            except Exception:
+                continue
+        return maximo
+
+    def _confirmar_envio_real(
+        self,
+        campo,
+        texto_inserido: str,
+        timeout_s: float = 5.0,
+        arte_label: str = "Arte",
+    ) -> bool:
+        """Confirma que o prompt foi realmente enviado ao chat.
+
+        Verifica três sinais independentes, em polling até ``timeout_s``:
+
+        - **Sinal A (primário)**: campo do compositor está vazio/limpo.
+          Em quase todos os SPAs de chat, o campo é zerado imediatamente
+          após o envio bem-sucedido.
+        - **Sinal B (secundário)**: indicador de loading/geração apareceu,
+          o que implica que a resposta foi acionada.
+        - **Sinal C (terciário)**: a contagem de mensagens do usuário no
+          DOM aumentou — nova mensagem ficou visível no histórico.
+
+        Retorna ``True`` assim que qualquer sinal for confirmado, sem
+        esperar os outros. Retorna ``False`` apenas se o timeout expirar
+        sem nenhum sinal positivo E o texto ainda estiver no campo.
+
+        Args:
+            campo: WebElement do compositor.
+            texto_inserido: Texto enviado (para log de diagnóstico).
+            timeout_s: Tempo máximo de espera em segundos.
+            arte_label: Rótulo para log (ex: 'Arte 2/3').
+
+        Returns:
+            True se envio confirmado, False caso contrário.
+        """
+        driver = self.handler.driver
+        n_msgs_antes = self._contar_mensagens_usuario()
+        inicio = time.time()
+
+        while time.time() - inicio < timeout_s:
+            # ── Sinal A: campo vazio ──
+            try:
+                conteudo = driver.execute_script(
+                    "var e = arguments[0];"
+                    "return (e.innerText || e.textContent || e.value || '').trim();",
+                    campo,
+                ) or ""
+                if len(conteudo) < 5:
+                    logger.info(
+                        f"[Envio] {arte_label}: ✓ campo vazio após envio "
+                        f"(sinal A — primário)."
+                    )
+                    return True
+            except StaleElementReferenceException:
+                # Elemento recriado pelo SPA após envio — confirma que enviou
+                logger.info(
+                    f"[Envio] {arte_label}: ✓ campo substituído pelo SPA "
+                    f"(StaleElement — sinal A implícito)."
+                )
+                return True
+            except Exception:
+                pass
+
+            # ── Sinal B: loading/geração iniciou ──
+            for sel in SELECTORS["indicador_carregando"]:
+                try:
+                    elems = driver.find_elements(By.CSS_SELECTOR, sel)
+                    if any(e.is_displayed() for e in elems):
+                        logger.info(
+                            f"[Envio] {arte_label}: ✓ loading detectado "
+                            f"(sinal B — secundário)."
+                        )
+                        return True
+                except Exception:
+                    continue
+
+            # ── Sinal C: nova mensagem do usuário no DOM ──
+            n_msgs_agora = self._contar_mensagens_usuario()
+            if n_msgs_agora > n_msgs_antes:
+                logger.info(
+                    f"[Envio] {arte_label}: ✓ nova mensagem do usuário detectada "
+                    f"({n_msgs_antes} → {n_msgs_agora}) (sinal C — terciário)."
+                )
+                return True
+
+            time.sleep(0.4)
+
+        # ── Avaliação final ──
+        try:
+            conteudo_final = driver.execute_script(
+                "var e = arguments[0];"
+                "return (e.innerText || e.textContent || e.value || '').trim();",
+                campo,
+            ) or ""
+        except StaleElementReferenceException:
+            logger.info(
+                f"[Envio] {arte_label}: ✓ campo destruído após timeout "
+                f"(StaleElement — confirmação final)."
+            )
+            return True
+        except Exception:
+            conteudo_final = ""
+
+        texto_no_campo = len(conteudo_final) > 5
+        logger.aviso(
+            f"[Envio] {arte_label}: texto ainda no campo após {timeout_s:.0f}s? "
+            f"{'SIM' if texto_no_campo else 'não'} "
+            f"({len(conteudo_final)} chars). "
+            f"Envio {'NÃO confirmado' if texto_no_campo else 'provavelmente OK (campo vazio)'}."
+        )
+        return not texto_no_campo
+
+    def _enviar_via_enter_confirmado(
+        self,
+        campo,
+        texto_inserido: str,
+        arte_label: str,
+        max_tentativas: int = 3,
+    ) -> bool:
+        """Tenta enviar via Enter com validação de foco e confirmação real.
+
+        Para cada tentativa:
+        1. Verifica se o campo ainda é o ``activeElement``.
+        2. Se não, refoca via click + JS focus.
+        3. Verifica se o texto ainda está no campo (pode já ter sido enviado).
+        4. Envia ``Keys.RETURN``.
+        5. Chama ``_confirmar_envio_real`` — só retorna True com prova.
+
+        Args:
+            campo: WebElement do compositor.
+            texto_inserido: Texto a verificar no campo.
+            arte_label: Rótulo para log.
+            max_tentativas: Número máximo de tentativas de Enter.
+
+        Returns:
+            True se envio confirmado em alguma tentativa, False caso contrário.
+        """
+        driver = self.handler.driver
+
+        for tentativa in range(1, max_tentativas + 1):
+            # ── Verificar se campo ainda é o elemento ativo ──
+            try:
+                eh_ativo = driver.execute_script(
+                    "return document.activeElement === arguments[0];", campo
+                )
+            except StaleElementReferenceException:
+                logger.info(
+                    f"[Envio] {arte_label}: campo substituído pelo SPA antes do Enter "
+                    f"(tentativa {tentativa}) — assumindo envio OK."
+                )
+                return True
+            except Exception:
+                eh_ativo = False
+
+            logger.info(
+                f"[Envio] {arte_label}: composer focado? "
+                f"{'sim' if eh_ativo else 'não'} "
+                f"(tentativa Enter {tentativa}/{max_tentativas})."
+            )
+
+            if not eh_ativo:
+                logger.info(
+                    f"[Envio] {arte_label}: recuperando foco antes do Enter..."
+                )
+                try:
+                    driver.execute_script(
+                        "arguments[0].scrollIntoView({block:'center'});"
+                        "arguments[0].click();"
+                        "arguments[0].focus();",
+                        campo,
+                    )
+                    time.sleep(0.3)
+                    eh_ativo = driver.execute_script(
+                        "return document.activeElement === arguments[0];", campo
+                    )
+                    logger.info(
+                        f"[Envio] {arte_label}: foco recuperado? "
+                        f"{'sim' if eh_ativo else 'NÃO'}."
+                    )
+                except StaleElementReferenceException:
+                    logger.info(
+                        f"[Envio] {arte_label}: StaleElement ao refocusar — "
+                        f"SPA recriou o campo, assumindo envio já ocorreu."
+                    )
+                    return True
+                except Exception as exc:
+                    logger.aviso(
+                        f"[Envio] {arte_label}: falha ao recuperar foco: {exc}"
+                    )
+
+            # ── Verificar se texto ainda está no campo ──
+            try:
+                conteudo = driver.execute_script(
+                    "var e = arguments[0];"
+                    "return (e.innerText || e.textContent || e.value || '').trim();",
+                    campo,
+                ) or ""
+                texto_no_campo = len(conteudo) > 5
+            except StaleElementReferenceException:
+                logger.info(
+                    f"[Envio] {arte_label}: StaleElement ao verificar conteúdo — "
+                    f"campo destruído, envio provavelmente ocorreu."
+                )
+                return True
+            except Exception:
+                texto_no_campo = True
+                conteudo = ""
+
+            logger.info(
+                f"[Envio] {arte_label}: texto no campo? "
+                f"{'sim' if texto_no_campo else 'não'} "
+                f"({len(conteudo)} chars)."
+            )
+
+            if not texto_no_campo:
+                logger.info(
+                    f"[Envio] {arte_label}: campo já vazio antes do Enter "
+                    f"— envio ocorreu em tentativa anterior."
+                )
+                return True
+
+            # ── Enviar Enter ──
+            logger.info(
+                f"[Envio] {arte_label}: enviando Enter "
+                f"(tentativa {tentativa}/{max_tentativas})..."
+            )
+            try:
+                campo.send_keys(Keys.RETURN)
+            except StaleElementReferenceException:
+                logger.info(
+                    f"[Envio] {arte_label}: StaleElement no send_keys — "
+                    f"campo recriado após Enter, provável envio bem-sucedido."
+                )
+                return True
+            except Exception as exc:
+                logger.aviso(
+                    f"[Envio] {arte_label}: send_keys(Enter) falhou ({exc}) "
+                    f"— tentando KeyboardEvent via JS."
+                )
+                try:
+                    driver.execute_script(
+                        "arguments[0].dispatchEvent(new KeyboardEvent('keydown',{"
+                        "key:'Enter',code:'Enter',keyCode:13,which:13,"
+                        "bubbles:true,cancelable:true}));",
+                        campo,
+                    )
+                except Exception:
+                    pass
+
+            logger.info(
+                f"[Envio] {arte_label}: Enter enviado. Aguardando confirmação..."
+            )
+            confirmado = self._confirmar_envio_real(
+                campo, texto_inserido, timeout_s=5.0, arte_label=arte_label
+            )
+            if confirmado:
+                return True
+
+            logger.aviso(
+                f"[Envio] {arte_label}: tentativa {tentativa}/{max_tentativas} "
+                f"de Enter não confirmou envio."
+            )
+            if tentativa < max_tentativas:
+                time.sleep(1.0)
+
+        logger.erro(
+            f"[Envio] {arte_label}: todas as {max_tentativas} tentativas de Enter "
+            f"falharam. Prompt pode estar parado no composer."
+        )
+        return False
+
+    def _enviar_prompt_compositor(self, campo, texto_inserido: str = "", arte_label: str = "Arte") -> Tuple[str, bool]:
+        """Envia o prompt digitado no compositor. Retorna (método, confirmado).
+
+        Fluxo:
+        1. Busca botão de envio (3s) → clica → ``_confirmar_envio_real``.
+        2. Se botão não encontrado ou confirmação falhou:
+           → ``_enviar_via_enter_confirmado`` (valida foco, Enter, confirma).
+        3. Retorna ``(método_usado, envio_confirmado)``.
+
+        Nunca retorna ``True`` sem prova concreta de envio.
+
+        Args:
+            campo: WebElement do compositor (para fallback Enter).
+            texto_inserido: Texto que foi inserido (para confirmação).
+            arte_label: Rótulo para log (ex: 'Arte 2/3').
+
+        Returns:
+            Tupla ``(str, bool)`` — método e se envio foi confirmado.
         """
         driver = self.handler.driver
         t_ini = time.time()
-        botao = None
 
+        # ── Tentativa 1: Botão de envio ──
+        logger.info(f"[Envio] {arte_label}: tentativa de envio via botão iniciada.")
+        botao = None
         deadline = time.time() + 3.0
         while time.time() < deadline:
             botao = self._localizar_botao_gerar()
@@ -1362,20 +1742,44 @@ class AdaptaGenerator:
 
         if botao:
             logger.info(
-                f"[Composer] Botão de envio encontrado em {t_busca:.1f}s. Clicando."
+                f"[Envio] {arte_label}: botão encontrado em {t_busca:.1f}s. Clicando..."
             )
             try:
                 driver.execute_script("arguments[0].click();", botao)
             except Exception:
-                botao.click()
-            return "botao"
+                try:
+                    botao.click()
+                except Exception as exc_click:
+                    logger.aviso(
+                        f"[Envio] {arte_label}: clique no botão falhou: {exc_click}"
+                    )
 
-        logger.info(
-            f"[Composer] Botão não encontrado após {t_busca:.1f}s "
-            f"— Enter como fallback."
+            logger.info(
+                f"[Envio] {arte_label}: botão clicado. Aguardando confirmação de envio..."
+            )
+            confirmado = self._confirmar_envio_real(
+                campo, texto_inserido, timeout_s=5.0, arte_label=arte_label
+            )
+            if confirmado:
+                logger.info(f"[Envio] {arte_label}: envio confirmado via botão.")
+                return "botao", True
+
+            logger.aviso(
+                f"[Envio] {arte_label}: botão clicado mas envio NÃO confirmado "
+                f"— caindo para fallback Enter."
+            )
+        else:
+            logger.info(
+                f"[Envio] {arte_label}: botão não encontrado após {t_busca:.1f}s "
+                f"— usando Enter como fallback."
+            )
+
+        # ── Tentativa 2: Enter com validação de foco e confirmação ──
+        logger.info(f"[Envio] {arte_label}: tentativa de envio via Enter iniciada.")
+        confirmado = self._enviar_via_enter_confirmado(
+            campo, texto_inserido, arte_label, max_tentativas=3
         )
-        campo.send_keys(Keys.RETURN)
-        return "enter"
+        return "enter", confirmado
 
     def _localizar_campo_prompt(self):
         """Localiza o campo de texto de prompt na página.
@@ -1886,20 +2290,51 @@ class AdaptaGenerator:
             time.sleep(random.uniform(delay_min, delay_max))
 
     def _aguardar_e_baixar(
-        self, downloader: DownloadManager, nome_arquivo: str
+        self,
+        downloader: DownloadManager,
+        nome_arquivo: str,
+        snapshot_antes: Optional[set] = None,
+        urls_baixadas: Optional[set] = None,
+        numero_arte: int = 0,
+        total_artes: int = 0,
     ) -> Optional[Path]:
-        """Aguarda a imagem ser gerada e tenta baixá-la.
+        """Aguarda a imagem gerada e baixa APENAS a imagem nova desta arte.
+
+        Compara o estado do DOM contra o snapshot tirado antes do envio.
+        Só considera imagens cujas URLs não estejam em ``snapshot_antes``
+        nem em ``urls_baixadas`` — eliminando duplicatas entre artes.
 
         Args:
             downloader: Instância do DownloadManager.
             nome_arquivo: Nome do arquivo de saída.
+            snapshot_antes: URLs de imagens presentes antes do envio.
+            urls_baixadas: Conjunto compartilhado de URLs já baixadas no ciclo.
+            numero_arte: Número desta arte (para log).
+            total_artes: Total de artes (para log).
 
         Returns:
             Path do arquivo ou None.
         """
         driver = self.handler.driver
         inicio = time.time()
-        ultimo_tamanho_imgs = 0
+        _snapshot = snapshot_antes if snapshot_antes is not None else set()
+        _baixadas = urls_baixadas if urls_baixadas is not None else set()
+        arte_label = f"Arte {numero_arte}/{total_artes}" if numero_arte else "Arte"
+
+        # Conjunto de todas as URLs já conhecidas = não baixar novamente
+        vistas: set = _snapshot | _baixadas
+
+        # Rastreamento de estado para diferenciar os 4 casos de falha (C6):
+        # estado 2 = "envio OK, resposta demorou" → nunca viu nova imagem
+        # estado 3 = "resposta chegou, imagem não detectada" → detectou mas URL inválida
+        # estado 4 = "imagem detectada, download falhou"
+        alguma_nova_detectada = False
+        algum_download_tentado = False
+
+        logger.info(
+            f"[Download] {arte_label}: snapshot antes={len(_snapshot)}, "
+            f"já baixadas={len(_baixadas)}. Aguardando imagem nova..."
+        )
 
         while time.time() - inicio < self.timeout:
             if self._cancelado:
@@ -1907,29 +2342,254 @@ class AdaptaGenerator:
 
             self._aguardar_fim_loading(driver, espera_max=5)
 
-            for sel in SELECTORS["imagem_resultado"]:
-                try:
-                    imgs = driver.find_elements(By.CSS_SELECTOR, sel)
-                    imgs_validas = [
-                        img for img in imgs
-                        if img.is_displayed()
-                        and img.get_attribute("naturalWidth")
-                        and int(img.get_attribute("naturalWidth") or 0) > 100
-                    ]
-                    if imgs_validas:
-                        arquivo = downloader.baixar_de_elemento(sel, nome_arquivo)
-                        if arquivo:
-                            return arquivo
-                except Exception:
+            # ── Coletar imagens novas (HTTP URLs) ──
+            novas = self._coletar_novas_imagens(vistas)
+
+            snap_atual = len(vistas)
+            logger.info(
+                f"[Download] {arte_label}: snapshot após envio={snap_atual + len(novas)} imgs "
+                f"({len(novas)} nova(s) detectada(s))."
+            )
+
+            for url_nova in novas:
+                alguma_nova_detectada = True
+                id_log = url_nova[:80] + ("..." if len(url_nova) > 80 else "")
+                if url_nova in _baixadas:
+                    logger.info(
+                        f"[Download] {arte_label}: imagem ignorada por já ter sido "
+                        f"processada — {id_log}"
+                    )
+                    vistas.add(url_nova)
                     continue
 
-            arquivo = downloader.baixar_via_js(nome_arquivo)
+                logger.info(
+                    f"[Download] {arte_label}: imagem selecionada para download — {id_log}"
+                )
+                algum_download_tentado = True
+                arquivo = downloader.baixar_de_url(url_nova, nome_arquivo)
+                if arquivo and downloader.verificar_arquivo(arquivo):
+                    _baixadas.add(url_nova)
+                    logger.sucesso(
+                        f"[Download] {arte_label}: download concluído. "
+                        f"URL registrada para deduplicação."
+                    )
+                    return arquivo
+
+                logger.aviso(
+                    f"[Download] {arte_label}: falha ao baixar {id_log}. Tentando próxima."
+                )
+                vistas.add(url_nova)
+
+            # ── Fallback: data URIs e canvas ──
+            arquivo = self._tentar_baixar_via_js_novo(downloader, nome_arquivo, vistas)
             if arquivo and downloader.verificar_arquivo(arquivo):
+                logger.sucesso(
+                    f"[Download] {arte_label}: download concluído via fallback JS."
+                )
                 return arquivo
 
             time.sleep(2)
 
-        raise TimeoutException(f"Timeout de {self.timeout}s atingido aguardando imagem.")
+        # ── Diagnóstico preciso do estado de falha (C6) ──
+        if not alguma_nova_detectada:
+            msg_estado = (
+                f"[Download] {arte_label}: ESTADO 2 — envio confirmado, "
+                f"mas nenhuma imagem nova apareceu em {self.timeout}s. "
+                f"A resposta do Adapta pode ter demorado além do timeout, "
+                f"ou a imagem usa formato/seletor não detectado."
+            )
+        elif algum_download_tentado:
+            msg_estado = (
+                f"[Download] {arte_label}: ESTADO 4 — imagem(ns) detectada(s) "
+                f"mas todos os downloads falharam (URL inacessível ou arquivo inválido)."
+            )
+        else:
+            msg_estado = (
+                f"[Download] {arte_label}: ESTADO 3 — resposta chegou, "
+                f"imagem foi detectada mas filtros de dedup/URL a rejeitaram. "
+                f"Verifique se a URL da imagem é nova ou se foi deduplicada incorretamente."
+            )
+
+        raise TimeoutException(msg_estado)
+
+    def _tirar_snapshot_imagens(self) -> set:
+        """Captura as URLs HTTP de todas as imagens visíveis no momento.
+
+        Usado para estabelecer o baseline antes de enviar o prompt.
+        Qualquer URL ausente neste snapshot após o envio é candidata
+        à imagem gerada pela arte atual.
+
+        Returns:
+            Conjunto de strings de URL (``http://...``).
+        """
+        driver = self.handler.driver
+        try:
+            resultado = driver.execute_script(
+                """
+                var urls = [];
+                document.querySelectorAll('img').forEach(function(img) {
+                    if (img.naturalWidth > 100 && img.naturalHeight > 100
+                            && img.src && img.src.indexOf('http') === 0
+                            && img.offsetWidth > 0) {
+                        urls.push(img.src);
+                    }
+                });
+                return urls;
+                """
+            ) or []
+            return set(resultado)
+        except Exception:
+            return set()
+
+    def _coletar_novas_imagens(self, vistas: set) -> list:
+        """Retorna URLs HTTP de imagens visíveis não presentes em ``vistas``.
+
+        Varre todo o DOM por ``<img>`` com naturalWidth > 100 e src HTTP.
+        Exclui qualquer URL já presente em ``vistas`` (snapshot + baixadas).
+
+        Args:
+            vistas: Conjunto de URLs já conhecidas (não devem ser baixadas).
+
+        Returns:
+            Lista ordenada (DOM order) de URLs novas.
+        """
+        driver = self.handler.driver
+        try:
+            todas = driver.execute_script(
+                """
+                var urls = [];
+                document.querySelectorAll('img').forEach(function(img) {
+                    if (img.naturalWidth > 100 && img.naturalHeight > 100
+                            && img.src && img.src.indexOf('http') === 0
+                            && img.offsetWidth > 0) {
+                        urls.push(img.src);
+                    }
+                });
+                return urls;
+                """
+            ) or []
+            return [u for u in todas if u not in vistas]
+        except Exception:
+            return []
+
+    def _tentar_baixar_via_js_novo(
+        self,
+        downloader: DownloadManager,
+        nome_arquivo: str,
+        urls_excluidas: set,
+    ) -> Optional[Path]:
+        """Fallback JS para canvas e data URIs ignorados pela varredura HTTP.
+
+        Percorre canvas e img[src^='data:image'] em ordem reversa (mais novo
+        primeiro) e baixa o primeiro que não esteja em ``urls_excluidas``.
+
+        Args:
+            downloader: Instância do DownloadManager.
+            nome_arquivo: Nome do arquivo de saída.
+            urls_excluidas: URLs que já foram processadas — não baixar novamente.
+
+        Returns:
+            Path do arquivo salvo ou None.
+        """
+        driver = self.handler.driver
+        try:
+            script = """
+            var excluidas = arguments[0];
+            // Canvas (mais recente primeiro)
+            var canvases = document.querySelectorAll('canvas');
+            for (var i = canvases.length - 1; i >= 0; i--) {
+                if (canvases[i].offsetWidth < 100) continue;
+                try {
+                    var dataUrl = canvases[i].toDataURL('image/jpeg', 0.95);
+                    if (excluidas.indexOf(dataUrl.substring(0, 100)) === -1) {
+                        return dataUrl;
+                    }
+                } catch(e) {}
+            }
+            // Imagens data: URI
+            var imgs = document.querySelectorAll('img[src^="data:image"]');
+            for (var j = imgs.length - 1; j >= 0; j--) {
+                if (imgs[j].naturalWidth > 200 && imgs[j].naturalHeight > 200) {
+                    var src = imgs[j].src;
+                    if (excluidas.indexOf(src.substring(0, 100)) === -1) {
+                        return src;
+                    }
+                }
+            }
+            return null;
+            """
+            excluidas_prefixos = [u[:100] for u in urls_excluidas]
+            resultado = driver.execute_script(script, excluidas_prefixos)
+            if resultado and resultado.startswith("data:image"):
+                return downloader._salvar_base64(
+                    resultado, downloader.pasta_output / nome_arquivo
+                )
+        except Exception:
+            pass
+        return None
+
+    def _aguardar_estabilizacao_spa(
+        self, arte_label: str = "Arte", timeout_s: int = 8
+    ) -> None:
+        """Aguarda a SPA estabilizar entre artes (C9).
+
+        Após o download de uma arte, o Adapta One pode re-renderizar a UI:
+        criar novo estado de chat, recriar o compositor, atualizar o
+        histórico. Enviar a próxima arte enquanto isso ocorre causa perda de
+        foco, botão de envio não encontrado e Enter sem efeito.
+
+        Verifica:
+        1. Indicadores de loading desapareceram.
+        2. URL não mudou nos últimos 1s (navegação SPA se estabilizou).
+        3. Breve pausa fixa para permitir reconciliação do React/DOM.
+
+        Args:
+            arte_label: Rótulo para log.
+            timeout_s: Tempo máximo de espera.
+        """
+        driver = self.handler.driver
+        logger.info(
+            f"[SPA] {arte_label}: aguardando estabilização da UI antes da próxima arte..."
+        )
+
+        inicio = time.time()
+
+        # 1. Aguardar loading desaparecer
+        self._aguardar_fim_loading(driver, espera_max=min(timeout_s, 5))
+
+        # 2. Aguardar URL estabilizar (SPA pode navegar brevemente)
+        url_anterior = ""
+        estavel_desde = None
+        deadline = time.time() + timeout_s
+        while time.time() < deadline:
+            try:
+                url_atual = driver.current_url
+            except Exception:
+                break
+            if url_atual == url_anterior:
+                if estavel_desde is None:
+                    estavel_desde = time.time()
+                elif time.time() - estavel_desde >= 1.0:
+                    logger.info(
+                        f"[SPA] {arte_label}: URL estável por 1s ({url_atual[:60]}...)."
+                    )
+                    break
+            else:
+                estavel_desde = None
+                if url_anterior:
+                    logger.info(
+                        f"[SPA] {arte_label}: URL mudou após arte anterior "
+                        f"({url_anterior[:40]} → {url_atual[:40]})."
+                    )
+                url_anterior = url_atual
+            time.sleep(0.3)
+
+        # 3. Pausa fixa mínima para reconciliação do DOM
+        time.sleep(0.5)
+        logger.info(
+            f"[SPA] {arte_label}: estabilização concluída em "
+            f"{time.time() - inicio:.1f}s."
+        )
 
     def _aguardar_fim_loading(self, driver, espera_max: int = 30) -> None:
         """Aguarda desaparecer indicadores de carregamento.

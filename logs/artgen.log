@@ -735,3 +735,537 @@
 2026-04-09 16:59:59 [INFO] Geração de DUDE#1 CONCLUÍDA! 2/2 artes salvas em C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\output\DUDE_1
 2026-04-09 16:59:59 [INFO] Planilha atualizada para DUDE#1.
 2026-04-09 17:00:02 [INFO] Navegador fechado.
+2026-04-09 18:37:59 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 18:37:59 [INFO] Planilha carregada: 1 solicitação(ões) (0 pendente(s)).
+2026-04-09 18:38:57 [INFO] Protocolo 'DUDE#1' removido permanentemente.
+2026-04-09 18:39:20 [INFO] Protocolo 'DUDE#1' criado — DudeCamp / CSS
+2026-04-09 18:39:20 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 18:39:20 [INFO] Planilha carregada: 1 solicitação(ões) (1 pendente(s)).
+2026-04-09 18:39:24 [INFO] Tentando iniciar Chrome (tentativa 1/3)...
+2026-04-09 18:39:27 [INFO] Navegador Chrome iniciado com sucesso.
+2026-04-09 18:39:27 [INFO] Acessando AdaptaOne...
+2026-04-09 18:39:28 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 18:39:32 [INFO] Tela de login detectada. Login automático configurado — tentando...
+2026-04-09 18:39:32 [INFO] [Login] Aguardando campos do formulário (até 10s)...
+2026-04-09 18:39:43 [WARNING] [Login] Campos não localizados após 10s: faltando ['senha']. A interface de login pode não ter carregado ou seus seletores mudaram.
+2026-04-09 18:39:43 [WARNING] Login automático falhou: campos do formulário não localizados na página. A interface pode não ter carregado completamente — verifique o seletor ou tente login manual.
+2026-04-09 18:40:25 [INFO] Acessando AdaptaOne...
+2026-04-09 18:40:26 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 18:40:29 [INFO] AdaptaOne carregado — sessão ativa.
+2026-04-09 18:40:29 [INFO] [AdaptaOne] Dashboard detectado. Clicando em 'ADAPTA one'...
+2026-04-09 18:40:32 [INFO] [AdaptaOne] Entrou na interface de chat com sucesso.
+2026-04-09 18:40:32 [INFO] [Composer] Perfil carregado: DudeCamp (DUDE) | nicho=Educação Tech | estilo=Tech
+2026-04-09 18:40:32 [INFO] [Chat] Resolvendo chat: 'DUDE - DudeCamp'...
+2026-04-09 18:40:32 [INFO] [Chat] Buscando pasta 'Media Rats - ArtGen' no sidebar...
+2026-04-09 18:40:33 [INFO] [Chat] Pasta 'Media Rats - ArtGen' acessada.
+2026-04-09 18:40:33 [INFO] [Chat] Vínculo registrado: https://agent.adapta.one/agentic-chat
+2026-04-09 18:40:37 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-09 18:40:37 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-09 18:40:37 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-09 18:40:37 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-09 18:40:37 [INFO] [Chat] Compositor presente e validado na página.
+2026-04-09 18:40:37 [INFO] [Chat] Chat validado — compositor funcional encontrado.
+2026-04-09 18:40:37 [INFO] [Chat] ✓ Chat do cliente 'DUDE' reutilizado.
+2026-04-09 18:40:37 [INFO] Iniciando geração de DUDE#1 - 3 artes
+2026-04-09 18:40:37 [INFO] Gerando arte 1/3 - Prompt: Crie uma arte impactante para post de redes sociais sobre CS...
+2026-04-09 18:40:37 [INFO] [Composer] Prompt composto (2178 chars) para arte 1/3
+2026-04-09 18:40:37 [INFO] [Composer] Aguardando compositor (2178 chars)...
+2026-04-09 18:40:37 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-09 18:40:37 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-09 18:40:37 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-09 18:40:37 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-09 18:40:37 [INFO] [Composer] Compositor pronto: tipo='div[contenteditable=true]'.
+2026-04-09 18:40:39 [INFO] [Composer] Inserção 'execCommand(insertText)': 2206/2178 chars no campo.
+2026-04-09 18:40:39 [INFO] [Composer] Botão de envio encontrado em 0.1s. Clicando.
+2026-04-09 18:40:39 [INFO] [Composer] Envio concluído via 'botao' em 2.1s total.
+2026-04-09 18:40:39 [INFO] Aguardando geração da imagem...
+2026-04-09 18:41:07 [INFO] Imagem baixada: DUDE#1_001.jpg (1299 KB)
+2026-04-09 18:41:07 [INFO] Arte 1 baixada: DUDE#1_001.jpg
+2026-04-09 18:41:07 [INFO] Gerando arte 2/3 - Prompt: Crie uma arte impactante para post de redes sociais sobre CS...
+2026-04-09 18:41:07 [INFO] [Composer] Prompt composto (2178 chars) para arte 2/3
+2026-04-09 18:41:07 [INFO] [Composer] Aguardando compositor (2178 chars)...
+2026-04-09 18:41:07 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-09 18:41:07 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-09 18:41:07 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-09 18:41:07 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-09 18:41:07 [INFO] [Composer] Compositor pronto: tipo='div[contenteditable=true]'.
+2026-04-09 18:41:09 [INFO] [Composer] Inserção 'execCommand(insertText)': 2206/2178 chars no campo.
+2026-04-09 18:41:13 [INFO] [Composer] Botão não encontrado após 3.6s — Enter como fallback.
+2026-04-09 18:41:13 [INFO] [Composer] Envio concluído via 'enter' em 5.6s total.
+2026-04-09 18:41:13 [INFO] Aguardando geração da imagem...
+2026-04-09 18:41:13 [INFO] Imagem baixada: DUDE#1_002.jpg (1299 KB)
+2026-04-09 18:41:13 [INFO] Arte 2 baixada: DUDE#1_002.jpg
+2026-04-09 18:41:13 [INFO] Gerando arte 3/3 - Prompt: Crie uma arte impactante para post de redes sociais sobre CS...
+2026-04-09 18:41:13 [INFO] [Composer] Prompt composto (2178 chars) para arte 3/3
+2026-04-09 18:41:13 [INFO] [Composer] Aguardando compositor (2178 chars)...
+2026-04-09 18:41:14 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=69 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=493), campo_largo:+10(w=707), campo_alto:+5(h=192)
+2026-04-09 18:41:14 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=69 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=493), campo_largo:+10(w=707), campo_alto:+5(h=192)
+2026-04-09 18:41:14 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-09 18:41:14 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-09 18:41:14 [INFO] [Composer] Compositor pronto: tipo='div[contenteditable=true]'.
+2026-04-09 18:41:16 [INFO] [Composer] Inserção 'execCommand(insertText)': 2206/2178 chars no campo.
+2026-04-09 18:41:16 [INFO] [Composer] Botão de envio encontrado em 0.0s. Clicando.
+2026-04-09 18:41:16 [INFO] [Composer] Envio concluído via 'botao' em 2.6s total.
+2026-04-09 18:41:16 [INFO] Aguardando geração da imagem...
+2026-04-09 18:41:19 [INFO] Imagem baixada: DUDE#1_003.jpg (1299 KB)
+2026-04-09 18:41:19 [INFO] Arte 3 baixada: DUDE#1_003.jpg
+2026-04-09 18:41:19 [INFO] Geração de DUDE#1 CONCLUÍDA! 3/3 artes salvas em C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\output\DUDE_1
+2026-04-09 18:41:19 [INFO] Planilha atualizada para DUDE#1.
+2026-04-09 18:41:19 [INFO] [Browser] FECHAR_NAVEGADOR_APOS_CONCLUSAO=True (valor no .env: 'true')
+2026-04-09 18:41:19 [INFO] [Browser] Fechando navegador conforme configuração.
+2026-04-09 18:41:21 [INFO] Navegador fechado.
+2026-04-09 19:02:48 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 19:02:48 [INFO] Planilha carregada: 1 solicitação(ões) (0 pendente(s)).
+2026-04-09 19:02:54 [INFO] Protocolo 'DUDE#1' removido permanentemente.
+2026-04-09 19:03:31 [INFO] Protocolo 'DUDE#1' criado — DudeCamp / CSS
+2026-04-09 19:03:31 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-09 19:03:31 [INFO] Planilha carregada: 1 solicitação(ões) (1 pendente(s)).
+2026-04-09 19:03:34 [INFO] Tentando iniciar Chrome (tentativa 1/3)...
+2026-04-09 19:03:37 [INFO] Navegador Chrome iniciado com sucesso.
+2026-04-09 19:03:37 [INFO] Acessando AdaptaOne...
+2026-04-09 19:03:38 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 19:03:41 [INFO] Tela de login detectada. Login automático configurado — tentando...
+2026-04-09 19:03:41 [INFO] [Login] Aguardando campos do formulário (até 10s)...
+2026-04-09 19:03:53 [WARNING] [Login] Campos não localizados após 10s: faltando ['senha']. A interface de login pode não ter carregado ou seus seletores mudaram.
+2026-04-09 19:03:53 [WARNING] Login automático falhou: campos do formulário não localizados na página. A interface pode não ter carregado completamente — verifique o seletor ou tente login manual.
+2026-04-09 19:04:19 [INFO] Acessando AdaptaOne...
+2026-04-09 19:04:20 [INFO] Navegando para: https://agent.adapta.one
+2026-04-09 19:04:23 [INFO] AdaptaOne carregado — sessão ativa.
+2026-04-09 19:04:23 [INFO] [AdaptaOne] Dashboard detectado. Clicando em 'ADAPTA one'...
+2026-04-09 19:04:26 [INFO] [AdaptaOne] Entrou na interface de chat com sucesso.
+2026-04-09 19:04:26 [INFO] [Composer] Perfil carregado: DudeCamp (DUDE) | nicho=Educação Tech | estilo=Tech
+2026-04-09 19:04:26 [INFO] [Chat] Resolvendo chat: 'DUDE - DudeCamp'...
+2026-04-09 19:04:26 [INFO] [Chat] Buscando pasta 'Media Rats - ArtGen' no sidebar...
+2026-04-09 19:04:26 [WARNING] [Chat] Pasta 'Media Rats - ArtGen' não localizada no sidebar.
+2026-04-09 19:04:26 [INFO] [Chat] Vínculo registrado: https://agent.adapta.one/agentic-chat
+2026-04-09 19:04:31 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-09 19:04:31 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-09 19:04:31 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-09 19:04:31 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-09 19:04:31 [INFO] [Chat] Compositor presente e validado na página.
+2026-04-09 19:04:31 [INFO] [Chat] Chat validado — compositor funcional encontrado.
+2026-04-09 19:04:31 [INFO] [Chat] ✓ Chat do cliente 'DUDE' reutilizado.
+2026-04-09 19:04:31 [INFO] Iniciando geração de DUDE#1 — 3 arte(s)
+2026-04-09 19:04:31 [INFO] [Arte 1/3] Prompt individual composto com sucesso (1151 chars): 'Crie uma arte impactante para post de redes sociais sobre CS...'
+2026-04-09 19:04:31 [INFO] [Arte 1/3] Snapshot antes do envio: 0 img(s) conhecida(s). Já baixadas no ciclo: 0.
+2026-04-09 19:04:31 [INFO] [Composer] Aguardando compositor (1151 chars)...
+2026-04-09 19:04:31 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-09 19:04:31 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-09 19:04:31 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-09 19:04:31 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-09 19:04:31 [INFO] [Composer] Compositor pronto: tipo='div[contenteditable=true]'.
+2026-04-09 19:04:33 [INFO] [Composer] Inserção 'execCommand(insertText)': 1174/1151 chars no campo.
+2026-04-09 19:04:33 [INFO] [Composer] Botão de envio encontrado em 0.0s. Clicando.
+2026-04-09 19:04:33 [INFO] [Composer] Envio concluído via 'botao' em 2.0s total.
+2026-04-09 19:04:33 [INFO] [Arte 1/3] Mensagem individual enviada. Aguardando imagem nova...
+2026-04-09 19:04:33 [INFO] [Download] Arte 1/3: snapshot antes=0, já baixadas=0. Aguardando imagem nova...
+2026-04-09 19:04:33 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:04:35 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:04:37 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:04:39 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:04:41 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:04:43 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:04:45 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:04:47 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:04:49 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:04:51 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:04:54 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:04:56 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:04:58 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:00 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:02 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:04 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:06 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:08 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:10 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:12 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:14 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:16 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:18 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:20 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:22 [INFO] [Download] Arte 1/3: snapshot após envio=1 imgs (1 nova(s) detectada(s)).
+2026-04-09 19:05:22 [INFO] [Download] Arte 1/3: imagem selecionada para download — https://generated-images.adapta.one/italobruno0019%40gmail.com/019d7446-75fe-744...
+2026-04-09 19:05:23 [INFO] Imagem baixada: DUDE#1_001.jpg (2033 KB)
+2026-04-09 19:05:23 [INFO] [Download] Arte 1/3: download concluído. URL registrada para deduplicação.
+2026-04-09 19:05:23 [INFO] [Arte 1/3] Concluída com sucesso: DUDE#1_001.jpg
+2026-04-09 19:05:23 [INFO] [Arte 2/3] Prompt individual composto com sucesso (1209 chars): 'Crie uma arte impactante para post de redes sociais sobre CS...'
+2026-04-09 19:05:23 [INFO] [Arte 2/3] Snapshot antes do envio: 1 img(s) conhecida(s). Já baixadas no ciclo: 1.
+2026-04-09 19:05:23 [INFO] [Composer] Aguardando compositor (1209 chars)...
+2026-04-09 19:05:23 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-09 19:05:23 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-09 19:05:23 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-09 19:05:23 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-09 19:05:23 [INFO] [Composer] Compositor pronto: tipo='div[contenteditable=true]'.
+2026-04-09 19:05:25 [INFO] [Composer] Inserção 'execCommand(insertText)': 1232/1209 chars no campo.
+2026-04-09 19:05:28 [INFO] [Composer] Botão não encontrado após 3.4s — Enter como fallback.
+2026-04-09 19:05:28 [INFO] [Composer] Envio concluído via 'enter' em 5.4s total.
+2026-04-09 19:05:28 [INFO] [Arte 2/3] Mensagem individual enviada. Aguardando imagem nova...
+2026-04-09 19:05:28 [INFO] [Download] Arte 2/3: snapshot antes=1, já baixadas=1. Aguardando imagem nova...
+2026-04-09 19:05:28 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:31 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:33 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:35 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:37 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:39 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:41 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:43 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:45 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:47 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:49 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:50 [WARNING] Geração pausada pelo usuário.
+2026-04-09 19:05:51 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:53 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:55 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:57 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:05:59 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:01 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:03 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:05 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:07 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:09 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:11 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:13 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:15 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:17 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:19 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:21 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:24 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:26 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:28 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-09 19:06:30 [WARNING] Tentativa 1/3 falhou: Message: [Download] Arte 2/3: timeout de 60s sem nova imagem.
+
+2026-04-09 19:06:30 [INFO] Aguardando 2s antes de tentar novamente...
+2026-04-09 19:06:31 [WARNING] Cancelamento solicitado...
+2026-04-09 19:06:34 [INFO] Navegador fechado.
+2026-04-10 13:27:43 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-10 13:27:43 [INFO] Planilha carregada: 1 solicitação(ões) (1 pendente(s)).
+2026-04-10 13:27:59 [INFO] Tentando iniciar Chrome (tentativa 1/3)...
+2026-04-10 13:28:06 [INFO] Navegador Chrome iniciado com sucesso.
+2026-04-10 13:28:06 [INFO] Acessando AdaptaOne...
+2026-04-10 13:28:07 [INFO] Navegando para: https://agent.adapta.one
+2026-04-10 13:28:10 [INFO] Tela de login detectada. Login automático configurado — tentando...
+2026-04-10 13:28:10 [INFO] [Login] Aguardando campos do formulário (até 10s)...
+2026-04-10 13:28:22 [WARNING] [Login] Campos não localizados após 10s: faltando ['senha']. A interface de login pode não ter carregado ou seus seletores mudaram.
+2026-04-10 13:28:22 [WARNING] Login automático falhou: campos do formulário não localizados na página. A interface pode não ter carregado completamente — verifique o seletor ou tente login manual.
+2026-04-10 13:28:58 [INFO] Acessando AdaptaOne...
+2026-04-10 13:28:59 [INFO] Navegando para: https://agent.adapta.one
+2026-04-10 13:29:02 [INFO] AdaptaOne carregado — sessão ativa.
+2026-04-10 13:29:02 [INFO] [AdaptaOne] Dashboard detectado. Clicando em 'ADAPTA one'...
+2026-04-10 13:29:05 [INFO] [AdaptaOne] Entrou na interface de chat com sucesso.
+2026-04-10 13:29:05 [INFO] [Composer] Perfil carregado: DudeCamp (DUDE) | nicho=Educação Tech | estilo=Tech
+2026-04-10 13:29:05 [INFO] [Chat] Resolvendo chat: 'DUDE - DudeCamp'...
+2026-04-10 13:29:05 [INFO] [Chat] Buscando pasta 'Media Rats - ArtGen' no sidebar...
+2026-04-10 13:29:07 [INFO] [Chat] Pasta 'Media Rats - ArtGen' acessada.
+2026-04-10 13:29:07 [INFO] [Chat] Vínculo registrado: https://agent.adapta.one/agentic-chat
+2026-04-10 13:29:11 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-10 13:29:11 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-10 13:29:11 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-10 13:29:11 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-10 13:29:11 [INFO] [Chat] Compositor presente e validado na página.
+2026-04-10 13:29:11 [INFO] [Chat] Chat validado — compositor funcional encontrado.
+2026-04-10 13:29:11 [INFO] [Chat] ✓ Chat do cliente 'DUDE' reutilizado.
+2026-04-10 13:29:11 [INFO] Iniciando geração de DUDE#1 — 3 arte(s)
+2026-04-10 13:29:11 [INFO] [Arte 1/3] Prompt individual composto com sucesso (1151 chars): 'Crie uma arte impactante para post de redes sociais sobre CS...'
+2026-04-10 13:29:11 [INFO] [Arte 1/3] Snapshot antes do envio: 0 img(s) conhecida(s). Já baixadas no ciclo: 0.
+2026-04-10 13:29:11 [INFO] [Composer] Aguardando compositor (1151 chars)...
+2026-04-10 13:29:11 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-10 13:29:11 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=57 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_centro:+5(top=385), campo_largo:+10(w=707)
+2026-04-10 13:29:11 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-10 13:29:11 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-10 13:29:11 [INFO] [Composer] Compositor pronto: tipo='div[contenteditable=true]'.
+2026-04-10 13:29:12 [INFO] [Composer] Inserção 'execCommand(insertText)': 1174/1151 chars no campo.
+2026-04-10 13:29:13 [INFO] [Composer] Botão de envio encontrado em 0.0s. Clicando.
+2026-04-10 13:29:13 [INFO] [Composer] Envio concluído via 'botao' em 2.1s total.
+2026-04-10 13:29:13 [INFO] [Arte 1/3] Mensagem individual enviada. Aguardando imagem nova...
+2026-04-10 13:29:13 [INFO] [Download] Arte 1/3: snapshot antes=0, já baixadas=0. Aguardando imagem nova...
+2026-04-10 13:29:13 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:15 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:17 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:19 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:21 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:23 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:25 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:27 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:29 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:31 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:33 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:35 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:37 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:39 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:42 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:44 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:46 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:48 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:50 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:52 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:54 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:56 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:29:58 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:30:00 [INFO] [Download] Arte 1/3: snapshot após envio=1 imgs (1 nova(s) detectada(s)).
+2026-04-10 13:30:00 [INFO] [Download] Arte 1/3: imagem selecionada para download — https://generated-images.adapta.one/italobruno0019%40gmail.com/019d7839-cefc-74f...
+2026-04-10 13:30:01 [INFO] Imagem baixada: DUDE#1_001.jpg (1672 KB)
+2026-04-10 13:30:01 [INFO] [Download] Arte 1/3: download concluído. URL registrada para deduplicação.
+2026-04-10 13:30:01 [INFO] [Arte 1/3] Concluída com sucesso: DUDE#1_001.jpg
+2026-04-10 13:30:01 [INFO] [Arte 2/3] Prompt individual composto com sucesso (1209 chars): 'Crie uma arte impactante para post de redes sociais sobre CS...'
+2026-04-10 13:30:01 [INFO] [Arte 2/3] Snapshot antes do envio: 1 img(s) conhecida(s). Já baixadas no ciclo: 1.
+2026-04-10 13:30:01 [INFO] [Composer] Aguardando compositor (1209 chars)...
+2026-04-10 13:30:01 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-10 13:30:01 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-10 13:30:01 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-10 13:30:01 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-10 13:30:01 [INFO] [Composer] Compositor pronto: tipo='div[contenteditable=true]'.
+2026-04-10 13:30:02 [INFO] [Composer] Inserção 'execCommand(insertText)': 1232/1209 chars no campo.
+2026-04-10 13:30:06 [INFO] [Composer] Botão não encontrado após 3.4s — Enter como fallback.
+2026-04-10 13:30:06 [INFO] [Composer] Envio concluído via 'enter' em 5.4s total.
+2026-04-10 13:30:06 [INFO] [Arte 2/3] Mensagem individual enviada. Aguardando imagem nova...
+2026-04-10 13:30:06 [INFO] [Download] Arte 2/3: snapshot antes=1, já baixadas=1. Aguardando imagem nova...
+2026-04-10 13:30:06 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:30:08 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:30:10 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:30:12 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:30:14 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:30:16 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:30:18 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:30:20 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:30:22 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:30:24 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:30:25 [WARNING] Cancelamento solicitado...
+2026-04-10 13:30:26 [WARNING] Tentativa 1/3 falhou: Arquivo inválido ou não gerado.
+2026-04-10 13:30:26 [INFO] Aguardando 2s antes de tentar novamente...
+2026-04-10 13:30:27 [INFO] Navegador fechado.
+2026-04-10 13:30:28 [WARNING] Geração pausada pelo usuário.
+2026-04-10 13:30:28 [WARNING] Driver perdeu conexão, reiniciando navegador...
+2026-04-10 13:30:28 [WARNING] Reiniciando navegador...
+2026-04-10 13:30:30 [INFO] Tentando iniciar Chrome (tentativa 1/3)...
+2026-04-10 13:30:33 [INFO] Navegador Chrome iniciado com sucesso.
+2026-04-10 13:30:33 [INFO] Acessando AdaptaOne...
+2026-04-10 13:30:35 [INFO] Navegando para: https://agent.adapta.one
+2026-04-10 13:30:38 [INFO] Tela de login detectada. Login automático configurado — tentando...
+2026-04-10 13:30:38 [INFO] [Login] Aguardando campos do formulário (até 10s)...
+2026-04-10 13:30:49 [WARNING] [Login] Campos não localizados após 10s: faltando ['senha']. A interface de login pode não ter carregado ou seus seletores mudaram.
+2026-04-10 13:30:49 [WARNING] Login automático falhou: campos do formulário não localizados na página. A interface pode não ter carregado completamente — verifique o seletor ou tente login manual.
+2026-04-10 13:30:49 [INFO] [Chat] Resolvendo chat: 'DUDE - DudeCamp'...
+2026-04-10 13:30:49 [INFO] [Chat] Buscando pasta 'Media Rats - ArtGen' no sidebar...
+2026-04-10 13:30:49 [WARNING] [Chat] Pasta 'Media Rats - ArtGen' não localizada no sidebar.
+2026-04-10 13:30:49 [INFO] [Chat] Vínculo registrado: https://agent.adapta.one/agentic-chat
+2026-04-10 13:30:52 [WARNING] [Chat] Redirecionado para login — sessão expirou.
+2026-04-10 13:30:52 [WARNING] [Chat] URL registrada inválida. Removendo vínculo e rebuscando...
+2026-04-10 13:30:53 [INFO] [Chat] Criando novo chat para 'DUDE - DudeCamp'...
+2026-04-10 13:30:53 [WARNING] [Chat] Botão 'novo chat' não encontrado.
+2026-04-10 13:30:53 [WARNING] [Chat] ✗ Não foi possível resolver chat para 'DUDE'. Continuando na página atual.
+2026-04-10 13:30:53 [ERROR] [Arte 2/3] Falhou após 3 tentativas. Pulando.
+2026-04-10 13:30:53 [WARNING] Geração cancelada pelo usuário.
+2026-04-10 13:30:53 [INFO] Geração de DUDE#1 CONCLUÍDA! 1/3 artes salvas em C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\output\DUDE_1
+2026-04-10 13:30:53 [INFO] Planilha atualizada para DUDE#1.
+2026-04-10 13:30:53 [INFO] [Browser] FECHAR_NAVEGADOR_APOS_CONCLUSAO=True (valor no .env: 'true')
+2026-04-10 13:30:53 [INFO] [Browser] Fechando navegador conforme configuração.
+2026-04-10 13:30:56 [INFO] Navegador fechado.
+2026-04-10 13:53:33 [INFO] Carregando planilha: C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\planilha\planilha-artgenmediarats.xlsx
+2026-04-10 13:53:33 [INFO] Planilha carregada: 1 solicitação(ões) (0 pendente(s)).
+2026-04-10 13:53:38 [INFO] Tentando iniciar Chrome (tentativa 1/3)...
+2026-04-10 13:53:40 [INFO] Navegador Chrome iniciado com sucesso.
+2026-04-10 13:53:40 [INFO] Acessando AdaptaOne...
+2026-04-10 13:53:41 [INFO] Navegando para: https://agent.adapta.one
+2026-04-10 13:53:45 [INFO] Tela de login detectada. Login automático configurado — tentando...
+2026-04-10 13:53:45 [INFO] [Login] Aguardando campos do formulário (até 10s)...
+2026-04-10 13:53:56 [WARNING] [Login] Campos não localizados após 10s: faltando ['senha']. A interface de login pode não ter carregado ou seus seletores mudaram.
+2026-04-10 13:53:56 [WARNING] Login automático falhou: campos do formulário não localizados na página. A interface pode não ter carregado completamente — verifique o seletor ou tente login manual.
+2026-04-10 13:54:24 [INFO] Acessando AdaptaOne...
+2026-04-10 13:54:24 [INFO] Navegando para: https://agent.adapta.one
+2026-04-10 13:54:27 [INFO] AdaptaOne carregado — sessão ativa.
+2026-04-10 13:54:27 [INFO] [AdaptaOne] Dashboard detectado. Clicando em 'ADAPTA one'...
+2026-04-10 13:54:31 [INFO] [AdaptaOne] Entrou na interface de chat com sucesso.
+2026-04-10 13:54:31 [INFO] [Composer] Perfil carregado: DudeCamp (DUDE) | nicho=Educação Tech | estilo=Tech
+2026-04-10 13:54:31 [INFO] [Chat] Resolvendo chat: 'DUDE - DudeCamp'...
+2026-04-10 13:54:31 [INFO] [Chat] Buscando pasta 'Media Rats - ArtGen' no sidebar...
+2026-04-10 13:54:32 [INFO] [Chat] Pasta 'Media Rats - ArtGen' acessada.
+2026-04-10 13:54:32 [INFO] [Chat] Criando novo chat para 'DUDE - DudeCamp'...
+2026-04-10 13:54:37 [INFO] [Chat] Novo chat aberto em: https://agent.adapta.one/agentic-chat
+2026-04-10 13:54:40 [INFO] [Chat] Chat renomeado para 'DUDE - DudeCamp'.
+2026-04-10 13:54:40 [INFO] [Chat] Rename concluído. Aguardando input de rename desaparecer...
+2026-04-10 13:54:40 [INFO] [Chat] Input de rename não mais visível — UI estabilizada para envio de prompt.
+2026-04-10 13:54:40 [INFO] [Chat] Aguardando compositor ficar pronto para envio de prompt...
+2026-04-10 13:54:41 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-10 13:54:41 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-10 13:54:41 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-10 13:54:41 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-10 13:54:41 [INFO] [Chat] Compositor pronto após criação do chat.
+2026-04-10 13:54:41 [INFO] [Chat] ✓ Novo chat criado: https://agent.adapta.one/agentic-chat
+2026-04-10 13:54:41 [INFO] Iniciando geração de DUDE#1 — 3 arte(s)
+2026-04-10 13:54:41 [INFO] [Arte 1/3] Prompt individual composto com sucesso (1151 chars): 'Crie uma arte impactante para post de redes sociais sobre CS...'
+2026-04-10 13:54:41 [INFO] [Arte 1/3] Snapshot antes do envio: 0 img(s) conhecida(s). Já baixadas no ciclo: 0.
+2026-04-10 13:54:41 [INFO] [Composer] Aguardando compositor (1151 chars)...
+2026-04-10 13:54:41 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-10 13:54:41 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-10 13:54:41 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-10 13:54:41 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-10 13:54:41 [INFO] [Composer] Compositor pronto: tipo='div[contenteditable=true]'.
+2026-04-10 13:54:42 [INFO] [Composer] Inserção 'execCommand(insertText)': 1174/1151 chars no campo.
+2026-04-10 13:54:42 [INFO] [Arte 1/3] Prompt inserido no composer com sucesso.
+2026-04-10 13:54:42 [INFO] [Envio] Arte 1/3: tentativa de envio via botão iniciada.
+2026-04-10 13:54:45 [INFO] [Envio] Arte 1/3: botão encontrado em 2.6s. Clicando...
+2026-04-10 13:54:45 [INFO] [Envio] Arte 1/3: botão clicado. Aguardando confirmação de envio...
+2026-04-10 13:54:45 [INFO] [Envio] Arte 1/3: ✓ campo vazio após envio (sinal A — primário).
+2026-04-10 13:54:45 [INFO] [Envio] Arte 1/3: envio confirmado via botão.
+2026-04-10 13:54:45 [INFO] [Arte 1/3] Envio confirmado? SIM (método: 'botao', tempo total: 4.7s).
+2026-04-10 13:54:45 [INFO] [Arte 1/3] Monitoramento de imagem iniciado apenas após envio confirmado.
+2026-04-10 13:54:45 [INFO] [Download] Arte 1/3: snapshot antes=0, já baixadas=0. Aguardando imagem nova...
+2026-04-10 13:54:45 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:54:47 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:54:49 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:54:51 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:54:53 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:54:56 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:54:58 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:00 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:02 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:04 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:06 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:08 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:10 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:12 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:14 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:16 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:18 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:20 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:22 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:24 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:26 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:28 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:30 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:32 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:34 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:36 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:38 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:40 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:42 [INFO] [Download] Arte 1/3: snapshot após envio=0 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:44 [INFO] [Download] Arte 1/3: snapshot após envio=1 imgs (1 nova(s) detectada(s)).
+2026-04-10 13:55:44 [INFO] [Download] Arte 1/3: imagem selecionada para download — https://generated-images.adapta.one/italobruno0019%40gmail.com/019d7851-0de2-75f...
+2026-04-10 13:55:45 [INFO] Imagem baixada: DUDE#1_001.jpg (1672 KB)
+2026-04-10 13:55:45 [INFO] [Download] Arte 1/3: download concluído. URL registrada para deduplicação.
+2026-04-10 13:55:45 [INFO] [Arte 1/3] Concluída com sucesso: DUDE#1_001.jpg
+2026-04-10 13:55:45 [INFO] [SPA] Arte 1/3: aguardando estabilização da UI antes da próxima arte...
+2026-04-10 13:55:47 [INFO] [SPA] Arte 1/3: URL estável por 1s (https://agent.adapta.one/agentic-chat/019d7851-0de2-75fa-807...).
+2026-04-10 13:55:47 [INFO] [SPA] Arte 1/3: estabilização concluída em 2.1s.
+2026-04-10 13:55:47 [INFO] [Arte 2/3] Prompt individual composto com sucesso (1209 chars): 'Crie uma arte impactante para post de redes sociais sobre CS...'
+2026-04-10 13:55:47 [INFO] [Arte 2/3] Snapshot antes do envio: 1 img(s) conhecida(s). Já baixadas no ciclo: 1.
+2026-04-10 13:55:47 [INFO] [Composer] Aguardando compositor (1209 chars)...
+2026-04-10 13:55:48 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-10 13:55:48 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-10 13:55:48 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-10 13:55:48 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-10 13:55:48 [INFO] [Composer] Compositor pronto: tipo='div[contenteditable=true]'.
+2026-04-10 13:55:49 [INFO] [Composer] Inserção 'execCommand(insertText)': 1232/1209 chars no campo.
+2026-04-10 13:55:49 [INFO] [Arte 2/3] Prompt inserido no composer com sucesso.
+2026-04-10 13:55:49 [INFO] [Envio] Arte 2/3: tentativa de envio via botão iniciada.
+2026-04-10 13:55:51 [INFO] [Envio] Arte 2/3: botão encontrado em 2.2s. Clicando...
+2026-04-10 13:55:52 [INFO] [Envio] Arte 2/3: botão clicado. Aguardando confirmação de envio...
+2026-04-10 13:55:52 [INFO] [Envio] Arte 2/3: ✓ campo vazio após envio (sinal A — primário).
+2026-04-10 13:55:52 [INFO] [Envio] Arte 2/3: envio confirmado via botão.
+2026-04-10 13:55:52 [INFO] [Arte 2/3] Envio confirmado? SIM (método: 'botao', tempo total: 4.3s).
+2026-04-10 13:55:52 [INFO] [Arte 2/3] Monitoramento de imagem iniciado apenas após envio confirmado.
+2026-04-10 13:55:52 [INFO] [Download] Arte 2/3: snapshot antes=1, já baixadas=1. Aguardando imagem nova...
+2026-04-10 13:55:52 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:54 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:56 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:55:58 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:00 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:02 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:04 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:06 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:08 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:10 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:12 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:14 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:16 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:18 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:20 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:22 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:24 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:26 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:28 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:31 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:33 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:35 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:37 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:39 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:41 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:43 [INFO] [Download] Arte 2/3: snapshot após envio=1 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:56:45 [INFO] [Download] Arte 2/3: snapshot após envio=2 imgs (1 nova(s) detectada(s)).
+2026-04-10 13:56:45 [INFO] [Download] Arte 2/3: imagem selecionada para download — https://generated-images.adapta.one/italobruno0019%40gmail.com/019d7851-0de2-75f...
+2026-04-10 13:56:45 [INFO] Imagem baixada: DUDE#1_002.jpg (1688 KB)
+2026-04-10 13:56:45 [INFO] [Download] Arte 2/3: download concluído. URL registrada para deduplicação.
+2026-04-10 13:56:45 [INFO] [Arte 2/3] Concluída com sucesso: DUDE#1_002.jpg
+2026-04-10 13:56:45 [INFO] [SPA] Arte 2/3: aguardando estabilização da UI antes da próxima arte...
+2026-04-10 13:56:47 [INFO] [SPA] Arte 2/3: URL estável por 1s (https://agent.adapta.one/agentic-chat/019d7851-0de2-75fa-807...).
+2026-04-10 13:56:47 [INFO] [SPA] Arte 2/3: estabilização concluída em 2.1s.
+2026-04-10 13:56:47 [INFO] [Arte 3/3] Prompt individual composto com sucesso (1182 chars): 'Crie uma arte impactante para post de redes sociais sobre CS...'
+2026-04-10 13:56:47 [INFO] [Arte 3/3] Snapshot antes do envio: 2 img(s) conhecida(s). Já baixadas no ciclo: 2.
+2026-04-10 13:56:47 [INFO] [Composer] Aguardando compositor (1182 chars)...
+2026-04-10 13:56:48 [INFO] [Composer] [padrao] Cand 1/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-10 13:56:48 [INFO] [Composer] [padrao] Cand 2/3: tipo=div[ce=true], score=64 | ce:+5, url_chat:+20, anc_pos:+25, anc_neg_strict:-8, pos_inferior:+12(top=657), campo_largo:+10(w=707)
+2026-04-10 13:56:48 [INFO] [Composer] [padrao] Cand 3/3: tipo=input, score=17 | url_chat:+20, anc_neg_strict:-8, campo_medio:+5(w=169)
+2026-04-10 13:56:48 [INFO] [Composer] Compositor resolvido: tipo='div[contenteditable=true]', modo='padrao', tentativa=1.
+2026-04-10 13:56:48 [INFO] [Composer] Compositor pronto: tipo='div[contenteditable=true]'.
+2026-04-10 13:56:49 [INFO] [Composer] Inserção 'execCommand(insertText)': 1205/1182 chars no campo.
+2026-04-10 13:56:49 [INFO] [Arte 3/3] Prompt inserido no composer com sucesso.
+2026-04-10 13:56:49 [INFO] [Envio] Arte 3/3: tentativa de envio via botão iniciada.
+2026-04-10 13:56:53 [INFO] [Envio] Arte 3/3: botão não encontrado após 3.4s — usando Enter como fallback.
+2026-04-10 13:56:53 [INFO] [Envio] Arte 3/3: tentativa de envio via Enter iniciada.
+2026-04-10 13:56:53 [INFO] [Envio] Arte 3/3: composer focado? sim (tentativa Enter 1/3).
+2026-04-10 13:56:53 [INFO] [Envio] Arte 3/3: texto no campo? sim (1205 chars).
+2026-04-10 13:56:53 [INFO] [Envio] Arte 3/3: enviando Enter (tentativa 1/3)...
+2026-04-10 13:56:53 [INFO] [Envio] Arte 3/3: Enter enviado. Aguardando confirmação...
+2026-04-10 13:56:58 [WARNING] [Envio] Arte 3/3: texto ainda no campo após 5s? SIM (1205 chars). Envio NÃO confirmado.
+2026-04-10 13:56:58 [WARNING] [Envio] Arte 3/3: tentativa 1/3 de Enter não confirmou envio.
+2026-04-10 13:56:59 [INFO] [Envio] Arte 3/3: composer focado? sim (tentativa Enter 2/3).
+2026-04-10 13:56:59 [INFO] [Envio] Arte 3/3: texto no campo? sim (1205 chars).
+2026-04-10 13:56:59 [INFO] [Envio] Arte 3/3: enviando Enter (tentativa 2/3)...
+2026-04-10 13:56:59 [INFO] [Envio] Arte 3/3: Enter enviado. Aguardando confirmação...
+2026-04-10 13:57:04 [WARNING] [Envio] Arte 3/3: texto ainda no campo após 5s? SIM (1205 chars). Envio NÃO confirmado.
+2026-04-10 13:57:04 [WARNING] [Envio] Arte 3/3: tentativa 2/3 de Enter não confirmou envio.
+2026-04-10 13:57:06 [INFO] [Envio] Arte 3/3: composer focado? sim (tentativa Enter 3/3).
+2026-04-10 13:57:06 [INFO] [Envio] Arte 3/3: texto no campo? sim (1205 chars).
+2026-04-10 13:57:06 [INFO] [Envio] Arte 3/3: enviando Enter (tentativa 3/3)...
+2026-04-10 13:57:06 [INFO] [Envio] Arte 3/3: Enter enviado. Aguardando confirmação...
+2026-04-10 13:57:06 [INFO] [Envio] Arte 3/3: ✓ campo vazio após envio (sinal A — primário).
+2026-04-10 13:57:06 [INFO] [Arte 3/3] Envio confirmado? SIM (método: 'enter', tempo total: 18.2s).
+2026-04-10 13:57:06 [INFO] [Arte 3/3] Monitoramento de imagem iniciado apenas após envio confirmado.
+2026-04-10 13:57:06 [INFO] [Download] Arte 3/3: snapshot antes=2, já baixadas=2. Aguardando imagem nova...
+2026-04-10 13:57:06 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:08 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:10 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:12 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:14 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:16 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:18 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:20 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:22 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:24 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:26 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:28 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:30 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:32 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:34 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:36 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:38 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:40 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:43 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:45 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:47 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:49 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:51 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:53 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:55 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:57 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:57:59 [INFO] [Download] Arte 3/3: snapshot após envio=2 imgs (0 nova(s) detectada(s)).
+2026-04-10 13:58:01 [INFO] [Download] Arte 3/3: snapshot após envio=3 imgs (1 nova(s) detectada(s)).
+2026-04-10 13:58:01 [INFO] [Download] Arte 3/3: imagem selecionada para download — https://generated-images.adapta.one/italobruno0019%40gmail.com/019d7851-0de2-75f...
+2026-04-10 13:58:02 [INFO] Imagem baixada: DUDE#1_003.jpg (2031 KB)
+2026-04-10 13:58:02 [INFO] [Download] Arte 3/3: download concluído. URL registrada para deduplicação.
+2026-04-10 13:58:02 [INFO] [Arte 3/3] Concluída com sucesso: DUDE#1_003.jpg
+2026-04-10 13:58:02 [INFO] Geração de DUDE#1 CONCLUÍDA! 3/3 artes salvas em C:\Users\eduar\Desktop\Code\MEDIA RATS CODE\MEDIARATS-ARTGEN\output\DUDE_1
+2026-04-10 13:58:02 [INFO] Planilha atualizada para DUDE#1.
+2026-04-10 13:58:02 [INFO] [Browser] FECHAR_NAVEGADOR_APOS_CONCLUSAO=True (valor no .env: 'true')
+2026-04-10 13:58:02 [INFO] [Browser] Fechando navegador conforme configuração.
+2026-04-10 13:58:04 [INFO] Navegador fechado.
