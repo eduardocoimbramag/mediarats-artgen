@@ -43,18 +43,27 @@ SELECTORS_LOGIN = {
         "input[id*='email' i]",
         "input[placeholder*='e-mail' i]",
         "input[placeholder*='email' i]",
-        "input[placeholder*='usuário' i]",
+        "input[placeholder*='usu\u00e1rio' i]",
         "input[name*='user' i]",
     ],
     "senha": [
         "input[type='password']",
+        "input[name*='password' i]",
+        "input[name*='senha' i]",
+        "input[id*='password' i]",
+        "input[id*='senha' i]",
+        "input[autocomplete*='password' i]",
+        "input[autocomplete*='current-password' i]",
     ],
-    "botao_login": [
+    "botao_continuar": [
         "button[type='submit']",
         "input[type='submit']",
+        "button[class*='continue' i]",
+        "button[class*='continuar' i]",
+        "button[class*='next' i]",
         "button[class*='login' i]",
-        "button[class*='entrar' i]",
         "button[class*='signin' i]",
+        "button[class*='entrar' i]",
     ],
     "erro_login": [
         "[class*='error' i]",
@@ -416,31 +425,63 @@ class AdaptaGenerator:
         return False
 
     def tentar_login_automatico(self, email: str, senha: str) -> str:
-        """Preenche e submete o formulário de login do Adapta.org.
+        """Realiza login automático no Adapta One em duas etapas.
 
-        Aguarda os campos do formulário por até 10 s (React SPA renderiza async).
-        Diferencia claramente os cenários de falha.
+        Etapa 1 (/sign-in): preenche e-mail → clica Continuar.
+        Etapa 2 (/sign-in/factor-one): preenche senha → clica Continuar.
 
         Args:
             email: E-mail de login.
             senha: Senha de login.
 
         Returns:
-            'ok'                   se login bem-sucedido.
-            'campos_nao_encontrados' se o formulário não foi localizado na página.
-            'credenciais_invalidas'  se preencheu mas a tela de login voltou.
+            'ok'                     se login bem-sucedido.
+            'campos_nao_encontrados' se algum campo/etapa não foi localizado.
+            'credenciais_invalidas'  se após submissão permanece na tela de login.
             'erro'                   se ocorreu exceção inesperada.
         """
+        try:
+            resultado = self._login_etapa_email(email)
+            if resultado != "ok":
+                return resultado
+
+            resultado = self._aguardar_etapa_senha()
+            if resultado != "ok":
+                return resultado
+
+            resultado = self._login_etapa_senha(senha)
+            if resultado != "ok":
+                return resultado
+
+            logger.info("[Login] Aguardando confirmação de autenticação (até 5s)...")
+            time.sleep(3)
+            if self._detectar_tela_login():
+                logger.aviso("[Login] Tela de login ainda ativa após submissão da senha.")
+                return "credenciais_invalidas"
+
+            return "ok"
+
+        except Exception as exc:
+            logger.aviso(f"[Login] Erro inesperado durante login: {exc}")
+            return "erro"
+
+    def _login_etapa_email(self, email: str) -> str:
+        """Etapa 1: localiza campo de e-mail, preenche e clica em Continuar.
+
+        Args:
+            email: E-mail de login (será mascarado nos logs).
+
+        Returns:
+            'ok' se e-mail enviado com sucesso.
+            'campos_nao_encontrados' se o campo não apareceu em 10s.
+        """
         driver = self.handler.driver
+        email_mask = self._mascarar_email(email)
+        logger.info("[Login Etapa 1] Aguardando campo de e-mail (até 10s)...")
 
-        # Aguardar campos do formulário (SPA pode renderizar async)
-        logger.info("[Login] Aguardando campos do formulário (até 10s)...")
         campo_email = None
-        campo_senha = None
-        deadline_campos = time.time() + 10
-
-        while time.time() < deadline_campos:
-            campo_email = None
+        deadline = time.time() + 10
+        while time.time() < deadline:
             for sel in SELECTORS_LOGIN["email"]:
                 try:
                     elems = driver.find_elements(By.CSS_SELECTOR, sel)
@@ -452,8 +493,108 @@ class AdaptaGenerator:
                     continue
                 if campo_email:
                     break
+            if campo_email:
+                break
+            time.sleep(0.8)
 
-            campo_senha = None
+        if not campo_email:
+            logger.aviso(
+                "[Login Etapa 1] Campo de e-mail não localizado após 10s. "
+                "A página de login pode não ter carregado ou o seletor mudou."
+            )
+            return "campos_nao_encontrados"
+
+        logger.info(f"[Login Etapa 1] Campo localizado. Preenchendo '{email_mask}'...")
+        campo_email.clear()
+        self._digitar_naturalista(campo_email, email)
+        time.sleep(0.3)
+
+        logger.info("[Login Etapa 1] Clicando em 'Continuar'...")
+        if self._clicar_botao_continuar():
+            logger.sucesso("[Login Etapa 1] Botão clicado. Aguardando etapa de senha...")
+        else:
+            logger.info("[Login Etapa 1] Botão não encontrado — submetendo via Enter.")
+            campo_email.send_keys(Keys.RETURN)
+            logger.sucesso("[Login Etapa 1] Enter enviado. Aguardando etapa de senha...")
+        return "ok"
+
+    def _aguardar_etapa_senha(self, timeout: int = 15) -> str:
+        """Aguarda a transição para a etapa de senha do login.
+
+        Detecta a etapa 2 por três sinais alternativos (qualquer um basta):
+          1. URL contém 'factor-one' ou 'factor_one'.
+          2. Campo input[type='password'] visível e habilitado.
+          3. Texto da página contém palavras-chave de etapa de senha.
+
+        Args:
+            timeout: Segundos máximos de espera.
+
+        Returns:
+            'ok' se etapa 2 detectada.
+            'campos_nao_encontrados' se timeout atingido.
+        """
+        driver = self.handler.driver
+        logger.info(f"[Login] Aguardando etapa de senha (até {timeout}s)...")
+        deadline = time.time() + timeout
+
+        while time.time() < deadline:
+            url = driver.current_url.lower()
+
+            if "factor-one" in url or "factor_one" in url:
+                logger.info("[Login] Etapa 2 detectada via URL ('factor-one').")
+                return "ok"
+
+            for sel in SELECTORS_LOGIN["senha"]:
+                try:
+                    elems = driver.find_elements(By.CSS_SELECTOR, sel)
+                    if any(e.is_displayed() and e.is_enabled() for e in elems):
+                        logger.info("[Login] Etapa 2 detectada: campo de senha visível.")
+                        return "ok"
+                except Exception:
+                    continue
+
+            textos_etapa2 = [
+                "insira sua senha", "enter your password",
+                "digite sua senha", "your password",
+            ]
+            try:
+                body_text = driver.find_element(By.TAG_NAME, "body").text.lower()
+                for texto in textos_etapa2:
+                    if texto in body_text:
+                        logger.info(
+                            f"[Login] Etapa 2 detectada via texto da página ('{texto}')."
+                        )
+                        return "ok"
+            except Exception:
+                pass
+
+            time.sleep(0.8)
+
+        url_atual = driver.current_url
+        logger.aviso(
+            f"[Login] Timeout ({timeout}s) aguardando etapa de senha. "
+            f"URL atual: {url_atual}. "
+            "Causas prováveis: e-mail não foi enviado, página não redirecionou "
+            "ou layout do Adapta One mudou."
+        )
+        return "campos_nao_encontrados"
+
+    def _login_etapa_senha(self, senha: str) -> str:
+        """Etapa 2: localiza campo de senha, preenche e clica em Continuar.
+
+        Args:
+            senha: Senha de login (nunca registrada em log).
+
+        Returns:
+            'ok' se senha enviada com sucesso.
+            'campos_nao_encontrados' se o campo não apareceu em 10s.
+        """
+        driver = self.handler.driver
+        logger.info("[Login Etapa 2] Aguardando campo de senha ficar disponível (até 10s)...")
+
+        campo_senha = None
+        deadline = time.time() + 10
+        while time.time() < deadline:
             for sel in SELECTORS_LOGIN["senha"]:
                 try:
                     elems = driver.find_elements(By.CSS_SELECTOR, sel)
@@ -465,71 +606,89 @@ class AdaptaGenerator:
                     continue
                 if campo_senha:
                     break
-
-            if campo_email and campo_senha:
-                logger.info(
-                    f"[Login] Campos localizados — e-mail: {campo_email.get_attribute('name') or 'n/a'}, "
-                    f"senha: {campo_senha.get_attribute('name') or 'n/a'}."
-                )
-                break
-
-            time.sleep(1)
-
-        if not campo_email or not campo_senha:
-            encontrados = []
-            if campo_email:
-                encontrados.append("e-mail")
             if campo_senha:
-                encontrados.append("senha")
-            faltando = [f for f in ["e-mail", "senha"] if f not in encontrados]
+                break
+            time.sleep(0.8)
+
+        if not campo_senha:
             logger.aviso(
-                f"[Login] Campos não localizados após 10s: faltando {faltando}. "
-                f"A interface de login pode não ter carregado ou seus seletores mudaram."
+                "[Login Etapa 2] Campo de senha não localizado após 10s. "
+                f"URL atual: {driver.current_url}. "
+                "A transição para a etapa de senha pode não ter ocorrido."
             )
             return "campos_nao_encontrados"
 
-        try:
-            logger.info("[Login] Preenchendo e-mail...")
-            campo_email.clear()
-            self._digitar_naturalista(campo_email, email)
-            time.sleep(0.3)
+        logger.info("[Login Etapa 2] Campo de senha localizado. Preenchendo...")
+        campo_senha.clear()
+        self._digitar_naturalista(campo_senha, senha)
+        time.sleep(0.3)
 
-            logger.info("[Login] Preenchendo senha...")
-            campo_senha.clear()
-            self._digitar_naturalista(campo_senha, senha)
-            time.sleep(0.3)
+        logger.info("[Login Etapa 2] Clicando em 'Continuar'...")
+        if self._clicar_botao_continuar():
+            logger.sucesso("[Login Etapa 2] Botão clicado. Verificando autenticação...")
+        else:
+            logger.info("[Login Etapa 2] Botão não encontrado — submetendo via Enter.")
+            campo_senha.send_keys(Keys.RETURN)
+            logger.sucesso("[Login Etapa 2] Enter enviado. Verificando autenticação...")
+        return "ok"
 
-            botao = None
-            for sel in SELECTORS_LOGIN["botao_login"]:
-                try:
-                    elems = driver.find_elements(By.CSS_SELECTOR, sel)
-                    for e in elems:
-                        if e.is_displayed() and e.is_enabled():
-                            botao = e
-                            break
-                except Exception:
-                    continue
-                if botao:
-                    break
+    def _clicar_botao_continuar(self) -> bool:
+        """Localiza e clica no botão submit/Continuar da etapa atual.
 
-            if botao:
-                logger.info("[Login] Clicando botão de login...")
-                botao.click()
-            else:
-                logger.info("[Login] Botão não encontrado — submetendo via Enter.")
-                campo_senha.send_keys(Keys.RETURN)
+        Estratégia:
+          1. Seletores CSS do SELECTORS_LOGIN['botao_continuar'].
+          2. Fallback XPath por texto do botão (Continuar, Continue, etc.).
 
-            time.sleep(4)
+        Returns:
+            True se o botão foi encontrado e clicado.
+        """
+        driver = self.handler.driver
 
-            if self._detectar_tela_login():
-                logger.aviso("[Login] Tela de login ainda ativa após submissão.")
-                return "credenciais_invalidas"
+        for sel in SELECTORS_LOGIN["botao_continuar"]:
+            try:
+                elems = driver.find_elements(By.CSS_SELECTOR, sel)
+                for e in elems:
+                    if e.is_displayed() and e.is_enabled():
+                        e.click()
+                        return True
+            except Exception:
+                continue
 
-            return "ok"
+        textos_botao = [
+            "Continuar", "Continue", "Avan\u00e7ar", "Next",
+            "Entrar", "Sign in", "Login",
+        ]
+        for texto in textos_botao:
+            try:
+                elems = driver.find_elements(
+                    By.XPATH,
+                    f".//button[contains(normalize-space(.), '{texto}')]",
+                )
+                for e in elems:
+                    if e.is_displayed() and e.is_enabled():
+                        e.click()
+                        return True
+            except Exception:
+                continue
 
-        except Exception as exc:
-            logger.aviso(f"[Login] Erro durante login automático: {exc}")
-            return "erro"
+        return False
+
+    def _mascarar_email(self, email: str) -> str:
+        """Retorna versão mascarada do e-mail para exibição segura em logs.
+
+        Exemplo: 'usuario@exemplo.com' → 'us***@exemplo.com'
+
+        Args:
+            email: E-mail original.
+
+        Returns:
+            String mascarada.
+        """
+        if "@" not in email:
+            return "***"
+        local, domain = email.split("@", 1)
+        visible = local[:2] if len(local) > 2 else local[:1]
+        return f"{visible}***@{domain}"
 
     def _detectar_tela_login(self) -> bool:
         """Verifica se a página atual é de login.
