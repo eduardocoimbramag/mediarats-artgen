@@ -22,7 +22,7 @@ class InfoCard(QFrame):
         super().__init__(parent)
         self.setFrameShape(QFrame.Shape.StyledPanel)
         self.setStyleSheet(
-            "QFrame { background-color: #1E2A38; border: 1px solid #2D3F50; "
+            "QFrame { background-color: #0d0d0d; border: 1px solid #1a3a1a; "
             "border-radius: 8px; padding: 8px; }"
         )
         layout = QVBoxLayout(self)
@@ -30,11 +30,11 @@ class InfoCard(QFrame):
         layout.setSpacing(2)
 
         self._lbl_titulo = QLabel(titulo)
-        self._lbl_titulo.setStyleSheet("color: #607D8B; font-size: 10px; font-weight: bold;")
+        self._lbl_titulo.setStyleSheet("color: #3a6a3a; font-size: 10px; font-weight: bold; letter-spacing: 0.5px;")
         self._lbl_titulo.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         self._lbl_valor = QLabel(valor_inicial)
-        self._lbl_valor.setStyleSheet("color: #E0E0E0; font-size: 14px; font-weight: bold;")
+        self._lbl_valor.setStyleSheet("color: #d0d0d0; font-size: 14px; font-weight: bold;")
         self._lbl_valor.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         self._lbl_valor.setWordWrap(True)
         self._lbl_valor.setMinimumHeight(20)
@@ -82,7 +82,7 @@ class DashboardPanel(QWidget):
         progress_layout.setContentsMargins(0, 0, 0, 0)
 
         lbl_prog = QLabel("Progresso Geral:")
-        lbl_prog.setStyleSheet("color: #607D8B; font-size: 10px;")
+        lbl_prog.setStyleSheet("color: #3a6a3a; font-size: 10px;")
         lbl_prog.setFixedWidth(110)
 
         self._progress_bar = QProgressBar()
@@ -91,9 +91,9 @@ class DashboardPanel(QWidget):
         self._progress_bar.setFormat("%p% (%v/%m artes)")
         self._progress_bar.setFixedHeight(18)
         self._progress_bar.setStyleSheet(
-            "QProgressBar { border: 1px solid #2D3F50; border-radius: 4px; "
-            "background-color: #1A2332; text-align: center; color: #B0BEC5; font-size: 10px; }"
-            "QProgressBar::chunk { background-color: #1565C0; border-radius: 3px; }"
+            "QProgressBar { border: 1px solid #1a3a1a; border-radius: 4px; "
+            "background-color: #0d0d0d; text-align: center; color: #3a6a3a; font-size: 10px; }"
+            "QProgressBar::chunk { background-color: #00aa00; border-radius: 3px; }"
         )
 
         progress_layout.addWidget(lbl_prog)

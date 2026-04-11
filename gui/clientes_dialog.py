@@ -21,21 +21,22 @@ from excel.writer import ExcelWriter
 
 
 ESTILO_DIALOG = (
-    "QDialog { background-color: #121212; color: #E0E0E0; }"
-    "QTableWidget { background: #1A1A2E; color: #E0E0E0; "
-    "border: 1px solid #30363D; gridline-color: #2D3748; }"
+    "QDialog { background-color: #000000; color: #d0d0d0; }"
+    "QTableWidget { background: #000000; color: #c0c0c0; "
+    "border: 1px solid #1a3a1a; gridline-color: #111111; }"
     "QTableWidget::item { padding: 6px; }"
-    "QTableWidget::item:selected { background: #1565C0; color: #FFF; }"
-    "QHeaderView::section { background: #0D47A1; color: #FFF; font-weight: bold; "
-    "padding: 6px; border: none; border-right: 1px solid #1A237E; }"
-    "QLineEdit { background: #1E2A38; color: #E0E0E0; border: 1px solid #37474F; "
+    "QTableWidget::item:selected { background: #002200; color: #00ff00; }"
+    "QHeaderView::section { background: #000000; color: #00aa00; font-weight: bold; "
+    "padding: 6px; border: none; border-bottom: 1px solid #1a3a1a; }"
+    "QLineEdit { background: #111111; color: #d0d0d0; border: 1px solid #282828; "
     "border-radius: 4px; padding: 5px 8px; }"
-    "QLineEdit:focus { border-color: #1565C0; }"
-    "QLabel { color: #B0BEC5; font-size: 12px; }"
-    "QFrame[frameShape='4'] { color: #30363D; }"
+    "QLineEdit:focus { border-color: #00aa00; }"
+    "QLabel { color: #888888; font-size: 12px; }"
+    "QFrame[frameShape='4'] { color: #1a3a1a; }"
     "QScrollArea { border: none; background: transparent; }"
-    "QScrollBar:vertical { background: #1A1A2E; width: 8px; }"
-    "QScrollBar::handle:vertical { background: #37474F; border-radius: 4px; }"
+    "QScrollBar:vertical { background: #0d0d0d; width: 8px; border-radius: 4px; }"
+    "QScrollBar::handle:vertical { background: #2a2a2a; border-radius: 4px; }"
+    "QScrollBar::handle:vertical:hover { background: #004400; }"
 )
 
 _CODIGO_RE = re.compile(r"^[A-Za-z]{2,6}$")
@@ -90,8 +91,8 @@ def _secao(texto: str) -> QLabel:
     lbl = QLabel(texto)
     lbl.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
     lbl.setStyleSheet(
-        "color: #90CAF9; padding-top: 8px; padding-bottom: 2px; "
-        "border-bottom: 1px solid #1565C0;"
+        "color: #00cc00; padding-top: 8px; padding-bottom: 2px; "
+        "border-bottom: 1px solid #003300;"
     )
     return lbl
 
@@ -150,7 +151,7 @@ class _ClienteFormDialog(QDialog):
         if codigo_fixo:
             self._inp_codigo.setReadOnly(True)
             self._inp_codigo.setStyleSheet(
-                "QLineEdit { background: #263238; color: #78909C; border: 1px solid #37474F; "
+                "QLineEdit { background: #0d0d0d; color: #444444; border: 1px solid #1a2a1a; "
                 "border-radius: 4px; padding: 5px 8px; }"
             )
 
@@ -205,7 +206,7 @@ class _ClienteFormDialog(QDialog):
         form_cores.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
 
         lbl_hex = QLabel("Formato: #RRGGBB  (ex: #1565C0)")
-        lbl_hex.setStyleSheet("color: #546E7A; font-size: 11px; padding-bottom: 2px;")
+        lbl_hex.setStyleSheet("color: #3a6a3a; font-size: 11px; padding-bottom: 2px;")
         form_layout.addWidget(lbl_hex)
 
         self._inp_cor_primaria = QLineEdit(dados.get("cor_primaria", ""))
@@ -240,13 +241,13 @@ class _ClienteFormDialog(QDialog):
 
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.HLine)
-        sep.setStyleSheet("color: #30363D;")
+        sep.setStyleSheet("color: #1a3a1a;")
         root.addWidget(sep)
 
         btn_row = QHBoxLayout()
         btn_row.setSpacing(8)
-        btn_salvar = _btn("💾  Salvar", "#1565C0", "#1976D2")
-        btn_cancelar = _btn("Cancelar", "#263238", "#37474F", "#B0BEC5")
+        btn_salvar = _btn("💾  Salvar", "#004400", "#006600", "#00ff00")
+        btn_cancelar = _btn("Cancelar", "#181818", "#222222", "#666666")
         btn_salvar.clicked.connect(self._validar_e_aceitar)
         btn_cancelar.clicked.connect(self.reject)
         btn_row.addStretch()
@@ -364,7 +365,7 @@ class ClientesDialog(QDialog):
 
         titulo = QLabel("Clientes Cadastrados")
         titulo.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
-        titulo.setStyleSheet("color: #E0E0E0;")
+        titulo.setStyleSheet("color: #d0d0d0;")
         layout.addWidget(titulo)
 
         sep = QFrame()
@@ -381,7 +382,7 @@ class ClientesDialog(QDialog):
         self._tabela.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self._tabela.setAlternatingRowColors(True)
         self._tabela.setStyleSheet(
-            "QTableWidget { alternate-background-color: #1E2A38; }"
+            "QTableWidget { alternate-background-color: #080808; }"
         )
         self._tabela.doubleClicked.connect(self._editar_cliente)
         layout.addWidget(self._tabela, stretch=1)
@@ -389,10 +390,10 @@ class ClientesDialog(QDialog):
         btn_row = QHBoxLayout()
         btn_row.setSpacing(8)
 
-        self._btn_cadastrar = _btn("➕  Cadastrar Cliente", "#1565C0", "#1976D2")
+        self._btn_cadastrar = _btn("➕  Cadastrar Cliente", "#004400", "#006600", "#00ff00")
         self._btn_editar = _btn("✏️  Editar Cliente", "#F57F17", "#F9A825")
         self._btn_remover = _btn("🗑  Remover Cliente", "#C62828", "#D32F2F")
-        btn_voltar = _btn("← Voltar", "#263238", "#37474F", "#B0BEC5")
+        btn_voltar = _btn("← Voltar", "#181818", "#222222", "#666666")
 
         self._btn_cadastrar.clicked.connect(self._cadastrar_cliente)
         self._btn_editar.clicked.connect(self._editar_cliente)

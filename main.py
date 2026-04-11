@@ -23,19 +23,19 @@ from utils.helpers import obter_versao
 VERSAO = obter_versao()
 
 DARK_PALETTE_COLORS = {
-    QPalette.ColorRole.Window:          "#121212",
-    QPalette.ColorRole.WindowText:      "#E0E0E0",
-    QPalette.ColorRole.Base:            "#1A1A1A",
-    QPalette.ColorRole.AlternateBase:   "#1E1E1E",
-    QPalette.ColorRole.ToolTipBase:     "#263238",
-    QPalette.ColorRole.ToolTipText:     "#E0E0E0",
-    QPalette.ColorRole.Text:            "#E0E0E0",
-    QPalette.ColorRole.Button:          "#1E2A38",
-    QPalette.ColorRole.ButtonText:      "#E0E0E0",
+    QPalette.ColorRole.Window:          "#000000",
+    QPalette.ColorRole.WindowText:      "#D0D0D0",
+    QPalette.ColorRole.Base:            "#0d0d0d",
+    QPalette.ColorRole.AlternateBase:   "#111111",
+    QPalette.ColorRole.ToolTipBase:     "#111111",
+    QPalette.ColorRole.ToolTipText:     "#00ff00",
+    QPalette.ColorRole.Text:            "#D0D0D0",
+    QPalette.ColorRole.Button:          "#111111",
+    QPalette.ColorRole.ButtonText:      "#D0D0D0",
     QPalette.ColorRole.BrightText:      "#FFFFFF",
-    QPalette.ColorRole.Link:            "#42A5F5",
-    QPalette.ColorRole.Highlight:       "#1565C0",
-    QPalette.ColorRole.HighlightedText: "#FFFFFF",
+    QPalette.ColorRole.Link:            "#00cc00",
+    QPalette.ColorRole.Highlight:       "#003300",
+    QPalette.ColorRole.HighlightedText: "#00ff00",
 }
 
 
@@ -54,52 +54,60 @@ def aplicar_tema_escuro(app: QApplication) -> None:
     app.setStyleSheet(
         """
         QToolTip {
-            background-color: #263238;
-            color: #E0E0E0;
-            border: 1px solid #37474F;
+            background-color: #111111;
+            color: #00ff00;
+            border: 1px solid #1a3a1a;
             border-radius: 4px;
             padding: 4px 8px;
+            font-size: 11px;
         }
         QScrollBar:vertical {
-            background: #1A1A1A;
-            width: 10px;
-            border-radius: 5px;
+            background: #0d0d0d;
+            width: 8px;
+            border-radius: 4px;
         }
         QScrollBar::handle:vertical {
-            background: #37474F;
+            background: #2a2a2a;
             min-height: 20px;
-            border-radius: 5px;
+            border-radius: 4px;
         }
         QScrollBar::handle:vertical:hover {
-            background: #546E7A;
+            background: #004400;
         }
         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
             height: 0px;
         }
         QScrollBar:horizontal {
-            background: #1A1A1A;
-            height: 10px;
-            border-radius: 5px;
+            background: #0d0d0d;
+            height: 8px;
+            border-radius: 4px;
         }
         QScrollBar::handle:horizontal {
-            background: #37474F;
+            background: #2a2a2a;
             min-width: 20px;
-            border-radius: 5px;
+            border-radius: 4px;
+        }
+        QScrollBar::handle:horizontal:hover {
+            background: #004400;
+        }
+        QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+            width: 0px;
         }
         QMessageBox {
-            background-color: #1A1A1A;
-            color: #E0E0E0;
+            background-color: #0d0d0d;
+            color: #D0D0D0;
         }
         QMessageBox QPushButton {
-            background-color: #1565C0;
-            color: #FFFFFF;
+            background-color: #004400;
+            color: #00ff00;
             border: none;
             border-radius: 4px;
             padding: 6px 20px;
             min-width: 80px;
+            font-weight: bold;
         }
         QMessageBox QPushButton:hover {
-            background-color: #1976D2;
+            background-color: #005500;
         }
         """
     )
@@ -115,7 +123,9 @@ def main() -> None:
     app.setApplicationVersion(VERSAO)
     app.setOrganizationName("Media Rats")
 
-    logo_path = BASE_DIR / "assets" / "logo.png"
+    logo_path = BASE_DIR / "logomr.png"
+    if not logo_path.exists():
+        logo_path = BASE_DIR / "assets" / "logo.png"
     if logo_path.exists():
         app.setWindowIcon(QIcon(str(logo_path)))
 

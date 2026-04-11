@@ -24,23 +24,24 @@ from excel.writer import ExcelWriter
 
 
 _ESTILO = (
-    "QDialog { background-color: #121212; color: #E0E0E0; }"
-    "QLabel { color: #B0BEC5; font-size: 12px; }"
-    "QLineEdit { background: #1E2A38; color: #E0E0E0; border: 1px solid #37474F; "
+    "QDialog { background-color: #000000; color: #d0d0d0; }"
+    "QLabel { color: #888888; font-size: 12px; }"
+    "QLineEdit { background: #111111; color: #d0d0d0; border: 1px solid #282828; "
     "border-radius: 4px; padding: 5px 8px; }"
-    "QLineEdit:focus { border-color: #1565C0; }"
-    "QComboBox { background: #1E2A38; color: #E0E0E0; border: 1px solid #37474F; "
+    "QLineEdit:focus { border-color: #00aa00; }"
+    "QComboBox { background: #111111; color: #d0d0d0; border: 1px solid #282828; "
     "border-radius: 4px; padding: 5px 8px; }"
     "QComboBox::drop-down { border: none; }"
-    "QComboBox QAbstractItemView { background: #1E2A38; color: #E0E0E0; "
-    "selection-background-color: #1565C0; border: 1px solid #37474F; }"
-    "QSpinBox { background: #1E2A38; color: #E0E0E0; border: 1px solid #37474F; "
+    "QComboBox QAbstractItemView { background: #111111; color: #d0d0d0; "
+    "selection-background-color: #002200; selection-color: #00ff00; border: 1px solid #282828; }"
+    "QSpinBox { background: #111111; color: #d0d0d0; border: 1px solid #282828; "
     "border-radius: 4px; padding: 5px 8px; }"
-    "QSpinBox::up-button, QSpinBox::down-button { background: #263238; border: none; }"
-    "QFrame[frameShape='4'] { color: #30363D; }"
+    "QSpinBox::up-button, QSpinBox::down-button { background: #1a1a1a; border: none; }"
+    "QFrame[frameShape='4'] { color: #1a3a1a; }"
     "QScrollArea { border: none; background: transparent; }"
-    "QScrollBar:vertical { background: #1A1A2E; width: 8px; }"
-    "QScrollBar::handle:vertical { background: #37474F; border-radius: 4px; }"
+    "QScrollBar:vertical { background: #0d0d0d; width: 8px; border-radius: 4px; }"
+    "QScrollBar::handle:vertical { background: #2a2a2a; border-radius: 4px; }"
+    "QScrollBar::handle:vertical:hover { background: #004400; }"
 )
 
 
@@ -60,8 +61,8 @@ def _secao(texto: str) -> QLabel:
     lbl = QLabel(texto)
     lbl.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
     lbl.setStyleSheet(
-        "color: #90CAF9; padding-top: 8px; padding-bottom: 2px; "
-        "border-bottom: 1px solid #1565C0;"
+        "color: #00cc00; padding-top: 8px; padding-bottom: 2px; "
+        "border-bottom: 1px solid #003300;"
     )
     return lbl
 
@@ -108,12 +109,12 @@ class CriarProtocoloDialog(QDialog):
 
         titulo = QLabel("Novo Protocolo de Geração")
         titulo.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
-        titulo.setStyleSheet("color: #E0E0E0; padding-bottom: 4px;")
+        titulo.setStyleSheet("color: #d0d0d0; padding-bottom: 4px;")
         root.addWidget(titulo)
 
         sep_top = QFrame()
         sep_top.setFrameShape(QFrame.Shape.HLine)
-        sep_top.setStyleSheet("color: #30363D;")
+        sep_top.setStyleSheet("color: #1a3a1a;")
         root.addWidget(sep_top)
 
         scroll = QScrollArea()
@@ -169,14 +170,14 @@ class CriarProtocoloDialog(QDialog):
 
         sep_bot = QFrame()
         sep_bot.setFrameShape(QFrame.Shape.HLine)
-        sep_bot.setStyleSheet("color: #30363D;")
+        sep_bot.setStyleSheet("color: #1a3a1a;")
         root.addWidget(sep_bot)
 
         btn_row = QHBoxLayout()
         btn_row.setSpacing(8)
-        self._btn_gerar_prompts = _btn("🔁  Gerar Campos", "#1B5E20", "#2E7D32")
-        self._btn_criar = _btn("✚  Criar Protocolo", "#4527A0", "#512DA8")
-        btn_cancelar = _btn("Cancelar", "#263238", "#37474F", "#B0BEC5")
+        self._btn_gerar_prompts = _btn("🔁  Gerar Campos", "#002a00", "#004400", "#00dd00")
+        self._btn_criar = _btn("✚  Criar Protocolo", "#004400", "#006600", "#00ff00")
+        btn_cancelar = _btn("Cancelar", "#181818", "#222222", "#666666")
 
         self._btn_gerar_prompts.clicked.connect(self._atualizar_campos_prompts)
         self._btn_criar.clicked.connect(self._validar_e_criar)
@@ -229,8 +230,8 @@ class CriarProtocoloDialog(QDialog):
             inp.setText(valor_anterior)
             lbl = QLabel(f"Prompt {i}:")
             lbl.setStyleSheet(
-                "color: #B0BEC5; font-size: 12px; font-weight: bold;"
-                if i == 1 else "color: #B0BEC5; font-size: 12px;"
+                "color: #00cc00; font-size: 12px; font-weight: bold;"
+                if i == 1 else "color: #446644; font-size: 12px;"
             )
             self._prompts_form.addRow(lbl, inp)
             self._prompts_inputs.append(inp)

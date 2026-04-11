@@ -25,8 +25,8 @@ def _btn(texto: str, cor_bg: str, cor_hover: str, cor_texto: str = "#FFFFFF") ->
         f"QPushButton {{ background-color: {cor_bg}; color: {cor_texto}; "
         f"border: none; border-radius: 6px; padding: 6px 16px; font-size: 12px; font-weight: bold; }}"
         f"QPushButton:hover {{ background-color: {cor_hover}; }}"
-        f"QPushButton:disabled {{ background-color: #37474F; color: #607D8B; }}"
-        f"QPushButton:pressed {{ background-color: #263238; }}"
+        f"QPushButton:disabled {{ background-color: #111111; color: #333333; }}"
+        f"QPushButton:pressed {{ background-color: #000000; }}"
     )
     return b
 
@@ -54,15 +54,15 @@ class ControlesPanel(QWidget):
         layout.setContentsMargins(0, 4, 0, 0)
         layout.setSpacing(8)
 
-        self._btn_iniciar = _btn("▶  Iniciar Geração", "#1565C0", "#1976D2")
+        self._btn_iniciar = _btn("▶  Iniciar Geração", "#004400", "#006600", "#00ff00")
         self._btn_pausar = _btn("⏸  Pausar", "#F57F17", "#F9A825")
         self._btn_cancelar = _btn("⏹  Cancelar", "#C62828", "#D32F2F")
         self._btn_remover_protocolo = _btn("🗑  Remover Protocolo", "#B71C1C", "#C62828")
-        self._btn_criar_protocolo = _btn("✚  Criar Protocolo", "#4527A0", "#512DA8")
-        self._btn_clientes = _btn("👥  Clientes", "#1B5E20", "#2E7D32")
-        self._btn_recarregar = _btn("🔄  Recarregar", "#263238", "#37474F", "#B0BEC5")
-        self._btn_output = _btn("📁  Output", "#263238", "#37474F", "#B0BEC5")
-        self._btn_config = _btn("⚙  Configurações", "#263238", "#37474F", "#B0BEC5")
+        self._btn_criar_protocolo = _btn("✚  Criar Protocolo", "#002a00", "#004400", "#00dd00")
+        self._btn_clientes = _btn("👥  Clientes", "#002a00", "#004400", "#00dd00")
+        self._btn_recarregar = _btn("🔄  Recarregar", "#181818", "#222222", "#666666")
+        self._btn_output = _btn("📁  Output", "#181818", "#222222", "#666666")
+        self._btn_config = _btn("⚙  Configurações", "#181818", "#222222", "#666666")
 
         self._btn_iniciar.clicked.connect(self.sinal_iniciar)
         self._btn_pausar.clicked.connect(self._toggle_pausa)
@@ -93,12 +93,12 @@ class ControlesPanel(QWidget):
         if self._pausado:
             self._btn_pausar.setText("▶  Retomar")
             self._btn_pausar.setStyleSheet(
-                self._btn_pausar.styleSheet().replace("#F57F17", "#2E7D32").replace("#F9A825", "#388E3C")
+                self._btn_pausar.styleSheet().replace("#F57F17", "#004400").replace("#F9A825", "#006600")
             )
         else:
             self._btn_pausar.setText("⏸  Pausar")
             self._btn_pausar.setStyleSheet(
-                self._btn_pausar.styleSheet().replace("#2E7D32", "#F57F17").replace("#388E3C", "#F9A825")
+                self._btn_pausar.styleSheet().replace("#004400", "#F57F17").replace("#006600", "#F9A825")
             )
         self.sinal_pausar.emit()
 

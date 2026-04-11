@@ -19,12 +19,12 @@ from excel.reader import Solicitacao
 
 
 STATUS_CORES = {
-    "planejado": ("#FFF9C4", "#F57F17"),
-    "pendente":  ("#FFE0B2", "#E65100"),
-    "gerando":   ("#BBDEFB", "#0D47A1"),
-    "gerado":    ("#C8E6C9", "#1B5E20"),
-    "erro":      ("#FFCDD2", "#B71C1C"),
-    "cancelado": ("#ECEFF1", "#455A64"),
+    "planejado": ("#1e1800", "#ccaa00"),
+    "pendente":  ("#1e0e00", "#cc6600"),
+    "gerando":   ("#001a00", "#00cc00"),
+    "gerado":    ("#002200", "#00ff00"),
+    "erro":      ("#1e0000", "#cc3333"),
+    "cancelado": ("#141414", "#666666"),
 }
 
 COLUNAS = ["Protocolo", "Cliente", "Tema", "Status", "Data Planejada"]
@@ -42,7 +42,7 @@ class DetalheDialog(QDialog):
         self.setWindowTitle(f"Detalhes — {solicitacao.protocolo}")
         self.setMinimumSize(560, 420)
         self.setStyleSheet(
-            "QDialog { background-color: #121212; color: #E0E0E0; }"
+            "QDialog { background-color: #000000; color: #d0d0d0; }"
         )
         layout = QVBoxLayout(self)
 
@@ -64,16 +64,16 @@ class DetalheDialog(QDialog):
         text.setPlainText(info)
         text.setFont(QFont("Consolas", 10))
         text.setStyleSheet(
-            "QTextEdit { background: #1E1E1E; color: #E0E0E0; "
-            "border: 1px solid #333; border-radius: 4px; padding: 8px; }"
+            "QTextEdit { background: #0d0d0d; color: #c0d0c0; "
+            "border: 1px solid #1a3a1a; border-radius: 4px; padding: 8px; }"
         )
         layout.addWidget(text)
 
         btns = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         btns.rejected.connect(self.reject)
-        btns.setStyleSheet("QPushButton { background:#263238; color:#E0E0E0; border:none; "
+        btns.setStyleSheet("QPushButton { background:#111111; color:#d0d0d0; border:1px solid #1a3a1a; "
                            "border-radius:4px; padding:6px 18px; }"
-                           "QPushButton:hover { background:#37474F; }")
+                           "QPushButton:hover { background:#003300; color:#00ff00; }")
         layout.addWidget(btns)
 
 
@@ -93,12 +93,12 @@ class FilaPanel(QWidget):
         layout.setSpacing(4)
 
         header = QHBoxLayout()
-        titulo = QLabel("📋 Fila de Solicitações")
-        titulo.setStyleSheet("color: #E0E0E0; font-weight: bold; font-size: 13px;")
+        titulo = QLabel("Fila de Solicitações")
+        titulo.setStyleSheet("color: #00cc00; font-weight: bold; font-size: 13px;")
         header.addWidget(titulo)
         header.addStretch()
         self._lbl_total = QLabel("0 itens")
-        self._lbl_total.setStyleSheet("color: #607D8B; font-size: 11px;")
+        self._lbl_total.setStyleSheet("color: #336633; font-size: 11px;")
         header.addWidget(self._lbl_total)
         layout.addLayout(header)
 
@@ -119,12 +119,12 @@ class FilaPanel(QWidget):
         self._tabela.horizontalHeader().setMinimumSectionSize(60)
         self._tabela.setShowGrid(False)
         self._tabela.setStyleSheet(
-            "QTableWidget { background-color: #0D1117; color: #C9D1D9; "
-            "border: 1px solid #30363D; border-radius: 6px; gridline-color: #21262D; }"
-            "QTableWidget::item { padding: 6px 10px; border-bottom: 1px solid #21262D; }"
-            "QTableWidget::item:selected { background-color: #1565C0; color: #FFFFFF; }"
-            "QHeaderView::section { background-color: #161B22; color: #8B949E; "
-            "border: none; border-bottom: 1px solid #30363D; padding: 6px 10px; font-weight: bold; }"
+            "QTableWidget { background-color: #000000; color: #c0c0c0; "
+            "border: 1px solid #1a3a1a; border-radius: 6px; gridline-color: #111111; }"
+            "QTableWidget::item { padding: 6px 10px; border-bottom: 1px solid #0d0d0d; }"
+            "QTableWidget::item:selected { background-color: #002200; color: #00ff00; }"
+            "QHeaderView::section { background-color: #000000; color: #00aa00; "
+            "border: none; border-bottom: 1px solid #1a3a1a; padding: 6px 10px; font-weight: bold; letter-spacing: 0.5px; }"
         )
         self._tabela.doubleClicked.connect(self._abrir_detalhe)
         self._tabela.selectionModel().selectionChanged.connect(self._on_selecao_mudou)

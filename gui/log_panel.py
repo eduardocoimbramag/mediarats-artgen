@@ -10,8 +10,8 @@ from PyQt6.QtGui import QColor, QTextCharFormat, QTextCursor, QFont
 
 
 COR_TIPO = {
-    "info":    "#9E9E9E",
-    "sucesso": "#4CAF50",
+    "info":    "#7a7a7a",
+    "sucesso": "#00dd00",
     "aviso":   "#FF9800",
     "erro":    "#F44336",
 }
@@ -30,17 +30,17 @@ class LogPanel(QWidget):
         layout.setSpacing(4)
 
         header = QHBoxLayout()
-        titulo = QLabel("📋 Log em Tempo Real")
-        titulo.setStyleSheet("color: #E0E0E0; font-weight: bold; font-size: 13px;")
+        titulo = QLabel("Log em Tempo Real")
+        titulo.setStyleSheet("color: #00cc00; font-weight: bold; font-size: 13px;")
         header.addWidget(titulo)
         header.addStretch()
 
         btn_limpar = QPushButton("Limpar")
         btn_limpar.setFixedWidth(70)
         btn_limpar.setStyleSheet(
-            "QPushButton { background: #37474F; color: #B0BEC5; border: none; "
+            "QPushButton { background: #111111; color: #555555; border: 1px solid #1a2a1a; "
             "border-radius: 4px; padding: 3px 8px; font-size: 11px; }"
-            "QPushButton:hover { background: #455A64; }"
+            "QPushButton:hover { background: #002200; color: #00cc00; }"
         )
         btn_limpar.clicked.connect(self._limpar)
         header.addWidget(btn_limpar)
@@ -50,8 +50,8 @@ class LogPanel(QWidget):
         self._text_edit.setReadOnly(True)
         self._text_edit.setFont(QFont("Consolas", 10))
         self._text_edit.setStyleSheet(
-            "QTextEdit { background-color: #0D1117; color: #C9D1D9; "
-            "border: 1px solid #30363D; border-radius: 6px; padding: 8px; }"
+            "QTextEdit { background-color: #000000; color: #c0c0c0; "
+            "border: 1px solid #1a3a1a; border-radius: 6px; padding: 8px; }"
         )
         layout.addWidget(self._text_edit)
 

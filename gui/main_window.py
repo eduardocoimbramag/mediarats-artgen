@@ -234,14 +234,14 @@ class MainWindow(QMainWindow):
 
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.HLine)
-        sep.setStyleSheet("color: #30363D;")
+        sep.setStyleSheet("color: #1a2a1a;")
         root_layout.addWidget(sep)
 
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.setHandleWidth(6)
         splitter.setStyleSheet(
-            "QSplitter::handle { background: #2D3F50; border-radius: 3px; }"
-            "QSplitter::handle:hover { background: #1565C0; }"
+            "QSplitter::handle { background: #1a2a1a; border-radius: 3px; }"
+            "QSplitter::handle:hover { background: #004400; }"
         )
 
         self._fila_panel = FilaPanel()
@@ -255,7 +255,7 @@ class MainWindow(QMainWindow):
 
         sep2 = QFrame()
         sep2.setFrameShape(QFrame.Shape.HLine)
-        sep2.setStyleSheet("color: #30363D;")
+        sep2.setStyleSheet("color: #1a2a1a;")
         root_layout.addWidget(sep2)
 
         self._controles = ControlesPanel()
@@ -275,13 +275,13 @@ class MainWindow(QMainWindow):
 
         self._status_bar = QStatusBar()
         self._status_bar.setStyleSheet(
-            "QStatusBar { background: #161B22; color: #8B949E; font-size: 11px; border-top: 1px solid #30363D; }"
+            "QStatusBar { background: #000000; color: #444444; font-size: 11px; border-top: 1px solid #1a2a1a; }"
         )
         self.setStatusBar(self._status_bar)
         self._lbl_status = QLabel("Pronto")
-        self._lbl_status.setStyleSheet("color: #4CAF50; font-weight: bold;")
+        self._lbl_status.setStyleSheet("color: #00cc00; font-weight: bold;")
         self._lbl_versao = QLabel(f"v{self.VERSAO}")
-        self._lbl_versao.setStyleSheet("color: #546E7A;")
+        self._lbl_versao.setStyleSheet("color: #336633;")
         self._status_bar.addPermanentWidget(self._lbl_versao)
         self._status_bar.addWidget(self._lbl_status)
 
@@ -295,13 +295,16 @@ class MainWindow(QMainWindow):
         header.setFixedHeight(56)
         header.setStyleSheet(
             "QWidget { background: qlineargradient(x1:0,y1:0,x2:1,y2:0, "
-            "stop:0 #0D1B2A, stop:1 #1A237E); "
-            "border-radius: 8px; }"
+            "stop:0 #000000, stop:0.6 #020d02, stop:1 #001a00); "
+            "border-radius: 8px; border: 1px solid #1a3a1a; }"
         )
         layout = QHBoxLayout(header)
         layout.setContentsMargins(16, 0, 16, 0)
+        layout.setSpacing(12)
 
-        logo_path = Path(__file__).parent.parent / "assets" / "logo.png"
+        logo_path = Path(__file__).parent.parent / "logomr.png"
+        if not logo_path.exists():
+            logo_path = Path(__file__).parent.parent / "assets" / "logo.png"
         lbl_logo = QLabel()
         if logo_path.exists():
             pixmap = QPixmap(str(logo_path)).scaled(
@@ -310,17 +313,20 @@ class MainWindow(QMainWindow):
             )
             lbl_logo.setPixmap(pixmap)
         else:
-            lbl_logo.setText("🐀")
-            lbl_logo.setStyleSheet("font-size: 28px;")
+            lbl_logo.setText("MR")
+            lbl_logo.setStyleSheet(
+                "color: #00ff00; font-size: 20px; font-weight: bold; "
+                "border: 2px solid #00ff00; border-radius: 4px; padding: 2px 6px;"
+            )
         layout.addWidget(lbl_logo)
 
         lbl_titulo = QLabel("Media Rats — Artgen")
         lbl_titulo.setFont(QFont("Segoe UI", 18, QFont.Weight.Bold))
-        lbl_titulo.setStyleSheet("color: #FFFFFF; letter-spacing: 1px;")
+        lbl_titulo.setStyleSheet("color: #00ff00; letter-spacing: 1px;")
         layout.addWidget(lbl_titulo)
 
         lbl_sub = QLabel("Gerador Automático de Artes para Redes Sociais")
-        lbl_sub.setStyleSheet("color: #90CAF9; font-size: 11px;")
+        lbl_sub.setStyleSheet("color: #336633; font-size: 11px;")
         layout.addStretch()
         layout.addWidget(lbl_sub)
 
@@ -670,8 +676,8 @@ class MainWindow(QMainWindow):
             tipo: 'ok', 'gerando', 'pausado', 'erro'.
         """
         cores = {
-            "ok":      "#4CAF50",
-            "gerando": "#2196F3",
+            "ok":      "#00cc00",
+            "gerando": "#00ff00",
             "pausado": "#FF9800",
             "erro":    "#F44336",
         }

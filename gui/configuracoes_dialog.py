@@ -19,24 +19,24 @@ from utils.config import Config
 
 
 ESTILO_INPUT = (
-    "QLineEdit, QSpinBox { background-color: #1E2A38; color: #E0E0E0; "
-    "border: 1px solid #37474F; border-radius: 4px; padding: 5px 8px; }"
-    "QLineEdit:focus, QSpinBox:focus { border-color: #1565C0; }"
+    "QLineEdit, QSpinBox { background-color: #111111; color: #d0d0d0; "
+    "border: 1px solid #282828; border-radius: 4px; padding: 5px 8px; }"
+    "QLineEdit:focus, QSpinBox:focus { border-color: #00aa00; }"
 )
 
-ESTILO_LABEL = "QLabel { color: #B0BEC5; font-size: 12px; }"
+ESTILO_LABEL = "QLabel { color: #888888; font-size: 12px; }"
 
 ESTILO_CHECK = (
-    "QCheckBox { color: #E0E0E0; font-size: 12px; spacing: 8px; }"
-    "QCheckBox::indicator { width: 16px; height: 16px; border: 1px solid #37474F; "
-    "border-radius: 3px; background: #1E2A38; }"
-    "QCheckBox::indicator:checked { background: #1565C0; border-color: #1565C0; }"
+    "QCheckBox { color: #d0d0d0; font-size: 12px; spacing: 8px; }"
+    "QCheckBox::indicator { width: 16px; height: 16px; border: 1px solid #282828; "
+    "border-radius: 3px; background: #111111; }"
+    "QCheckBox::indicator:checked { background: #004400; border-color: #00aa00; }"
 )
 
 ESTILO_BTN_SECUNDARIO = (
-    "QPushButton { background: #263238; color: #B0BEC5; border: none; "
+    "QPushButton { background: #181818; color: #666666; border: 1px solid #1a2a1a; "
     "border-radius: 4px; padding: 5px 12px; font-size: 11px; }"
-    "QPushButton:hover { background: #37474F; color: #E0E0E0; }"
+    "QPushButton:hover { background: #002200; color: #00cc00; }"
 )
 
 
@@ -48,10 +48,11 @@ class ConfiguracoesDialog(QDialog):
         self.setWindowTitle("⚙  Configurações — Media Rats Artgen")
         self.setMinimumSize(540, 440)
         self.setStyleSheet(
-            "QDialog { background-color: #121212; color: #E0E0E0; }"
-            "QTabWidget::pane { border: 1px solid #30363D; border-radius: 6px; background: #1A1A1A; }"
-            "QTabBar::tab { background: #1E2A38; color: #8B949E; padding: 8px 18px; border-radius: 4px 4px 0 0; }"
-            "QTabBar::tab:selected { background: #1565C0; color: #FFFFFF; }"
+            "QDialog { background-color: #000000; color: #d0d0d0; }"
+            "QTabWidget::pane { border: 1px solid #1a3a1a; border-radius: 6px; background: #0d0d0d; }"
+            "QTabBar::tab { background: #111111; color: #555555; padding: 8px 18px; border-radius: 4px 4px 0 0; }"
+            "QTabBar::tab:selected { background: #003300; color: #00ff00; }"
+            "QTabBar::tab:hover:!selected { background: #1a1a1a; color: #888888; }"
         )
         self._build_ui()
         self._carregar_valores()
@@ -72,11 +73,11 @@ class ConfiguracoesDialog(QDialog):
         btns.accepted.connect(self._salvar)
         btns.rejected.connect(self.reject)
         btns.setStyleSheet(
-            "QPushButton { background: #1565C0; color: #FFF; border: none; "
-            "border-radius: 4px; padding: 6px 20px; font-size: 12px; }"
-            "QPushButton:hover { background: #1976D2; }"
-            "QPushButton[text='Cancel'] { background: #263238; }"
-            "QPushButton[text='Cancel']:hover { background: #37474F; }"
+            "QPushButton { background: #004400; color: #00ff00; border: none; "
+            "border-radius: 4px; padding: 6px 20px; font-size: 12px; font-weight: bold; }"
+            "QPushButton:hover { background: #005500; }"
+            "QPushButton[text='Cancel'] { background: #181818; color: #888888; border: 1px solid #282828; }"
+            "QPushButton[text='Cancel']:hover { background: #222222; color: #aaaaaa; }"
         )
         layout.addWidget(btns)
 
@@ -157,12 +158,12 @@ class ConfiguracoesDialog(QDialog):
         layout.setSpacing(14)
 
         aviso = QLabel(
-            "ℹ️  As credenciais são usadas para login automático no Adapta.org.\n"
-            "     São salvas localmente no arquivo .env do projeto."
+            "ℹ  As credenciais são usadas para login automático no Adapta.org.\n"
+            "   São salvas localmente no arquivo .env do projeto."
         )
         aviso.setStyleSheet(
-            "QLabel { color: #90CAF9; font-size: 11px; background: #0D2137; "
-            "border: 1px solid #1565C0; border-radius: 6px; padding: 8px; }"
+            "QLabel { color: #00aa00; font-size: 11px; background: #001a00; "
+            "border: 1px solid #1a3a1a; border-radius: 6px; padding: 8px; }"
         )
         aviso.setWordWrap(True)
         layout.addWidget(aviso)
@@ -185,10 +186,10 @@ class ConfiguracoesDialog(QDialog):
         self._btn_olho.setFixedSize(34, 34)
         self._btn_olho.setCheckable(True)
         self._btn_olho.setStyleSheet(
-            "QPushButton { background: #263238; color: #B0BEC5; border: none; "
+            "QPushButton { background: #181818; color: #666666; border: 1px solid #282828; "
             "border-radius: 4px; font-size: 14px; }"
-            "QPushButton:hover { background: #37474F; }"
-            "QPushButton:checked { background: #1565C0; color: #FFF; }"
+            "QPushButton:hover { background: #002200; color: #00cc00; }"
+            "QPushButton:checked { background: #003300; color: #00ff00; border-color: #00aa00; }"
         )
         self._btn_olho.toggled.connect(self._toggle_senha_visivel)
 
@@ -202,10 +203,10 @@ class ConfiguracoesDialog(QDialog):
         btn_alterar = QPushButton("🔄  Alterar Login")
         btn_alterar.setMinimumHeight(36)
         btn_alterar.setStyleSheet(
-            "QPushButton { background: #1B5E20; color: #E8F5E9; border: none; "
+            "QPushButton { background: #003300; color: #00dd00; border: none; "
             "border-radius: 6px; padding: 6px 20px; font-size: 12px; font-weight: bold; }"
-            "QPushButton:hover { background: #2E7D32; }"
-            "QPushButton:pressed { background: #1B5E20; }"
+            "QPushButton:hover { background: #004400; color: #00ff00; }"
+            "QPushButton:pressed { background: #002200; }"
         )
         btn_alterar.clicked.connect(self._alterar_login)
         layout.addWidget(btn_alterar)
