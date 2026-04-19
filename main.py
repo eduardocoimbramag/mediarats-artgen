@@ -132,6 +132,12 @@ def main() -> None:
     aplicar_tema_escuro(app)
 
     try:
+        from utils.config import Config
+        Config.migrar_senha_para_keyring()
+    except Exception:
+        pass
+
+    try:
         from gui.main_window import MainWindow
         janela = MainWindow()
         janela.show()

@@ -8,6 +8,8 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSlot
 from PyQt6.QtGui import QColor, QTextCharFormat, QTextCursor, QFont
 
+MAX_LINHAS_LOG = 500
+
 
 COR_TIPO = {
     "info":    "#7a7a7a",
@@ -71,6 +73,13 @@ class LogPanel(QWidget):
         fmt.setForeground(QColor(cor))
         cursor.setCharFormat(fmt)
         cursor.insertText(mensagem + "\n")
+
+        doc = self._text_edit.document()
+        while doc.blockCount() > MAX_LINHAS_LOG:
+            del_cursor = QTextCursor(doc.begin())
+            del_cursor.select(QTextCursor.SelectionType.BlockUnderCursor)
+            del_cursor.removeSelectedText()
+            del_cursor.deleteChar()
 
         self._text_edit.setTextCursor(cursor)
         self._text_edit.ensureCursorVisible()

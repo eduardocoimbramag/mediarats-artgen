@@ -13,12 +13,12 @@ from typing import Optional, List
 
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QSplitter, QLabel, QStatusBar, QMessageBox, QFrame
+    QSplitter, QLabel, QStatusBar, QMessageBox, QFrame, QApplication
 )
 from PyQt6.QtCore import (
     Qt, pyqtSlot, QSize
 )
-from PyQt6.QtGui import QIcon, QFont, QPixmap, QColor, QPalette
+from PyQt6.QtGui import QIcon, QFont, QPixmap, QColor, QPalette, QShortcut, QKeySequence
 
 from gui.dashboard import DashboardPanel
 from gui.fila_panel import FilaPanel
@@ -51,16 +51,26 @@ class MainWindow(QMainWindow):
 
         self._restaurar_geometria()
         self._build_ui()
+        self._setup_shortcuts()
         self._conectar_logger()
         self._carregar_planilha()
 
     def _restaurar_geometria(self) -> None:
-        """Restaura tamanho e posição da janela das preferências salvas."""
+        """Restaura tamanho e posição da janela das preferências salvas.
+
+        Garante que a janela seja posicionada dentro dos limites da tela
+        principal, evitando que fique invisível após mudanças de monitor.
+        """
         w = settings.get("janela_largura", 1280)
         h = settings.get("janela_altura", 800)
         x = settings.get("janela_x", 100)
         y = settings.get("janela_y", 100)
         self.resize(w, h)
+
+        screen = QApplication.primaryScreen().availableGeometry()
+        margem = 50
+        x = max(screen.left() + margem, min(x, screen.right() - margem - w))
+        y = max(screen.top() + margem, min(y, screen.bottom() - margem - h))
         self.move(x, y)
 
     def _build_ui(self) -> None:
@@ -115,6 +125,7 @@ class MainWindow(QMainWindow):
         self._controles.sinal_clientes.connect(self._abrir_clientes)
         self._controles.sinal_criar_protocolo.connect(self._criar_protocolo)
         self._controles.sinal_remover_protocolo.connect(self._remover_protocolo)
+        self._controles.sinal_continuar_login.connect(self._iniciar_geracao)
 
         self._fila_panel.solicitacao_selecionada.connect(self._on_solicitacao_selecionada)
 
@@ -177,6 +188,13 @@ class MainWindow(QMainWindow):
 
         return header
 
+    def _setup_shortcuts(self) -> None:
+        """Registra atalhos de teclado globais da janela principal."""
+        QShortcut(QKeySequence("F5"), self, activated=self._carregar_planilha)
+        QShortcut(QKeySequence("Ctrl+Return"), self, activated=self._iniciar_geracao)
+        QShortcut(QKeySequence("Escape"), self, activated=self._cancelar_geracao)
+        QShortcut(QKeySequence("Ctrl+,"), self, activated=self._abrir_configuracoes)
+
     def _conectar_logger(self) -> None:
         """Conecta o sinal do logger ao painel de log da GUI."""
         logger.mensagem_emitida.connect(self._log_panel.adicionar_mensagem)
@@ -195,6 +213,7 @@ class MainWindow(QMainWindow):
             )
             return
 
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             reader = ExcelReader(caminho)
             erros = reader.verificar_planilha()
@@ -226,6 +245,8 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             logger.erro(f"Erro ao carregar planilha: {exc}")
             QMessageBox.critical(self, "Erro", str(exc))
+        finally:
+            QApplication.restoreOverrideCursor()
 
     @pyqtSlot(object)
     def _on_solicitacao_selecionada(self, sol: Solicitacao) -> None:
@@ -392,6 +413,7 @@ class MainWindow(QMainWindow):
         partes = [f"✅ {concluidos} gerada(s) com sucesso"]
         if erros:
             partes.append(f"❌ {erros} com erro")
+        QApplication.alert(self, 5000)
         QMessageBox.information(
             self,
             "Fila Concluída",
@@ -487,12 +509,10 @@ class MainWindow(QMainWindow):
         else:
             logger.info("[Browser] Navegador mantido aberto conforme configuração.")
 
-        QMessageBox.information(
-            self,
-            "Geração Concluída",
-            f"✅ {sol.protocolo} — {len(caminhos)} arte(s) gerada(s) com sucesso!\n"
-            f"Salvas em: output/{sol.protocolo.replace('#', '_')}/",
-        )
+        QApplication.alert(self, 5000)
+        from gui.preview_dialog import PreviewDialog
+        dlg = PreviewDialog(caminhos, protocolo=sol.protocolo, parent=self)
+        dlg.exec()
 
     @pyqtSlot(str)
     def _on_geracao_erro(self, mensagem: str) -> None:
@@ -507,18 +527,18 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def _on_login_necessario(self) -> None:
-        """Mantém o navegador aberto e orienta o usuário sobre o login manual."""
+        """Entra em estado de aguardo de login manual no navegador."""
         if self._worker:
             self._handler = self._worker.handler
-        QMessageBox.information(
-            self,
-            "Login Necessário",
-            f"O navegador está aberto em {Config.URL_ADAPTA}.\n\n"
-            "➡  Faça o login manualmente no navegador.\n"
-            "➡  Depois clique em 'Iniciar Geração' novamente.\n\n"
-            "💡 Dica: configure e-mail e senha em Configurações → Login\n"
-            "     para login automático nas próximas vezes.",
+        elif self._fila_worker:
+            self._handler = self._fila_worker._handler
+        self._atualizar_status("Aguardando login manual no navegador...", "pausado")
+        self._controles.set_estado_aguardando_login()
+        logger.aviso(
+            f"Login necessário em {Config.URL_ADAPTA}. "
+            "Faça o login no navegador e clique em '\u2713 Já fiz o login'."
         )
+        logger.info("Dica: configure e-mail e senha em Configurações → Login para login automático.")
 
     @pyqtSlot()
     def _on_worker_finalizado(self) -> None:
@@ -675,13 +695,22 @@ class MainWindow(QMainWindow):
                 return
             if self._fila_worker and self._fila_worker.isRunning():
                 self._fila_worker.cancelar()
-                self._fila_worker.wait(3000)
+                if not self._fila_worker.wait(5000):
+                    logger.aviso("[Fila] Worker não encerrou em 5s. Forçando terminate().")
+                    self._fila_worker.terminate()
+                    self._fila_worker.wait(2000)
             if self._worker and self._worker.isRunning():
                 self._worker.cancelar()
-                self._worker.wait(3000)
+                if not self._worker.wait(5000):
+                    logger.aviso("[Worker] Não encerrou em 5s. Forçando terminate().")
+                    self._worker.terminate()
+                    self._worker.wait(2000)
 
         if self._handler:
-            self._handler.fechar()
+            try:
+                self._handler.fechar()
+            except Exception as exc:
+                logger.aviso(f"Falha ao fechar navegador: {exc}")
             self._handler = None
 
         settings.set("janela_largura", self.width())

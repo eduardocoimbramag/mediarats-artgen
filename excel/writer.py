@@ -4,9 +4,10 @@ Módulo de escrita/atualização da planilha Excel do Media Rats - Artgen.
 
 from __future__ import annotations
 
+import shutil
 from datetime import date, datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -14,6 +15,26 @@ from openpyxl.utils import get_column_letter
 
 from excel.reader import Solicitacao
 from utils.status import STATUS_CORES_EXCEL as STATUS_CORES
+
+_FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
+
+
+def _sanitizar_celula(valor: Any) -> Any:
+    """Neutraliza caracteres que o Excel interpreta como início de fórmula.
+
+    Valores string iniciados por ``=``, ``+``, ``-``, ``@``, ``\t`` ou ``\r``
+    ganham um apóstrofo inicial para forçar interpretação como texto puro,
+    prevenindo injeção de fórmulas como ``=CMD()`` ou ``=HYPERLINK()``.
+
+    Args:
+        valor: Valor a sanitizar (qualquer tipo).
+
+    Returns:
+        Valor sanitizado. Não-strings e strings seguras passam inalterados.
+    """
+    if isinstance(valor, str) and valor and valor[0] in _FORMULA_PREFIXES:
+        return "'" + valor
+    return valor
 
 
 class ExcelWriter:
@@ -28,6 +49,45 @@ class ExcelWriter:
 
     def __init__(self, caminho: Path) -> None:
         self.caminho = Path(caminho)
+
+    def _backup_planilha(self) -> Optional[Path]:
+        """Cria cópia de segurança antes de uma operação destrutiva.
+
+        Mantém apenas os 3 backups mais recentes para não encher o disco.
+
+        Returns:
+            Caminho do backup criado ou None em caso de falha.
+        """
+        try:
+            if not self.caminho.exists():
+                return None
+            ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+            destino = self.caminho.parent / f".bak_{ts}_{self.caminho.name}"
+            shutil.copy2(self.caminho, destino)
+            self._limpar_backups_antigos()
+            return destino
+        except Exception:
+            return None
+
+    def _limpar_backups_antigos(self, manter: int = 3) -> None:
+        """Remove backups antigos, mantendo apenas os ``manter`` mais recentes.
+
+        Args:
+            manter: Número de backups a preservar.
+        """
+        try:
+            backups = sorted(
+                self.caminho.parent.glob(f".bak_*_{self.caminho.name}"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
+            for p in backups[manter:]:
+                try:
+                    p.unlink()
+                except Exception:
+                    pass
+        except Exception:
+            pass
 
     def _encontrar_aba(self, wb, nome: str):
         """Busca aba pelo nome (case-insensitive).
@@ -232,6 +292,10 @@ class ExcelWriter:
             wb.close()
             return False
 
+        wb.close()
+        self._backup_planilha()
+        wb = openpyxl.load_workbook(self.caminho)
+        ws = self._encontrar_aba(wb, self.ABA_CONTEUDOS)
         ws.delete_rows(linha_alvo, 1)
         wb.save(self.caminho)
         wb.close()
@@ -410,7 +474,7 @@ class ExcelWriter:
         }
         for col_nome, col_idx in cab.items():
             if col_nome in dados:
-                ws.cell(row=nova_linha, column=col_idx).value = dados[col_nome]
+                ws.cell(row=nova_linha, column=col_idx).value = _sanitizar_celula(dados[col_nome])
 
         wb.save(self.caminho)
         wb.close()
@@ -469,7 +533,7 @@ class ExcelWriter:
             if row[0].value and str(row[0].value).strip().upper() == codigo_original:
                 for col_nome, col_idx in cab.items():
                     if col_nome in dados:
-                        ws.cell(row=row[0].row, column=col_idx).value = dados[col_nome]
+                        ws.cell(row=row[0].row, column=col_idx).value = _sanitizar_celula(dados[col_nome])
                 wb.save(self.caminho)
                 wb.close()
                 return
@@ -496,6 +560,10 @@ class ExcelWriter:
         for row_idx in range(2, ws.max_row + 1):
             cell = ws.cell(row=row_idx, column=1)
             if cell.value and str(cell.value).strip().upper() == codigo:
+                wb.close()
+                self._backup_planilha()
+                wb = openpyxl.load_workbook(self.caminho)
+                ws = self._encontrar_aba(wb, "CLIENTES")
                 ws.delete_rows(row_idx)
                 wb.save(self.caminho)
                 wb.close()
@@ -619,7 +687,7 @@ class ExcelWriter:
         for col_nome, col_idx in cab.items():
             if col_nome in campos:
                 cell = ws.cell(row=nova_linha, column=col_idx)
-                cell.value = campos[col_nome]
+                cell.value = _sanitizar_celula(campos[col_nome])
 
         cor = STATUS_CORES.get(status, "FFFFFF")
         col_status = cab.get("STATUS")

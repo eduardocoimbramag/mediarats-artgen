@@ -3,6 +3,7 @@ Sistema de log do Media Rats - Artgen.
 Registra mensagens no console, arquivo e emite sinais para a GUI.
 """
 
+import re
 import logging
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
@@ -25,6 +26,33 @@ _nivel_map = {
 }
 
 
+class SensitiveFilter(logging.Filter):
+    """Filtro que mascara credenciais sensíveis em mensagens de log.
+
+    Evita que senhas ou tokens vazem para o arquivo de log ou console,
+    mesmo se algum traceback ou mensagem de debug acabar incluindo os
+    dados acidentalmente.
+    """
+
+    _PATTERNS = [
+        (re.compile(r"(ADAPTA_SENHA\s*=\s*)\S+", re.I), r"\1***"),
+        (re.compile(r"(password\s*[:=]\s*)\S+", re.I), r"\1***"),
+        (re.compile(r"(senha\s*[:=]\s*)\S+", re.I), r"\1***"),
+        (re.compile(r"(token\s*[:=]\s*)\S+", re.I), r"\1***"),
+    ]
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        try:
+            msg = record.getMessage()
+            for pat, repl in self._PATTERNS:
+                msg = pat.sub(repl, msg)
+            record.msg = msg
+            record.args = ()
+        except Exception:
+            pass
+        return True
+
+
 def _setup_file_logger() -> logging.Logger:
     """Configura o logger de arquivo."""
     lg = logging.getLogger("artgen")
@@ -40,7 +68,9 @@ def _setup_file_logger() -> logging.Logger:
     fh.setLevel(logging.DEBUG)
     fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", "%Y-%m-%d %H:%M:%S")
     fh.setFormatter(fmt)
+    fh.addFilter(SensitiveFilter())
     lg.addHandler(fh)
+    lg.addFilter(SensitiveFilter())
     return lg
 
 

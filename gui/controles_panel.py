@@ -44,6 +44,7 @@ class ControlesPanel(QWidget):
     sinal_clientes = pyqtSignal()
     sinal_criar_protocolo = pyqtSignal()
     sinal_remover_protocolo = pyqtSignal()
+    sinal_continuar_login = pyqtSignal()
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
@@ -65,6 +66,7 @@ class ControlesPanel(QWidget):
         self._btn_recarregar = _btn("🔄  Recarregar", "#181818", "#222222", "#666666")
         self._btn_output = _btn("📁  Output", "#181818", "#222222", "#666666")
         self._btn_config = _btn("⚙  Configurações", "#181818", "#222222", "#666666")
+        self._btn_continuar_login = _btn("✓  Já fiz o login — continuar", "#002200", "#004400", "#00ff00")
 
         self._btn_iniciar.clicked.connect(self.sinal_iniciar)
         self._btn_processar_fila.clicked.connect(self.sinal_processar_fila)
@@ -76,11 +78,13 @@ class ControlesPanel(QWidget):
         self._btn_recarregar.clicked.connect(self.sinal_recarregar)
         self._btn_output.clicked.connect(self.sinal_abrir_output)
         self._btn_config.clicked.connect(self.sinal_configuracoes)
+        self._btn_continuar_login.clicked.connect(self.sinal_continuar_login)
 
         layout.addWidget(self._btn_iniciar)
         layout.addWidget(self._btn_processar_fila)
         layout.addWidget(self._btn_pausar)
         layout.addWidget(self._btn_cancelar)
+        layout.addWidget(self._btn_continuar_login)
         layout.addWidget(self._btn_remover_protocolo)
         layout.addStretch()
         layout.addWidget(self._btn_criar_protocolo)
@@ -112,6 +116,7 @@ class ControlesPanel(QWidget):
         self._btn_processar_fila.setEnabled(True)
         self._btn_pausar.setEnabled(False)
         self._btn_cancelar.setEnabled(False)
+        self._btn_continuar_login.setVisible(False)
         self._pausado = False
         self._btn_pausar.setText("⏸  Pausar")
 
@@ -121,8 +126,17 @@ class ControlesPanel(QWidget):
         self._btn_processar_fila.setEnabled(False)
         self._btn_pausar.setEnabled(True)
         self._btn_cancelar.setEnabled(True)
+        self._btn_continuar_login.setVisible(False)
         self._pausado = False
         self._btn_pausar.setText("⏸  Pausar")
+
+    def set_estado_aguardando_login(self) -> None:
+        """Configura estado dos botões enquanto aguarda login manual no navegador."""
+        self._btn_iniciar.setEnabled(False)
+        self._btn_processar_fila.setEnabled(False)
+        self._btn_pausar.setEnabled(False)
+        self._btn_cancelar.setEnabled(True)
+        self._btn_continuar_login.setVisible(True)
 
     def set_estado_pausado(self) -> None:
         """Configura estado dos botões quando a geração está pausada."""

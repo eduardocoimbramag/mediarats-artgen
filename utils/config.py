@@ -8,12 +8,62 @@ import json
 from pathlib import Path
 from dotenv import load_dotenv
 
+try:
+    import keyring as _keyring
+    _KEYRING_OK = True
+except Exception:
+    _keyring = None  # type: ignore
+    _KEYRING_OK = False
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 _env_path = BASE_DIR / ".env"
 load_dotenv(dotenv_path=_env_path)
 
 _SETTINGS_PATH = BASE_DIR / "settings.json"
+
+_KEYRING_SERVICE = "mediarats-artgen"
+
+
+def _ler_senha_segura(email: str) -> str:
+    """Recupera a senha priorizando o cofre do sistema (keyring) sobre o .env.
+
+    A senha em texto plano no ``.env`` permanece suportada como fallback para
+    ambientes sem keyring instalado ou para retrocompatibilidade.
+
+    Args:
+        email: E-mail do usuário (chave dentro do keyring).
+
+    Returns:
+        Senha recuperada ou string vazia se não encontrada.
+    """
+    if _KEYRING_OK and email:
+        try:
+            s = _keyring.get_password(_KEYRING_SERVICE, email)
+            if s:
+                return s
+        except Exception:
+            pass
+    return os.getenv("ADAPTA_SENHA", "")
+
+
+def _gravar_senha_segura(email: str, senha: str) -> bool:
+    """Salva a senha no keyring do sistema, se disponível.
+
+    Args:
+        email: E-mail do usuário (chave).
+        senha: Senha a armazenar.
+
+    Returns:
+        True se gravou com sucesso no keyring; False se indisponível/erro.
+    """
+    if not (_KEYRING_OK and email and senha):
+        return False
+    try:
+        _keyring.set_password(_KEYRING_SERVICE, email, senha)
+        return True
+    except Exception:
+        return False
 
 
 def _parse_bool(valor: str, padrao: bool = False) -> bool:
@@ -50,7 +100,7 @@ class Config:
     )
     IDIOMA_LOG: str = os.getenv("IDIOMA_LOG", "pt-BR")
     ADAPTA_EMAIL: str = os.getenv("ADAPTA_EMAIL", "")
-    ADAPTA_SENHA: str = os.getenv("ADAPTA_SENHA", "")
+    ADAPTA_SENHA: str = _ler_senha_segura(os.getenv("ADAPTA_EMAIL", ""))
     NOME_PASTA_PROJETO: str = os.getenv("NOME_PASTA_PROJETO", "Media Rats - ArtGen")
 
     @classmethod
@@ -86,16 +136,28 @@ class Config:
         )
         cls.IDIOMA_LOG = os.getenv("IDIOMA_LOG", "pt-BR")
         cls.ADAPTA_EMAIL = os.getenv("ADAPTA_EMAIL", "")
-        cls.ADAPTA_SENHA = os.getenv("ADAPTA_SENHA", "")
+        cls.ADAPTA_SENHA = _ler_senha_segura(cls.ADAPTA_EMAIL)
         cls.NOME_PASTA_PROJETO = os.getenv("NOME_PASTA_PROJETO", "Media Rats - ArtGen")
 
     @classmethod
     def salvar_env(cls, dados: dict) -> None:
         """Persiste as configurações no arquivo .env, preservando chaves não fornecidas.
 
+        A senha ``ADAPTA_SENHA``, se presente, é gravada preferencialmente no
+        keyring do sistema operacional; em caso de sucesso, o .env recebe
+        string vazia na chave (apenas como sinalizador).
+
         Args:
             dados: Dicionário com chaves/valores a gravar (merge com existentes).
         """
+        dados = dict(dados)
+
+        senha = dados.get("ADAPTA_SENHA")
+        email = dados.get("ADAPTA_EMAIL") or os.getenv("ADAPTA_EMAIL", "")
+        if senha is not None and senha != "":
+            if _gravar_senha_segura(email, senha):
+                dados["ADAPTA_SENHA"] = ""
+
         existentes: dict = {}
         if _env_path.exists():
             with open(_env_path, "r", encoding="utf-8") as f:
@@ -109,6 +171,26 @@ class Config:
         with open(_env_path, "w", encoding="utf-8") as f:
             f.writelines(linhas)
         cls.recarregar()
+
+    @classmethod
+    def migrar_senha_para_keyring(cls) -> bool:
+        """Migra senha em texto plano do .env para o keyring, se possível.
+
+        Chamar uma vez no startup para mover credenciais legadas.
+
+        Returns:
+            True se a migração ocorreu; False caso contrário.
+        """
+        if not _KEYRING_OK:
+            return False
+        email = os.getenv("ADAPTA_EMAIL", "").strip()
+        senha_env = os.getenv("ADAPTA_SENHA", "")
+        if not (email and senha_env):
+            return False
+        if not _gravar_senha_segura(email, senha_env):
+            return False
+        cls.salvar_env({"ADAPTA_SENHA": ""})
+        return True
 
 
 class Settings:

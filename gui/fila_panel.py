@@ -11,13 +11,13 @@ from typing import List, Optional
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget,
     QTableWidgetItem, QHeaderView, QAbstractItemView, QDialog,
-    QTextEdit, QDialogButtonBox, QFrame, QLineEdit, QCheckBox
+    QTextEdit, QDialogButtonBox, QFrame, QLineEdit, QCheckBox, QComboBox
 )
 from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QColor, QFont, QBrush
 
 from excel.reader import Solicitacao
-from utils.status import STATUS_CORES_GUI as STATUS_CORES
+from utils.status import STATUS_CORES_GUI as STATUS_CORES, STATUS_VALIDOS
 
 COLUNAS = ["Protocolo", "Cliente", "Tema", "Status", "Data Planejada"]
 
@@ -117,6 +117,21 @@ class FilaPanel(QWidget):
         self._chk_hoje.stateChanged.connect(self._aplicar_filtros)
         filtros.addWidget(self._chk_hoje)
 
+        self._cmb_status = QComboBox()
+        self._cmb_status.addItem("Todos os status")
+        for s in sorted(STATUS_VALIDOS):
+            self._cmb_status.addItem(s)
+        self._cmb_status.setFixedWidth(150)
+        self._cmb_status.setStyleSheet(
+            "QComboBox { background: #0d0d0d; color: #c0c0c0; border: 1px solid #1a3a1a; "
+            "border-radius: 4px; padding: 3px 8px; font-size: 11px; }"
+            "QComboBox::drop-down { border: none; }"
+            "QComboBox QAbstractItemView { background: #0d0d0d; color: #c0c0c0; "
+            "border: 1px solid #1a3a1a; selection-background-color: #002200; }"
+        )
+        self._cmb_status.currentTextChanged.connect(self._aplicar_filtros)
+        filtros.addWidget(self._cmb_status)
+
         layout.addLayout(filtros)
 
         self._tabela = QTableWidget()
@@ -135,6 +150,7 @@ class FilaPanel(QWidget):
         self._tabela.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
         self._tabela.horizontalHeader().setMinimumSectionSize(60)
         self._tabela.setShowGrid(False)
+        self._tabela.setSortingEnabled(True)
         self._tabela.setStyleSheet(
             "QTableWidget { background-color: #000000; color: #c0c0c0; "
             "border: 1px solid #1a3a1a; border-radius: 6px; gridline-color: #111111; }"
@@ -154,9 +170,11 @@ class FilaPanel(QWidget):
             solicitacoes: Lista de objetos Solicitacao.
         """
         self._solicitacoes = solicitacoes
+        self._tabela.setSortingEnabled(False)
         self._tabela.setRowCount(0)
         for sol in solicitacoes:
             self._adicionar_linha(sol)
+        self._tabela.setSortingEnabled(True)
         self._lbl_total.setText(f"{len(solicitacoes)} item(s)")
         self._aplicar_filtros()
 
@@ -167,12 +185,20 @@ class FilaPanel(QWidget):
         hoje = date.today()
         visiveis = 0
 
+        filtro_status = self._cmb_status.currentText()
+
         for row in range(self._tabela.rowCount()):
-            sol = self._solicitacoes[row] if row < len(self._solicitacoes) else None
+            item0 = self._tabela.item(row, 0)
+            sol = item0.data(Qt.ItemDataRole.UserRole) if item0 else None
 
             if sol is None:
                 self._tabela.setRowHidden(row, True)
                 continue
+
+            if filtro_status and filtro_status != "Todos os status":
+                if sol.status.lower() != filtro_status.lower():
+                    self._tabela.setRowHidden(row, True)
+                    continue
 
             if apenas_hoje:
                 data = sol.data_planejada
@@ -214,6 +240,8 @@ class FilaPanel(QWidget):
         for col, val in enumerate(valores):
             item = QTableWidgetItem(val)
             item.setTextAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
+            if col == 0:
+                item.setData(Qt.ItemDataRole.UserRole, sol)
             if col == 3:
                 item.setBackground(QBrush(QColor(bg_hex)))
                 item.setForeground(QBrush(QColor(fg_hex)))
@@ -253,8 +281,9 @@ class FilaPanel(QWidget):
         if not indices:
             return None
         row = indices[0].row()
-        if row < len(self._solicitacoes):
-            return self._solicitacoes[row]
+        item0 = self._tabela.item(row, 0)
+        if item0:
+            return item0.data(Qt.ItemDataRole.UserRole)
         return None
 
     def remover_solicitacao(self, protocolo: str) -> bool:
