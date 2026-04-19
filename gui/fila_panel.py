@@ -17,16 +17,7 @@ from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QColor, QFont, QBrush
 
 from excel.reader import Solicitacao
-
-
-STATUS_CORES = {
-    "planejado": ("#1e1800", "#ccaa00"),
-    "pendente":  ("#1e0e00", "#cc6600"),
-    "gerando":   ("#001a00", "#00cc00"),
-    "gerado":    ("#002200", "#00ff00"),
-    "erro":      ("#1e0000", "#cc3333"),
-    "cancelado": ("#141414", "#666666"),
-}
+from utils.status import STATUS_CORES_GUI as STATUS_CORES
 
 COLUNAS = ["Protocolo", "Cliente", "Tema", "Status", "Data Planejada"]
 

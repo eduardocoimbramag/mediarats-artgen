@@ -13,15 +13,7 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 
 from excel.reader import Solicitacao
-
-
-STATUS_CORES = {
-    "Planejado": "FFF9C4",
-    "Pendente": "FFE0B2",
-    "Gerando": "BBDEFB",
-    "Gerado": "C8E6C9",
-    "Erro": "FFCDD2",
-}
+from utils.status import STATUS_CORES_EXCEL as STATUS_CORES
 
 
 class ExcelWriter:

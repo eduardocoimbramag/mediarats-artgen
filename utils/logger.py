@@ -4,10 +4,11 @@ Registra mensagens no console, arquivo e emite sinais para a GUI.
 """
 
 import logging
-import os
+from logging.handlers import RotatingFileHandler
 from datetime import datetime
 from pathlib import Path
-from typing import Callable, Optional
+
+from PyQt6.QtCore import QObject, pyqtSignal
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 LOGS_DIR = BASE_DIR / "logs"
@@ -26,56 +27,54 @@ _nivel_map = {
 
 def _setup_file_logger() -> logging.Logger:
     """Configura o logger de arquivo."""
-    logger = logging.getLogger("artgen")
-    if logger.handlers:
-        return logger
-    logger.setLevel(logging.DEBUG)
-    fh = logging.FileHandler(LOG_FILE, encoding="utf-8")
+    lg = logging.getLogger("artgen")
+    if lg.handlers:
+        return lg
+    lg.setLevel(logging.DEBUG)
+    fh = RotatingFileHandler(
+        LOG_FILE,
+        maxBytes=5 * 1024 * 1024,
+        backupCount=5,
+        encoding="utf-8",
+    )
     fh.setLevel(logging.DEBUG)
     fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", "%Y-%m-%d %H:%M:%S")
     fh.setFormatter(fmt)
-    logger.addHandler(fh)
-    return logger
+    lg.addHandler(fh)
+    return lg
 
 
 _file_logger = _setup_file_logger()
 
 
-class ArtgenLogger:
-    """Logger principal do Artgen com suporte a callbacks de GUI.
+class ArtgenLogger(QObject):
+    """Logger principal do Artgen baseado em sinais Qt.
 
-    Attributes:
-        _callback: Função chamada ao emitir cada mensagem (opcional).
+    Emite ``mensagem_emitida(str, str)`` para cada mensagem de log.
+    Conecte esse sinal ao painel de log da GUI via
+    ``logger.mensagem_emitida.connect(self._log_panel.adicionar_mensagem)``.
+
+    A ligação cross-thread é garantida pelo mecanismo de filas do Qt,
+    eliminando o risco de chamadas diretas entre threads.
     """
 
-    def __init__(self) -> None:
-        self._callback: Optional[Callable[[str, str], None]] = None
-
-    def definir_callback(self, fn: Callable[[str, str], None]) -> None:
-        """Define callback para envio de mensagens à GUI.
-
-        Args:
-            fn: Função que recebe (mensagem, tipo) onde tipo é
-                'info'|'sucesso'|'aviso'|'erro'.
-        """
-        self._callback = fn
+    mensagem_emitida = pyqtSignal(str, str)
 
     def _emitir(self, mensagem: str, tipo: str) -> None:
-        """Emite a mensagem para arquivo e callback de GUI.
+        """Emite a mensagem para arquivo e sinal Qt.
 
         Args:
             mensagem: Texto da mensagem.
-            tipo: Tipo da mensagem.
+            tipo: Tipo da mensagem ('info'|'sucesso'|'aviso'|'erro').
         """
         ts = datetime.now().strftime("%H:%M:%S")
         linha = f"[{ts}] {mensagem}"
         nivel = _nivel_map.get(tipo, logging.INFO)
         _file_logger.log(nivel, mensagem)
-        if self._callback:
-            try:
-                self._callback(linha, tipo)
-            except Exception:
-                pass
+        try:
+            self.mensagem_emitida.emit(linha, tipo)
+        except Exception:
+            pass
 
     def info(self, mensagem: str) -> None:
         """Log de informação.
