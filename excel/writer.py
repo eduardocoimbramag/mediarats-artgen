@@ -152,6 +152,56 @@ class ExcelWriter:
         wb.save(self.caminho)
         wb.close()
 
+    def registrar_conclusao(
+        self,
+        solicitacao: Solicitacao,
+        caminhos_imagens: List[str],
+    ) -> None:
+        """Atualiza status para 'Gerado' e registra avaliação numa única abertura.
+
+        Substitui a chamada sequencial de ``atualizar_status`` + ``registrar_avaliacao``,
+        eliminando a abertura dupla do workbook por conclusão de geração.
+
+        Args:
+            solicitacao: Objeto com dados da solicitação.
+            caminhos_imagens: Lista de caminhos relativos das imagens geradas.
+        """
+        wb = openpyxl.load_workbook(self.caminho)
+
+        ws_cont = self._encontrar_aba(wb, self.ABA_CONTEUDOS)
+        if ws_cont is not None:
+            col_status = self._encontrar_coluna(ws_cont, "STATUS")
+            if col_status:
+                cell = ws_cont.cell(row=solicitacao.linha_excel, column=col_status)
+                cell.value = "Gerado"
+                cor = STATUS_CORES.get("Gerado", "FFFFFF")
+                cell.fill = PatternFill(start_color=cor, end_color=cor, fill_type="solid")
+            col_data = self._garantir_coluna(ws_cont, "DATA_GERACAO")
+            ws_cont.cell(
+                row=solicitacao.linha_excel, column=col_data
+            ).value = datetime.now().strftime("%d/%m/%Y %H:%M")
+
+        ws_aval = self._garantir_aba_avaliacao(wb)
+        hoje = date.today().strftime("%d/%m/%Y")
+        for i, caminho_img in enumerate(caminhos_imagens, start=1):
+            prompt = solicitacao.prompts[i - 1] if i - 1 < len(solicitacao.prompts) else ""
+            ws_aval.append([
+                solicitacao.protocolo,
+                solicitacao.cliente,
+                solicitacao.tema,
+                i,
+                prompt,
+                caminho_img,
+                "",
+                "",
+                "",
+                hoje,
+                "",
+            ])
+
+        wb.save(self.caminho)
+        wb.close()
+
     def remover_solicitacao(self, solicitacao: Solicitacao) -> bool:
         """Remove permanentemente uma solicitação da aba CONTEUDOS.
 

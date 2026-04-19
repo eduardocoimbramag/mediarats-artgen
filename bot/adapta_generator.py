@@ -257,6 +257,21 @@ class AdaptaGenerator:
             except Exception:
                 pass
 
+    def _aguardar(self, segundos: float) -> None:
+        """Aguarda pelo tempo indicado verificando cancelamento a cada 0.1s.
+
+        Substitui ``time.sleep()`` em esperas longas para que o cancelamento
+        seja responsivo mesmo durante waits de vários segundos.
+
+        Args:
+            segundos: Tempo total de espera em segundos.
+        """
+        fim = time.monotonic() + segundos
+        while time.monotonic() < fim:
+            if self._cancelado:
+                return
+            time.sleep(0.1)
+
     def verificar_prerequisitos(self) -> bool:
         """Verifica internet e disponibilidade do driver.
 
@@ -299,7 +314,7 @@ class AdaptaGenerator:
         if not ok:
             return False
 
-        time.sleep(3)
+        self._aguardar(3.0)
 
         if not self._detectar_tela_login():
             logger.sucesso("AdaptaOne carregado — sessão ativa.")
@@ -409,7 +424,7 @@ class AdaptaGenerator:
                         pass
                     try:
                         driver.execute_script("arguments[0].click();", clickable)
-                        time.sleep(3)
+                        self._aguardar(3.0)
                         if not self._esta_no_dashboard():
                             logger.sucesso("[AdaptaOne] Entrou na interface de chat com sucesso.")
                             return True
@@ -454,7 +469,7 @@ class AdaptaGenerator:
                 return resultado
 
             logger.info("[Login] Aguardando confirmação de autenticação (até 5s)...")
-            time.sleep(3)
+            self._aguardar(3.0)
             if self._detectar_tela_login():
                 logger.aviso("[Login] Tela de login ainda ativa após submissão da senha.")
                 return "credenciais_invalidas"
@@ -495,7 +510,7 @@ class AdaptaGenerator:
                     break
             if campo_email:
                 break
-            time.sleep(0.8)
+            self._aguardar(0.8)
 
         if not campo_email:
             logger.aviso(
@@ -568,7 +583,7 @@ class AdaptaGenerator:
             except Exception:
                 pass
 
-            time.sleep(0.8)
+            self._aguardar(0.8)
 
         url_atual = driver.current_url
         logger.aviso(
@@ -608,7 +623,7 @@ class AdaptaGenerator:
                     break
             if campo_senha:
                 break
-            time.sleep(0.8)
+            self._aguardar(0.8)
 
         if not campo_senha:
             logger.aviso(
@@ -796,7 +811,7 @@ class AdaptaGenerator:
                         continue
                     try:
                         driver.execute_script("arguments[0].click();", elem)
-                        time.sleep(1.5)
+                        self._aguardar(1.5)
                         logger.info(f"[Chat] Pasta '{nome_pasta}' acessada.")
                         return True
                     except Exception:
@@ -825,7 +840,7 @@ class AdaptaGenerator:
         driver = self.handler.driver
         try:
             driver.get(url)
-            time.sleep(3)
+            self._aguardar(3.0)
         except Exception as exc:
             logger.aviso(f"[Chat] Falha ao navegar para {url}: {exc}")
             return False
@@ -931,7 +946,7 @@ class AdaptaGenerator:
                             logger.info(f"[Chat] Chat encontrado por '{termo}': {href}")
                             try:
                                 driver.execute_script("arguments[0].click();", elem)
-                                time.sleep(2)
+                                self._aguardar(2.0)
                                 url_atual = driver.current_url
                                 if self._e_url_de_chat_valida(url_atual):
                                     return url_atual
@@ -965,14 +980,14 @@ class AdaptaGenerator:
 
         try:
             driver.execute_script("arguments[0].click();", botao)
-            time.sleep(3)
+            self._aguardar(3.0)
         except Exception as exc:
             logger.aviso(f"[Chat] Falha ao clicar 'novo chat': {exc}")
             return None
 
         url_novo = driver.current_url
         if url_novo.rstrip("/") == url_antes.rstrip("/"):
-            time.sleep(2)
+            self._aguardar(2.0)
             url_novo = driver.current_url
 
         if not self._e_url_de_chat_valida(url_novo):
@@ -1277,7 +1292,7 @@ class AdaptaGenerator:
                 if tentativa < self.MAX_TENTATIVAS:
                     espera = backoff_espera(tentativa)
                     logger.info(f"Aguardando {espera:.0f}s antes de tentar novamente...")
-                    time.sleep(espera)
+                    self._aguardar(espera)
                     if not self.handler.ativo:
                         logger.aviso("Driver perdeu conexão, reiniciando navegador...")
                         self.handler.reiniciar()
@@ -1857,7 +1872,7 @@ class AdaptaGenerator:
                 f"de Enter não confirmou envio."
             )
             if tentativa < max_tentativas:
-                time.sleep(1.0)
+                self._aguardar(1.0)
 
         logger.erro(
             f"[Envio] {arte_label}: todas as {max_tentativas} tentativas de Enter "
@@ -1895,7 +1910,7 @@ class AdaptaGenerator:
             botao = self._localizar_botao_gerar()
             if botao:
                 break
-            time.sleep(0.5)
+            self._aguardar(0.5)
 
         t_busca = time.time() - t_ini
 
@@ -1997,7 +2012,7 @@ class AdaptaGenerator:
                     f"[Composer] Tentativa {tentativa} ({modo}): "
                     f"0 candidatos visíveis — aguardando... ({restante:.0f}s)"
                 )
-                time.sleep(2)
+                self._aguardar(2.0)
                 continue
 
             melhor = self._escolher_melhor_compositor(candidatos, modo=modo)
@@ -2017,7 +2032,7 @@ class AdaptaGenerator:
                     f"[Composer] Tentativa {tentativa} ({modo}): "
                     f"nenhum candidato aprovado. {restante:.0f}s restantes."
                 )
-            time.sleep(2)
+            self._aguardar(2.0)
 
         self._logar_diagnostico_compositor()
 

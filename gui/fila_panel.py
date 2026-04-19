@@ -5,12 +5,13 @@ Exibe tabela com status, permite seleção e duplo clique para detalhes.
 
 from __future__ import annotations
 
+from datetime import date
 from typing import List, Optional
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget,
     QTableWidgetItem, QHeaderView, QAbstractItemView, QDialog,
-    QTextEdit, QDialogButtonBox, QFrame
+    QTextEdit, QDialogButtonBox, QFrame, QLineEdit, QCheckBox
 )
 from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QColor, QFont, QBrush
@@ -102,6 +103,31 @@ class FilaPanel(QWidget):
         header.addWidget(self._lbl_total)
         layout.addLayout(header)
 
+        filtros = QHBoxLayout()
+        filtros.setSpacing(8)
+
+        self._inp_busca = QLineEdit()
+        self._inp_busca.setPlaceholderText("🔍  Buscar protocolo, cliente ou tema...")
+        self._inp_busca.setStyleSheet(
+            "QLineEdit { background: #0d0d0d; color: #c0c0c0; border: 1px solid #1a3a1a; "
+            "border-radius: 4px; padding: 4px 8px; font-size: 11px; }"
+            "QLineEdit:focus { border-color: #00aa00; }"
+        )
+        self._inp_busca.textChanged.connect(self._aplicar_filtros)
+        filtros.addWidget(self._inp_busca)
+
+        self._chk_hoje = QCheckBox("Apenas hoje / atrasadas")
+        self._chk_hoje.setStyleSheet(
+            "QCheckBox { color: #888888; font-size: 11px; spacing: 6px; }"
+            "QCheckBox::indicator { width: 14px; height: 14px; border: 1px solid #282828; "
+            "border-radius: 3px; background: #111111; }"
+            "QCheckBox::indicator:checked { background: #004400; border-color: #00aa00; }"
+        )
+        self._chk_hoje.stateChanged.connect(self._aplicar_filtros)
+        filtros.addWidget(self._chk_hoje)
+
+        layout.addLayout(filtros)
+
         self._tabela = QTableWidget()
         self._tabela.setColumnCount(len(COLUNAS))
         self._tabela.setHorizontalHeaderLabels(COLUNAS)
@@ -141,6 +167,42 @@ class FilaPanel(QWidget):
         for sol in solicitacoes:
             self._adicionar_linha(sol)
         self._lbl_total.setText(f"{len(solicitacoes)} item(s)")
+        self._aplicar_filtros()
+
+    def _aplicar_filtros(self) -> None:
+        """Aplica filtro de texto e/ou data_planejada às linhas da tabela."""
+        texto = self._inp_busca.text().strip().lower()
+        apenas_hoje = self._chk_hoje.isChecked()
+        hoje = date.today()
+        visiveis = 0
+
+        for row in range(self._tabela.rowCount()):
+            sol = self._solicitacoes[row] if row < len(self._solicitacoes) else None
+
+            if sol is None:
+                self._tabela.setRowHidden(row, True)
+                continue
+
+            if apenas_hoje:
+                data = sol.data_planejada
+                if data is not None and data > hoje:
+                    self._tabela.setRowHidden(row, True)
+                    continue
+
+            if texto:
+                colunas_busca = [sol.protocolo, sol.cliente, sol.tema, sol.status]
+                if not any(texto in (v or "").lower() for v in colunas_busca):
+                    self._tabela.setRowHidden(row, True)
+                    continue
+
+            self._tabela.setRowHidden(row, False)
+            visiveis += 1
+
+        total = len(self._solicitacoes)
+        if visiveis == total:
+            self._lbl_total.setText(f"{total} item(s)")
+        else:
+            self._lbl_total.setText(f"{visiveis} de {total} item(s)")
 
     def _adicionar_linha(self, sol: Solicitacao) -> None:
         """Adiciona uma linha à tabela para a solicitação.

@@ -90,12 +90,15 @@ def verificar_internet(host: str = "8.8.8.8", porta: int = 53, timeout: int = 5)
     Returns:
         True se houver conexão.
     """
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        socket.setdefaulttimeout(timeout)
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, porta))
+        s.settimeout(timeout)
+        s.connect((host, porta))
         return True
     except socket.error:
         return False
+    finally:
+        s.close()
 
 
 def verificar_arquivo_aberto(caminho: Path) -> bool:

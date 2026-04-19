@@ -109,7 +109,7 @@ class ExcelReader:
         """
         if not self.caminho.exists():
             raise FileNotFoundError(f"Planilha não encontrada: {self.caminho}")
-        wb = openpyxl.load_workbook(self.caminho, data_only=True)
+        wb = openpyxl.load_workbook(self.caminho, data_only=True, read_only=True)
         abas_existentes = [s.upper() for s in wb.sheetnames]
         for aba in [self.ABA_CLIENTES, self.ABA_CONTEUDOS]:
             if aba not in abas_existentes:

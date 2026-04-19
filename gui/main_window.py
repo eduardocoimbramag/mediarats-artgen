@@ -25,7 +25,7 @@ from gui.fila_panel import FilaPanel
 from gui.log_panel import LogPanel
 from gui.controles_panel import ControlesPanel
 from gui.configuracoes_dialog import ConfiguracoesDialog
-from excel.reader import ExcelReader, Solicitacao
+from excel.reader import ExcelReader, Solicitacao, Cliente
 from excel.writer import ExcelWriter
 from utils.config import Config, settings
 from utils.logger import logger
@@ -49,12 +49,19 @@ class GeracaoWorker(QThread):
     Args:
         solicitacao: Solicitação a processar.
         handler_existente: Driver já aberto a reutilizar (ex: após login manual).
+        clientes: Lista de clientes já carregada para evitar re-leitura da planilha.
     """
 
-    def __init__(self, solicitacao: Solicitacao, handler_existente=None) -> None:
+    def __init__(
+        self,
+        solicitacao: Solicitacao,
+        handler_existente=None,
+        clientes: Optional[List[Cliente]] = None,
+    ) -> None:
         super().__init__()
         self.solicitacao = solicitacao
         self.handler_existente = handler_existente
+        self._clientes_cache = clientes
         self.handler = None
         self.signals = WorkerSignals()
         self._cancelado = False
@@ -158,9 +165,8 @@ class GeracaoWorker(QThread):
     def _carregar_perfil_cliente(self, codigo_cliente: str):
         """Carrega o perfil completo do cliente a partir da planilha.
 
-        Busca na aba CLIENTES o registro cujo código corresponde ao
-        ``codigo_cliente`` da solicitação. Falha silenciosamente para
-        não bloquear a geração se o cliente não for encontrado.
+        Usa a lista de clientes em cache (passada no construtor) quando disponível,
+        evitando reabrir o arquivo Excel a cada geração.
 
         Args:
             codigo_cliente: Código do cliente (ex: DUDE).
@@ -169,13 +175,15 @@ class GeracaoWorker(QThread):
             Instância de ``excel.reader.Cliente`` ou None.
         """
         try:
-            reader = ExcelReader(Config.caminho_planilha_abs())
-            clientes = reader.ler_clientes()
+            clientes = self._clientes_cache
+            if clientes is None:
+                reader = ExcelReader(Config.caminho_planilha_abs())
+                clientes = reader.ler_clientes()
             codigo_upper = codigo_cliente.strip().upper()
             for c in clientes:
                 if c.codigo.strip().upper() == codigo_upper:
                     self.signals.log.emit(
-                        f"[Composer] Perfil do cliente '{c.nome}' carregado da planilha.",
+                        f"[Composer] Perfil do cliente '{c.nome}' carregado.",
                         "info",
                     )
                     return c
@@ -191,6 +199,122 @@ class GeracaoWorker(QThread):
         return None
 
 
+class FilaAutoWorker(QThread):
+    """Thread que percorre todas as solicitações pendentes em série.
+
+    Para cada solicitação com status 'Planejado' ou 'Pendente', cria e
+    executa um ``GeracaoWorker`` sequencialmente. O navegador é mantido
+    aberto entre solicitações para acelerar o processo.
+
+    Args:
+        solicitacoes: Lista de solicitações a processar em ordem.
+    """
+
+    sinal_avancar = pyqtSignal(int, int)
+    sinal_item_iniciado = pyqtSignal(str)
+    sinal_item_concluido = pyqtSignal(str, list)
+    sinal_item_erro = pyqtSignal(str, str)
+    sinal_login_necessario = pyqtSignal()
+    sinal_fila_concluida = pyqtSignal(int, int)
+
+    STATUS_PENDENTES = {"planejado", "pendente"}
+
+    def __init__(
+        self,
+        solicitacoes: List[Solicitacao],
+        clientes: Optional[List[Cliente]] = None,
+    ) -> None:
+        super().__init__()
+        self._solicitacoes = [
+            s for s in solicitacoes
+            if s.status.lower() in self.STATUS_PENDENTES
+        ]
+        self._clientes = clientes
+        self._cancelado = False
+        self._pausado = False
+        self._handler = None
+        self._worker_atual: Optional[GeracaoWorker] = None
+
+    def cancelar(self) -> None:
+        """Sinaliza cancelamento de toda a fila."""
+        self._cancelado = True
+        if self._worker_atual:
+            self._worker_atual.cancelar()
+
+    def pausar(self, pausado: bool = True) -> None:
+        """Pausa ou retoma o worker atual.
+
+        Args:
+            pausado: True para pausar.
+        """
+        self._pausado = pausado
+        if self._worker_atual:
+            self._worker_atual.pausar(pausado)
+
+    def run(self) -> None:
+        """Processa cada solicitação pendente em série."""
+        total = len(self._solicitacoes)
+        concluidos = 0
+        erros = 0
+
+        for idx, sol in enumerate(self._solicitacoes):
+            if self._cancelado:
+                break
+
+            self.sinal_avancar.emit(idx, total)
+            self.sinal_item_iniciado.emit(sol.protocolo)
+
+            worker = GeracaoWorker(
+                sol,
+                handler_existente=self._handler,
+                clientes=self._clientes,
+            )
+
+            imagens_capturadas: List[str] = []
+            erro_capturado: Optional[str] = None
+            login_bloqueou = False
+
+            def _on_concluido(imgs, _w=worker):
+                imagens_capturadas.extend(imgs)
+
+            def _on_erro(msg):
+                nonlocal erro_capturado
+                erro_capturado = msg
+
+            def _on_login():
+                nonlocal login_bloqueou
+                login_bloqueou = True
+                self._cancelado = True
+
+            worker.signals.concluido.connect(_on_concluido)
+            worker.signals.erro.connect(_on_erro)
+            worker.signals.login_necessario.connect(_on_login)
+            worker.signals.login_necessario.connect(self.sinal_login_necessario)
+
+            self._worker_atual = worker
+            worker.start()
+            worker.wait()
+
+            self._handler = worker.handler
+
+            if login_bloqueou:
+                break
+
+            if self._cancelado:
+                break
+
+            if imagens_capturadas:
+                concluidos += 1
+                self.sinal_item_concluido.emit(sol.protocolo, imagens_capturadas)
+            else:
+                erros += 1
+                msg = erro_capturado or "Nenhuma imagem gerada."
+                self.sinal_item_erro.emit(sol.protocolo, msg)
+
+        self.sinal_avancar.emit(total, total)
+        self.sinal_fila_concluida.emit(concluidos, erros)
+
+
 class MainWindow(QMainWindow):
     """Janela principal do Media Rats - Artgen."""
 
@@ -201,9 +325,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"Media Rats — Artgen v{self.VERSAO}")
         self.setMinimumSize(1024, 768)
         self._worker: Optional[GeracaoWorker] = None
+        self._fila_worker: Optional[FilaAutoWorker] = None
         self._handler = None
         self._solicitacao_atual: Optional[Solicitacao] = None
         self._solicitacoes: List[Solicitacao] = []
+        self._clientes: List[Cliente] = []
 
         self._restaurar_geometria()
         self._build_ui()
@@ -262,6 +388,7 @@ class MainWindow(QMainWindow):
         root_layout.addWidget(self._controles)
 
         self._controles.sinal_iniciar.connect(self._iniciar_geracao)
+        self._controles.sinal_processar_fila.connect(self._processar_fila_completa)
         self._controles.sinal_pausar.connect(self._pausar_geracao)
         self._controles.sinal_cancelar.connect(self._cancelar_geracao)
         self._controles.sinal_recarregar.connect(self._carregar_planilha)
@@ -362,6 +489,7 @@ class MainWindow(QMainWindow):
             writer = ExcelWriter(caminho)
             writer.criar_estrutura_planilha()
 
+            self._clientes = reader.ler_clientes()
             self._solicitacoes = reader.ler_solicitacoes(apenas_pendentes=False)
             self._fila_panel.carregar_solicitacoes(self._solicitacoes)
 
@@ -427,7 +555,9 @@ class MainWindow(QMainWindow):
                     f.unlink()
 
         self._solicitacao_atual = sol
-        self._worker = GeracaoWorker(sol, handler_existente=self._handler)
+        self._worker = GeracaoWorker(
+            sol, handler_existente=self._handler, clientes=self._clientes
+        )
 
         self._worker.signals.log.connect(self._log_panel.adicionar_mensagem)
         self._worker.signals.progresso.connect(self._dashboard.atualizar_progresso)
@@ -443,11 +573,126 @@ class MainWindow(QMainWindow):
         self._worker.start()
 
     @pyqtSlot()
+    def _processar_fila_completa(self) -> None:
+        """Inicia processamento automático de todas as solicitações pendentes."""
+        pendentes = [
+            s for s in self._solicitacoes
+            if s.status.lower() in FilaAutoWorker.STATUS_PENDENTES
+        ]
+        if not pendentes:
+            QMessageBox.information(
+                self,
+                "Fila Vazia",
+                "Não há solicitações com status 'Planejado' ou 'Pendente' na fila.",
+            )
+            return
+
+        if not verificar_internet():
+            QMessageBox.critical(
+                self, "Sem Internet",
+                "Não foi possível detectar conexão com a internet."
+            )
+            return
+
+        resp = QMessageBox.question(
+            self,
+            "Processar Fila Completa",
+            f"Serão processadas {len(pendentes)} solicitação(oes) pendente(s) em sequência.\n"
+            "O navegador será mantido aberto entre as gerações.\n\n"
+            "Deseja continuar?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if resp != QMessageBox.StandardButton.Yes:
+            return
+
+        self._fila_worker = FilaAutoWorker(pendentes, clientes=self._clientes)
+
+        self._fila_worker.sinal_avancar.connect(self._dashboard.atualizar_progresso)
+        self._fila_worker.sinal_item_iniciado.connect(self._on_fila_item_iniciado)
+        self._fila_worker.sinal_item_concluido.connect(self._on_fila_item_concluido)
+        self._fila_worker.sinal_item_erro.connect(self._on_fila_item_erro)
+        self._fila_worker.sinal_login_necessario.connect(self._on_login_necessario)
+        self._fila_worker.sinal_fila_concluida.connect(self._on_fila_concluida)
+        self._fila_worker.finished.connect(self._on_worker_finalizado)
+
+        self._controles.set_estado_gerando()
+        self._atualizar_status(f"Processando fila: 0/{len(pendentes)}...", "gerando")
+        self._fila_worker.start()
+
+    @pyqtSlot(str)
+    def _on_fila_item_iniciado(self, protocolo: str) -> None:
+        """Atualiza UI quando o processamento de um item da fila começa.
+
+        Args:
+            protocolo: Protocolo da solicitação sendo gerada.
+        """
+        self._fila_panel.atualizar_status_linha(protocolo, "Gerando")
+        logger.info(f"[Fila] Iniciando: {protocolo}")
+        self._atualizar_status(f"Gerando: {protocolo}", "gerando")
+
+    @pyqtSlot(str, list)
+    def _on_fila_item_concluido(self, protocolo: str, caminhos: list) -> None:
+        """Registra conclusão de um item da fila na planilha e atualiza a UI.
+
+        Args:
+            protocolo: Protocolo concluído.
+            caminhos: Caminhos das imagens geradas.
+        """
+        self._fila_panel.atualizar_status_linha(protocolo, "Gerado")
+        sol = next((s for s in self._solicitacoes if s.protocolo == protocolo), None)
+        if sol:
+            try:
+                caminhos_rel = [
+                    str(Path(c).relative_to(Config.caminho_output_abs()))
+                    for c in caminhos
+                ]
+                writer = ExcelWriter(Config.caminho_planilha_abs())
+                writer.registrar_conclusao(sol, caminhos_rel)
+                logger.sucesso(f"[Fila] {protocolo} concluído — {len(caminhos)} arte(s).")
+            except Exception as exc:
+                logger.erro(f"[Fila] Erro ao salvar {protocolo}: {exc}")
+
+    @pyqtSlot(str, str)
+    def _on_fila_item_erro(self, protocolo: str, mensagem: str) -> None:
+        """Registra falha de um item da fila.
+
+        Args:
+            protocolo: Protocolo que falhou.
+            mensagem: Descrição do erro.
+        """
+        self._fila_panel.atualizar_status_linha(protocolo, "Erro")
+        logger.erro(f"[Fila] {protocolo} falhou: {mensagem}")
+
+    @pyqtSlot(int, int)
+    def _on_fila_concluida(self, concluidos: int, erros: int) -> None:
+        """Exibe resumo ao final do processamento da fila completa.
+
+        Args:
+            concluidos: Número de solicitações geradas com sucesso.
+            erros: Número de solicitações que falharam.
+        """
+        if self._fila_worker:
+            self._handler = self._fila_worker._handler
+        partes = [f"✅ {concluidos} gerada(s) com sucesso"]
+        if erros:
+            partes.append(f"❌ {erros} com erro")
+        QMessageBox.information(
+            self,
+            "Fila Concluída",
+            "Processamento da fila finalizado!\n\n" + "\n".join(partes),
+        )
+        logger.sucesso(f"[Fila] Processamento concluído: {concluidos} ok, {erros} erro(s).")
+
+    @pyqtSlot()
     def _pausar_geracao(self) -> None:
-        """Pausa ou retoma a geração."""
-        if self._worker and self._worker.isRunning():
-            pausado = not getattr(self._worker, "_pausado", False)
-            self._worker.pausar(pausado)
+        """Pausa ou retoma a geração (individual ou fila)."""
+        worker_ativo = (
+            self._fila_worker if (self._fila_worker and self._fila_worker.isRunning())
+            else self._worker
+        )
+        if worker_ativo and worker_ativo.isRunning():
+            pausado = not getattr(worker_ativo, "_pausado", False)
+            worker_ativo.pausar(pausado)
             if pausado:
                 self._atualizar_status("Pausado", "pausado")
                 logger.aviso("Geração pausada pelo usuário.")
@@ -457,24 +702,32 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def _cancelar_geracao(self) -> None:
-        """Cancela a geração em andamento."""
-        if self._worker and self._worker.isRunning():
-            resp = QMessageBox.question(
-                self,
-                "Cancelar Geração",
-                "Deseja realmente cancelar a geração?\nO navegador será fechado.",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            )
-            if resp == QMessageBox.StandardButton.Yes:
+        """Cancela a geração em andamento (individual ou fila)."""
+        fila_ativa = self._fila_worker and self._fila_worker.isRunning()
+        worker_ativo = self._worker and self._worker.isRunning()
+        if not fila_ativa and not worker_ativo:
+            return
+
+        resp = QMessageBox.question(
+            self,
+            "Cancelar Geração",
+            "Deseja realmente cancelar a geração?\nO navegador será fechado.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if resp == QMessageBox.StandardButton.Yes:
+            if fila_ativa:
+                self._fila_worker.cancelar()
+                logger.aviso("Cancelamento da fila solicitado...")
+            if worker_ativo:
                 self._worker.cancelar()
                 logger.aviso("Cancelamento solicitado...")
-                if self._handler:
-                    self._handler.fechar()
-                    self._handler = None
-                if self._solicitacao_atual:
-                    self._fila_panel.atualizar_status_linha(
-                        self._solicitacao_atual.protocolo, "Cancelado"
-                    )
+            if self._handler:
+                self._handler.fechar()
+                self._handler = None
+            if self._solicitacao_atual:
+                self._fila_panel.atualizar_status_linha(
+                    self._solicitacao_atual.protocolo, "Cancelado"
+                )
 
     @pyqtSlot()
     def _on_worker_finalizado_com_login(self) -> None:
@@ -494,13 +747,12 @@ class MainWindow(QMainWindow):
 
         caminho_planilha = Config.caminho_planilha_abs()
         try:
-            writer = ExcelWriter(caminho_planilha)
-            writer.atualizar_status(sol, "Gerado")
             caminhos_rel = [
                 str(Path(c).relative_to(Config.caminho_output_abs()))
                 for c in caminhos
             ]
-            writer.registrar_avaliacao(sol, caminhos_rel)
+            writer = ExcelWriter(caminho_planilha)
+            writer.registrar_conclusao(sol, caminhos_rel)
             logger.sucesso(f"Planilha atualizada para {sol.protocolo}.")
         except Exception as exc:
             logger.erro(f"Erro ao atualizar planilha: {exc}")
@@ -691,7 +943,11 @@ class MainWindow(QMainWindow):
         Args:
             event: Evento de fechamento.
         """
-        if self._worker and self._worker.isRunning():
+        ativo = (
+            (self._fila_worker and self._fila_worker.isRunning())
+            or (self._worker and self._worker.isRunning())
+        )
+        if ativo:
             resp = QMessageBox.question(
                 self,
                 "Sair",
@@ -701,8 +957,12 @@ class MainWindow(QMainWindow):
             if resp == QMessageBox.StandardButton.No:
                 event.ignore()
                 return
-            self._worker.cancelar()
-            self._worker.wait(3000)
+            if self._fila_worker and self._fila_worker.isRunning():
+                self._fila_worker.cancelar()
+                self._fila_worker.wait(3000)
+            if self._worker and self._worker.isRunning():
+                self._worker.cancelar()
+                self._worker.wait(3000)
 
         if self._handler:
             self._handler.fechar()

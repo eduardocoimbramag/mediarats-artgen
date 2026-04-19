@@ -35,6 +35,7 @@ class ControlesPanel(QWidget):
     """Painel inferior com botões de controle da geração."""
 
     sinal_iniciar = pyqtSignal()
+    sinal_processar_fila = pyqtSignal()
     sinal_pausar = pyqtSignal()
     sinal_cancelar = pyqtSignal()
     sinal_recarregar = pyqtSignal()
@@ -55,6 +56,7 @@ class ControlesPanel(QWidget):
         layout.setSpacing(8)
 
         self._btn_iniciar = _btn("▶  Iniciar Geração", "#004400", "#006600", "#00ff00")
+        self._btn_processar_fila = _btn("▶▶  Processar Fila", "#002a44", "#003a66", "#44aaff")
         self._btn_pausar = _btn("⏸  Pausar", "#F57F17", "#F9A825")
         self._btn_cancelar = _btn("⏹  Cancelar", "#C62828", "#D32F2F")
         self._btn_remover_protocolo = _btn("🗑  Remover Protocolo", "#B71C1C", "#C62828")
@@ -65,6 +67,7 @@ class ControlesPanel(QWidget):
         self._btn_config = _btn("⚙  Configurações", "#181818", "#222222", "#666666")
 
         self._btn_iniciar.clicked.connect(self.sinal_iniciar)
+        self._btn_processar_fila.clicked.connect(self.sinal_processar_fila)
         self._btn_pausar.clicked.connect(self._toggle_pausa)
         self._btn_cancelar.clicked.connect(self.sinal_cancelar)
         self._btn_remover_protocolo.clicked.connect(self.sinal_remover_protocolo)
@@ -75,6 +78,7 @@ class ControlesPanel(QWidget):
         self._btn_config.clicked.connect(self.sinal_configuracoes)
 
         layout.addWidget(self._btn_iniciar)
+        layout.addWidget(self._btn_processar_fila)
         layout.addWidget(self._btn_pausar)
         layout.addWidget(self._btn_cancelar)
         layout.addWidget(self._btn_remover_protocolo)
@@ -105,6 +109,7 @@ class ControlesPanel(QWidget):
     def set_estado_inicial(self) -> None:
         """Configura estado dos botões quando não há geração em andamento."""
         self._btn_iniciar.setEnabled(True)
+        self._btn_processar_fila.setEnabled(True)
         self._btn_pausar.setEnabled(False)
         self._btn_cancelar.setEnabled(False)
         self._pausado = False
@@ -113,6 +118,7 @@ class ControlesPanel(QWidget):
     def set_estado_gerando(self) -> None:
         """Configura estado dos botões durante uma geração ativa."""
         self._btn_iniciar.setEnabled(False)
+        self._btn_processar_fila.setEnabled(False)
         self._btn_pausar.setEnabled(True)
         self._btn_cancelar.setEnabled(True)
         self._pausado = False
@@ -121,5 +127,6 @@ class ControlesPanel(QWidget):
     def set_estado_pausado(self) -> None:
         """Configura estado dos botões quando a geração está pausada."""
         self._btn_iniciar.setEnabled(False)
+        self._btn_processar_fila.setEnabled(False)
         self._btn_pausar.setEnabled(True)
         self._btn_cancelar.setEnabled(True)
